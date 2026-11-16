@@ -1,4 +1,4 @@
-﻿# Coding Standards
+# Coding Standards
 
 ## Naming
 - PascalCase for types, methods, properties, constants. camelCase for locals and parameters. `_camelCase` for private fields. Async methods end with `Async`.
@@ -32,8 +32,15 @@
 - Domain and Application logic coverage target 80 percent. Integration tests for repositories and settle-bill transaction.
 - Each validator and each feature toggle has tests.
 
-## Git
-- Branch per phase/feature: `feature/phase-5-billing`. Conventional commits (feat:, fix:, refactor:, test:, docs:).
+## Git & Development Lifecycle
+- **Branch**: Branch per phase/feature: `feature/phase-1`, `feature/phase-5-billing`.
+- **Workflow**:
+  1. Make changes on the active feature branch.
+  2. Build and launch web app for browser preview.
+  3. Pause for user browser verification and feedback.
+  4. Upon approval, commit locally with conventional commits (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`).
+  5. Prepare/generate PR link for GitHub.
+  6. **Manual Push**: Never auto-push to remote; the user pushes manually.
 - Small commits; build and tests must pass before commit.
 
 ## UI consistency
