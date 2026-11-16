@@ -1,0 +1,180 @@
+@model RestaurantMS.Web.Models.UserListViewModel
+@{
+    ViewData["Title"] = Localizer["Users_Title"].Value;
+}
+
+<partial name="_PageHeader" model='(Localizer["Users_Title"].Value, Localizer["Users_Subtitle"].Value, Localizer["Users_CreateNew"].Value, Url.Action("Create", "Users"), Permissions.Users.Create, "bi-plus-lg")' />
+
+<!-- Search Bar -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body p-3">
+        <form method="get" asp-action="Index" class="row g-2 align-items-center">
+            <div class="col-md-9 col-sm-8">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white text-muted"><i class="bi bi-search"></i></span>
+                    <input type="text" name="search" value="@Model.SearchTerm" class="form-control" placeholder="@Localizer["Users_SearchPlaceholder"]" />
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm flex-fill">@Localizer["Btn_Search"]</button>
+                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                {
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">@Localizer["Btn_Reset"]</a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">@Localizer["Users_Col_UserId"]</th>
+                    <th>@Localizer["Users_Col_Name"]</th>
+                    <th>@Localizer["Users_Col_Role"]</th>
+                    <th>@Localizer["Users_Col_Contact"]</th>
+                    <th>@Localizer["Users_Col_Status"]</th>
+                    <th class="text-end pe-3" permission="@Permissions.Users.Edit">@Localizer["Users_Col_Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Users.Items.Count == 0)
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            <i class="bi bi-people fs-2 d-block mb-1 text-secondary"></i>
+                            @Localizer["Users_Empty"]
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var user in Model.Users.Items)
+                    {
+                        <tr>
+                            <td class="ps-3 fw-bold text-dark">
+                                <span class="badge bg-light text-dark border font-monospace">@user.UserId</span>
+                            </td>
+                            <td>
+                                <div class="fw-semibold">@user.FullName</div>
+                                @if (user.MustChangePassword)
+                                {
+                                    <span class="badge bg-warning-subtle text-warning small">Password change required</span>
+                                }
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-subtle text-primary">@user.RoleName</span>
+                            </td>
+                            <td class="small text-muted">
+                                @if (!string.IsNullOrEmpty(user.PhoneNumber))
+                                {
+                                    <div><i class="bi bi-telephone me-1"></i> @user.PhoneNumber</div>
+                                }
+                                @if (!string.IsNullOrEmpty(user.Email))
+                                {
+                                    <div><i class="bi bi-envelope me-1"></i> @user.Email</div>
+                                }
+                            </td>
+                            <td>
+                                @if (user.IsActive)
+                                {
+                                    <span class="badge bg-success-subtle text-success">@Localizer["Users_Status_Active"]</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger-subtle text-danger">@Localizer["Users_Status_Inactive"]</span>
+                                }
+                            </td>
+                            <td class="text-end pe-3" permission="@Permissions.Users.Edit">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-outline-secondary" title="@Localizer["Btn_Edit"]">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#resetPasswordModal-@user.Id" title="@Localizer["Btn_ResetPassword"]">
+                                        <i class="bi bi-key"></i>
+                                    </button>
+
+                                    @if (!user.UserId.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <form asp-action="ToggleStatus" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="id" value="@user.Id" />
+                                            <input type="hidden" name="isActive" value="@(!user.IsActive)" />
+                                            @if (user.IsActive)
+                                            {
+                                                <button type="submit" class="btn btn-outline-danger" title="@Localizer["Btn_Deactivate"]" onclick="return confirm('Are you sure you want to deactivate user @user.UserId?');">
+                                                    <i class="bi bi-person-x"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <button type="submit" class="btn btn-outline-success" title="@Localizer["Btn_Activate"]">
+                                                    <i class="bi bi-person-check"></i>
+                                                </button>
+                                            }
+                                        </form>
+                                    }
+                                </div>
+
+                                <!-- Reset Password Modal for this user -->
+                                <div class="modal fade" id="resetPasswordModal-@user.Id" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content border-0 shadow">
+                                            <div class="modal-header bg-light">
+                                                <h5 class="modal-title fw-bold">@Localizer["Btn_ResetPassword"] - @user.FullName</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form asp-action="ResetPassword" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <div class="modal-body text-start py-3">
+                                                    <input type="hidden" name="Id" value="@user.Id" />
+                                                    <input type="hidden" name="UserId" value="@user.UserId" />
+                                                    <input type="hidden" name="FullName" value="@user.FullName" />
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold small">New Temporary Password</label>
+                                                        <input type="password" name="NewPassword" class="form-control" placeholder="Min 8 chars with upper, lower, digit" required />
+                                                        <div class="form-text small">User will be prompted to change password on next login.</div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer bg-light">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">@Localizer["Btn_Cancel"]</button>
+                                                    <button type="submit" class="btn btn-primary btn-sm">@Localizer["Btn_Save"]</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Paging -->
+    @if (Model.Users.TotalPages > 1)
+    {
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center py-2">
+            <span class="small text-muted">Showing page @Model.Users.PageNumber of @Model.Users.TotalPages (@Model.Users.TotalCount total users)</span>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(!Model.Users.HasPreviousPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.Users.PageNumber - 1)" asp-route-search="@Model.SearchTerm">&laquo;</a>
+                </li>
+                @for (var p = 1; p <= Model.Users.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.Users.PageNumber ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-search="@Model.SearchTerm">@p</a>
+                    </li>
+                }
+                <li class="page-item @(!Model.Users.HasNextPage ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(Model.Users.PageNumber + 1)" asp-route-search="@Model.SearchTerm">&raquo;</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>

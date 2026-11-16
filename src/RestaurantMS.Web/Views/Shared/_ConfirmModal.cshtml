@@ -1,0 +1,20 @@
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="confirmModalLabel">@Localizer["Btn_Confirm"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-4">
+                <p id="confirmModalBody" class="mb-0 text-muted">Are you sure you want to proceed?</p>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">@Localizer["Btn_Cancel"]</button>
+                <form id="confirmModalForm" method="post" action="">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" id="confirmModalSubmitBtn" class="btn btn-danger btn-sm">@Localizer["Btn_Confirm"]</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

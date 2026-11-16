@@ -1,0 +1,20 @@
+@model IReadOnlyList<RestaurantMS.Web.Models.NavItem>
+
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+
+<ul class="nav nav-pills flex-column mb-auto">
+    @foreach (var item in Model)
+    {
+        var isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase);
+        <li class="nav-item mb-1">
+            <a asp-controller="@item.Controller" asp-action="@item.Action"
+               class="nav-link d-flex align-items-center @(isActive ? "active text-white" : "text-dark") rounded-3 px-3 py-2">
+                <i class="bi @item.Icon me-2 fs-5"></i>
+                <span class="fw-medium">@Localizer[item.TitleKey]</span>
+            </a>
+        </li>
+    }
+</ul>

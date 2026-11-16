@@ -1,0 +1,56 @@
+@model RestaurantMS.Web.Models.RoleListViewModel
+@{
+    ViewData["Title"] = Localizer["Roles_Title"].Value;
+}
+
+<partial name="_PageHeader" model='(Localizer["Roles_Title"].Value, Localizer["Roles_Subtitle"].Value, Localizer["Roles_CreateNew"].Value, Url.Action("Create", "Roles"), Permissions.Roles.Create, "bi-plus-lg")' />
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-3">@Localizer["Roles_Col_Name"]</th>
+                    <th>@Localizer["Roles_Col_Desc"]</th>
+                    <th class="text-center">@Localizer["Roles_Col_Users"]</th>
+                    <th class="text-center">@Localizer["Roles_Col_Permissions"]</th>
+                    <th class="text-end pe-3">@Localizer["Roles_Col_Actions"]</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in Model.Roles)
+                {
+                    <tr>
+                        <td class="ps-3 fw-bold text-dark">
+                            @role.Name
+                            @if (role.IsSystemRole)
+                            {
+                                <span class="badge bg-secondary-subtle text-secondary small ms-1">@Localizer["Roles_SystemBadge"]</span>
+                            }
+                        </td>
+                        <td class="text-muted small">@role.Description</td>
+                        <td class="text-center">
+                            <span class="badge bg-light text-dark border">@role.UserCount users</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-info-subtle text-info">@role.PermissionCount granted</span>
+                        </td>
+                        <td class="text-end pe-3">
+                            <div class="btn-group btn-group-sm">
+                                <a asp-action="Matrix" asp-route-id="@role.Id" class="btn btn-outline-primary" title="Edit Permissions Matrix">
+                                    <i class="bi bi-grid-3x3-gap-fill me-1"></i> Permissions
+                                </a>
+                                @if (!role.IsSystemRole)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-outline-secondary" title="@Localizer["Btn_Edit"]">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

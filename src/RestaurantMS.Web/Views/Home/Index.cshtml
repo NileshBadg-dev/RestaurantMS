@@ -1,8 +1,84 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = Localizer["Nav_Dashboard"].Value;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h2 class="h4 fw-bold text-dark mb-1">@Localizer["Nav_Dashboard"]</h2>
+        <p class="text-muted small mb-0">Phase 1: Authentication, Roles, Permissions, Hotel Settings &amp; Feature Toggles</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6 col-lg-3" permission="@Permissions.Users.View">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-primary-subtle text-primary p-3 rounded-3">
+                        <i class="bi bi-people fs-4"></i>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary small">Phase 1</span>
+                </div>
+                <h5 class="fw-bold mb-1">@Localizer["Nav_Users"]</h5>
+                <p class="text-muted small mb-3">Manage user accounts, credentials, and roles.</p>
+                <a asp-controller="Users" asp-action="Index" class="btn btn-outline-primary btn-sm w-100">
+                    Manage Users <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3" permission="@Permissions.Roles.View">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-info-subtle text-info p-3 rounded-3">
+                        <i class="bi bi-shield-lock fs-4"></i>
+                    </div>
+                    <span class="badge bg-info-subtle text-info small">Phase 1</span>
+                </div>
+                <h5 class="fw-bold mb-1">@Localizer["Nav_Roles"]</h5>
+                <p class="text-muted small mb-3">Screen-level permission matrix and role configuration.</p>
+                <a asp-controller="Roles" asp-action="Index" class="btn btn-outline-info btn-sm w-100">
+                    Manage Roles <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3" permission="@Permissions.Settings.View">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-success-subtle text-success p-3 rounded-3">
+                        <i class="bi bi-gear fs-4"></i>
+                    </div>
+                    <span class="badge bg-success-subtle text-success small">Phase 1</span>
+                </div>
+                <h5 class="fw-bold mb-1">@Localizer["Nav_Settings"]</h5>
+                <p class="text-muted small mb-3">Hotel branding, GSTIN, FSSAI and receipt templates.</p>
+                <a asp-controller="Settings" asp-action="Index" class="btn btn-outline-success btn-sm w-100">
+                    Hotel Settings <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-3" permission="@Permissions.FeatureToggles.View">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="bg-warning-subtle text-warning p-3 rounded-3">
+                        <i class="bi bi-toggle-on fs-4"></i>
+                    </div>
+                    <span class="badge bg-warning-subtle text-warning small">Phase 1</span>
+                </div>
+                <h5 class="fw-bold mb-1">@Localizer["Nav_FeatureToggles"]</h5>
+                <p class="text-muted small mb-3">Enable or disable operational modules dynamically.</p>
+                <a asp-controller="FeatureToggles" asp-action="Index" class="btn btn-outline-warning btn-sm w-100">
+                    Feature Toggles <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+    </div>
 </div>

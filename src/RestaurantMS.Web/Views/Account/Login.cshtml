@@ -1,0 +1,119 @@
+@model RestaurantMS.Web.Models.LoginViewModel
+@using Microsoft.AspNetCore.Localization
+@{
+    ViewData["Title"] = Localizer["Login_Title"].Value;
+    Layout = "_Layout";
+
+    var cultureFeature = Context.Features.Get<IRequestCultureFeature>();
+    var currentCulture = cultureFeature?.RequestCulture.Culture.Name ?? "en-US";
+    var isMarathi = currentCulture.StartsWith("mr", StringComparison.OrdinalIgnoreCase);
+}
+
+<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
+    <div class="card shadow border-0" style="max-width: 440px; width: 100%;">
+        <div class="card-body p-4 p-sm-5">
+            <!-- Language toggle in top-right of login box -->
+            <div class="d-flex justify-content-end mb-3">
+                <form asp-controller="Language" asp-action="SetLanguage" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                    @if (isMarathi)
+                    {
+                        <input type="hidden" name="culture" value="en-US" />
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-translate me-1"></i> English
+                        </button>
+                    }
+                    else
+                    {
+                        <input type="hidden" name="culture" value="mr-IN" />
+                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-translate me-1"></i> मराठी
+                        </button>
+                    }
+                </form>
+            </div>
+
+            <!-- Hotel Branding -->
+            <div class="text-center mb-4">
+                @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                {
+                    <img src="@Model.LogoUrl" alt="@Model.HotelName" class="mb-3" style="max-height: 60px; max-width: 160px; object-fit: contain;" onerror="this.style.display='none'" />
+                }
+                <h1 class="h4 fw-bold text-dark mb-1">@Model.HotelName</h1>
+                <p class="text-muted small">@Localizer["Login_Subtitle"]</p>
+            </div>
+
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+            {
+                <div class="alert alert-danger py-2 px-3 small" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    @ViewData.ModelState[string.Empty]!.Errors[0].ErrorMessage
+                </div>
+            }
+
+            <form asp-action="Login" method="post" novalidate id="loginForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <!-- User ID -->
+                <div class="mb-3">
+                    <label asp-for="UserId" class="form-label fw-semibold small text-secondary">@Localizer["Login_UserId"]</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                        <input asp-for="UserId" class="form-control border-start-0" placeholder="admin" autofocus />
+                    </div>
+                    <span asp-validation-for="UserId" class="text-danger small"></span>
+                </div>
+
+                <!-- Password with Show/Hide toggle -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <label asp-for="Password" class="form-label fw-semibold small text-secondary mb-0">@Localizer["Login_Password"]</label>
+                        <a asp-action="ForgotPassword" class="text-decoration-none small text-primary">@Localizer["Login_ForgotPassword"]</a>
+                    </div>
+                    <div class="input-group mt-1">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                        <input asp-for="Password" class="form-control border-start-0 border-end-0" id="loginPasswordInput" type="password" />
+                        <button type="button" class="btn btn-outline-secondary border-start-0" id="togglePasswordBtn" title="@Localizer["Login_ShowPassword"]">
+                            <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+
+                <!-- Remember Me -->
+                <div class="form-check mb-4">
+                    <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="rememberMeCheck" />
+                    <label class="form-check-label small text-muted" for="rememberMeCheck">
+                        @Localizer["Login_RememberMe"]
+                    </label>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-box-arrow-in-right me-1"></i> @Localizer["Login_Submit"]
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('togglePasswordBtn').addEventListener('click', function () {
+            var pwdInput = document.getElementById('loginPasswordInput');
+            var icon = document.getElementById('togglePasswordIcon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                icon.classList.remove('bi-eye');
+                icon.classList.add('bi-eye-slash');
+            } else {
+                pwdInput.type = 'password';
+                icon.classList.remove('bi-eye-slash');
+                icon.classList.add('bi-eye');
+            }
+        });
+    </script>
+}
