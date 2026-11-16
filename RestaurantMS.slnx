@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RestaurantMS.Api/RestaurantMS.Api.csproj" />
+    <Project Path="src/RestaurantMS.Application/RestaurantMS.Application.csproj" />
+    <Project Path="src/RestaurantMS.Domain/RestaurantMS.Domain.csproj" />
+    <Project Path="src/RestaurantMS.Infrastructure/RestaurantMS.Infrastructure.csproj" />
+    <Project Path="src/RestaurantMS.SharedKernel/RestaurantMS.SharedKernel.csproj" />
+    <Project Path="src/RestaurantMS.Web/RestaurantMS.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RestaurantMS.Application.Tests/RestaurantMS.Application.Tests.csproj" />
+    <Project Path="tests/RestaurantMS.Domain.Tests/RestaurantMS.Domain.Tests.csproj" />
+    <Project Path="tests/RestaurantMS.Integration.Tests/RestaurantMS.Integration.Tests.csproj" />
+  </Folder>
+</Solution>

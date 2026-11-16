@@ -1,0 +1,28 @@
+﻿name: CI Build & Test
+
+on:
+  push:
+    branches: [ main, master, feature/** ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore RestaurantMS.sln
+
+    - name: Build
+      run: dotnet build RestaurantMS.sln --no-restore --configuration Release
+
+    - name: Test
+      run: dotnet test RestaurantMS.sln --no-build --configuration Release --verbosity normal
