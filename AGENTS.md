@@ -1,4 +1,4 @@
-﻿# Agent Instructions
+# Agent Instructions
 
 ## Basic rules (always)
 1. Read README.md, CODING_STANDARDS.md and docs/ARCHITECTURE.md before writing code.
@@ -11,6 +11,13 @@
 8. Every command has a FluentValidation validator. Every new feature has unit tests.
 9. Money uses decimal and the Money value object, never double or float.
 10. Never commit secrets. Never run destructive database commands without being asked.
+
+## Development & Verification Workflow
+1. **Do the changes**: Implement the code, tests, and documentation adhering to Clean Architecture.
+2. **Build and run in browser**: Compile the solution, ensure tests pass with zero warnings, and run the web application outside sandbox so it is accessible in the browser.
+3. **User verification checkpoint**: Present the application URL/status to the user and wait for the user to manually verify in the browser. Do not commit before user verification.
+4. **Commit and prepare PR**: Once verified and approved by the user, stage and commit changes locally on the feature branch. Provide the PR details / GitHub PR creation URL.
+5. **Manual push by user**: NEVER automatically push commits to remote. The user will push manually (`git push`).
 
 ## Definition of done
 - Solution builds with zero warnings; all tests pass.
