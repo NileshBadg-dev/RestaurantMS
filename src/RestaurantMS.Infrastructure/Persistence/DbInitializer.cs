@@ -168,7 +168,7 @@ public static class DbInitializer
             ("Address", "123 Main Street, Pune, MH, India", SettingDataType.String, "Profile"),
             ("ContactNumber", "9876543210", SettingDataType.String, "Profile"),
             ("Email", "info@grandrestaurant.com", SettingDataType.String, "Profile"),
-            ("Gstin", "27AAAAA0000A1Z5", SettingDataType.String, "Billing"),
+            ("Gstin", "27AAAAA0000A1Z2", SettingDataType.String, "Billing"),
             ("Fssai", "12345678901234", SettingDataType.String, "Billing"),
             ("Currency", "INR", SettingDataType.String, "Billing"),
             ("Timezone", "Asia/Kolkata", SettingDataType.String, "General"),
