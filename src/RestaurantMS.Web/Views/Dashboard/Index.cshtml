@@ -1,0 +1,341 @@
+@model RestaurantMS.Web.Models.DashboardViewModel
+@{
+    ViewData["Title"] = Localizer["Dashboard_Title"].Value;
+}
+
+<div class="dashboard-page d-flex flex-column gap-4">
+    <!-- Header with Quick Action Buttons -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div>
+            <h2 class="h4 fw-bold text-ink mb-1">@Localizer["Dashboard_Title"]</h2>
+            <div class="text-muted small">@DateTime.UtcNow.ToString("dddd, dd MMMM yyyy") &bull; Real-time Operations Summary</div>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Parcel" asp-action="Create" class="btn btn-outline-plum px-3 py-2 fw-semibold">
+                <i class="bi bi-box-seam me-1"></i> New Parcel <span class="badge bg-plum text-white ms-1">F4</span>
+            </a>
+            <a asp-controller="Orders" asp-action="New" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
+                <i class="bi bi-plus-circle me-1"></i> New Dine-in Order <span class="badge bg-saffron text-dark ms-1">F2</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- 5 KPI Cards Row -->
+    <div class="row g-3">
+        <!-- Today's Sales -->
+        <div class="col-12 col-sm-6 col-lg">
+            <partial name="_KpiCard" model='new KpiCardModel(
+                Localizer["Dashboard_Kpi_TodaySales"].Value,
+                "₹" + Model.Kpis.TodaySales.ToString("N0"),
+                "+" + Model.Kpis.YesterdayComparisonPercent.ToString("N0") + "% vs yesterday",
+                "teal",
+                "bi-currency-rupee")' />
+        </div>
+
+        <!-- Orders Done -->
+        <div class="col-12 col-sm-6 col-lg">
+            <partial name="_KpiCard" model='new KpiCardModel(
+                Localizer["Dashboard_Kpi_OrdersDone"].Value,
+                Model.Kpis.OrdersDone.ToString(),
+                Model.Kpis.DineInOrdersDone + " dine-in · " + Model.Kpis.ParcelsDone + " parcel",
+                "plum",
+                "bi-receipt")' />
+        </div>
+
+        <!-- Parcels Done -->
+        <div class="col-12 col-sm-6 col-lg">
+            <partial name="_KpiCard" model='new KpiCardModel(
+                Localizer["Dashboard_Kpi_ParcelsDone"].Value,
+                Model.Kpis.ParcelsDone.ToString(),
+                Model.Kpis.PendingParcelPickups + " pending pickup",
+                "saffron",
+                "bi-bag-check")' />
+        </div>
+
+        <!-- Active Tables -->
+        <div class="col-12 col-sm-6 col-lg">
+            <partial name="_KpiCard" model='new KpiCardModel(
+                Localizer["Dashboard_Kpi_ActiveTables"].Value,
+                Model.Kpis.ActiveTables + " / " + Model.Kpis.TotalTables,
+                Math.Round((double)Model.Kpis.ActiveTables / Math.Max(1, Model.Kpis.TotalTables) * 100) + "% occupancy",
+                "chili",
+                "bi-grid-3x3-gap")' />
+        </div>
+
+        <!-- Avg Table Time -->
+        <div class="col-12 col-sm-6 col-lg">
+            <partial name="_KpiCard" model='new KpiCardModel(
+                Localizer["Dashboard_Kpi_AvgTableTime"].Value,
+                Model.Kpis.AvgTableMinutes + " min",
+                "Longest: " + Model.Kpis.LongestTableInfo,
+                "ink",
+                "bi-stopwatch")' />
+        </div>
+    </div>
+
+    <!-- Charts & Analytics Row -->
+    <div class="row g-3">
+        <!-- Sales by Hour Stacked Bar Chart -->
+        <div class="col-12 col-lg-8">
+            @{
+                var hourlyChartModel = new ChartModel
+                {
+                    ChartId = "hourlySalesChart",
+                    Type = "stackedBar",
+                    Title = Localizer["Dashboard_Chart_SalesByHour"].Value,
+                    HeightPx = 280,
+                    Labels = Model.HourlySales.Select(h => h.HourLabel).ToList(),
+                    Datasets = new List<ChartDatasetModel>
+                    {
+                        new ChartDatasetModel
+                        {
+                            Label = "Dine-in (₹)",
+                            Data = Model.HourlySales.Select(h => h.DineInAmount).ToList(),
+                            BackgroundColor = "#3D1F6D",
+                            BorderColor = "#3D1F6D",
+                            Stack = "Sales"
+                        },
+                        new ChartDatasetModel
+                        {
+                            Label = "Parcel (₹)",
+                            Data = Model.HourlySales.Select(h => h.ParcelAmount).ToList(),
+                            BackgroundColor = "#FF9F1C",
+                            BorderColor = "#FF9F1C",
+                            Stack = "Sales"
+                        }
+                    }
+                };
+            }
+            <partial name="_Chart" model="hourlyChartModel" />
+        </div>
+
+        <!-- Top Selling Items Card -->
+        <div class="col-12 col-lg-4">
+            <div class="card p-3 border-0 shadow-sm rounded-3 bg-white h-100">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-ink mb-0">@Localizer["Dashboard_TopSellingToday"]</h6>
+                    <span class="badge bg-plum-subtle text-plum">Top 5</span>
+                </div>
+                <div class="list-group list-group-flush flex-grow-1">
+                    @foreach (var item in Model.TopSellingItems)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-bottom">
+                            <div>
+                                <div class="fw-semibold text-ink">@item.ItemName</div>
+                                <small class="text-muted">@item.QuantitySold orders</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge" style="background-color: @item.ColorHex; color: #fff;">@item.QuantitySold qty</span>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Secondary Analytics Row: 7-Day Trend + Table Time Stats + Dine-in vs Parcel -->
+    <div class="row g-3">
+        <!-- 7-Day Trend Line Chart -->
+        <div class="col-12 col-lg-6">
+            @{
+                var trendChartModel = new ChartModel
+                {
+                    ChartId = "trendSalesChart",
+                    Type = "line",
+                    Title = Localizer["Dashboard_Chart_7DaySales"].Value,
+                    HeightPx = 220,
+                    Labels = Model.SalesTrend.Select(t => t.DayLabel).ToList(),
+                    Datasets = new List<ChartDatasetModel>
+                    {
+                        new ChartDatasetModel
+                        {
+                            Label = "Daily Revenue (₹)",
+                            Data = Model.SalesTrend.Select(t => t.TotalAmount).ToList(),
+                            BackgroundColor = "rgba(11, 122, 112, 0.15)",
+                            BorderColor = "#0B7A70",
+                            BorderWidth = 2,
+                            Fill = true
+                        }
+                    }
+                };
+            }
+            <partial name="_Chart" model="trendChartModel" />
+        </div>
+
+        <!-- Table Time Spent Card -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card p-3 border-0 shadow-sm rounded-3 bg-white h-100">
+                <h6 class="fw-bold text-ink mb-3"><i class="bi bi-clock-history me-1 text-plum"></i> Table Turnover</h6>
+                <div class="d-flex flex-column gap-2">
+                    <div class="p-2 rounded bg-cream d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Average Duration</span>
+                        <span class="fw-bold text-ink">@Model.TableTimeStats.AverageMinutes min</span>
+                    </div>
+                    <div class="p-2 rounded bg-light d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Shortest Visit</span>
+                        <span class="fw-semibold text-teal">@Model.TableTimeStats.ShortestMinutes min</span>
+                    </div>
+                    <div class="p-2 rounded bg-light d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Longest Stay</span>
+                        <span class="fw-semibold text-chili">@Model.TableTimeStats.LongestMinutes min</span>
+                    </div>
+                    <div class="mt-2 pt-2 border-top">
+                        <div class="small fw-semibold text-muted mb-1">By Section:</div>
+                        @foreach (var sec in Model.TableTimeStats.SectionAverages)
+                        {
+                            <div class="d-flex justify-content-between small py-1">
+                                <span>@sec.Key</span>
+                                <span class="fw-semibold">@sec.Value min</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dine-in vs Parcel Split Card -->
+        <div class="col-12 col-md-6 col-lg-3">
+            <div class="card p-3 border-0 shadow-sm rounded-3 bg-white h-100">
+                <h6 class="fw-bold text-ink mb-3"><i class="bi bi-pie-chart me-1 text-saffron"></i> Channel Split</h6>
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span class="fw-semibold text-plum">Dine-in</span>
+                        <span class="fw-bold">@Model.DineInVsParcel.DineInPercentage%</span>
+                    </div>
+                    <div class="progress" style="height: 10px;">
+                        <div class="progress-bar bg-plum" role="progressbar" style="width: @(Model.DineInVsParcel.DineInPercentage)%"></div>
+                        <div class="progress-bar bg-saffron" role="progressbar" style="width: @(Model.DineInVsParcel.ParcelPercentage)%"></div>
+                    </div>
+                    <div class="d-flex justify-content-between small mt-1">
+                        <span class="fw-semibold text-saffron">Parcel</span>
+                        <span class="fw-bold">@Model.DineInVsParcel.ParcelPercentage%</span>
+                    </div>
+                </div>
+
+                <div class="p-2 rounded bg-cream mt-auto">
+                    <div class="d-flex justify-content-between small py-1">
+                        <span class="text-muted">Avg Dine-in Bill:</span>
+                        <span class="fw-bold text-plum font-monospace">₹@Model.DineInVsParcel.DineInAverageBill.ToString("N0")</span>
+                    </div>
+                    <div class="d-flex justify-content-between small py-1">
+                        <span class="text-muted">Avg Parcel Bill:</span>
+                        <span class="fw-bold text-saffron font-monospace">₹@Model.DineInVsParcel.ParcelAverageBill.ToString("N0")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Tables Table Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <h6 class="fw-bold text-ink mb-0">Active Tables on Floor</h6>
+                <span class="badge bg-teal text-white">@Model.ActiveTables.Count Occupied</span>
+            </div>
+            <a asp-controller="Tables" asp-action="Index" class="btn btn-sm btn-outline-plum">
+                View Floor Plan <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="text-start">Table</th>
+                        <th class="text-start">Section</th>
+                        <th class="text-start">Waiter</th>
+                        <th class="text-center">Guests</th>
+                        <th class="text-center">Seated At</th>
+                        <th class="text-center">Time Spent</th>
+                        <th class="text-end">Running Bill</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var table in Model.ActiveTables)
+                    {
+                        <tr>
+                            <td class="text-start fw-bold text-plum">@table.TableCode</td>
+                            <td class="text-start">@table.SectionName</td>
+                            <td class="text-start">@table.WaiterName</td>
+                            <td class="text-center"><i class="bi bi-person me-1"></i>@table.GuestsCount</td>
+                            <td class="text-center small text-muted">@table.SeatedAtTime</td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-stopwatch me-1"></i>@table.TimeSpent
+                                </span>
+                            </td>
+                            <td class="text-end fw-bold font-monospace text-ink">₹@table.RunningBill.ToString("N2")</td>
+                            <td class="text-center">
+                                <partial name="_StatusChip" model="table.Status" />
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Billing" asp-action="Index" asp-route-table="@table.TableCode" class="btn btn-sm btn-outline-teal px-2 py-1">
+                                    <i class="bi bi-receipt me-1"></i> Bill
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Completed Orders Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center gap-2">
+                <h6 class="fw-bold text-ink mb-0">Orders &amp; Parcels Settled Today</h6>
+                <span class="badge bg-light text-muted border">@Model.RecentOrders.Count Entries</span>
+            </div>
+            <a asp-controller="Billing" asp-action="Index" class="btn btn-sm btn-outline-plum">
+                All Settled Bills <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="text-start">Bill #</th>
+                        <th class="text-center">Time</th>
+                        <th class="text-center">Type</th>
+                        <th class="text-start">Table / Customer</th>
+                        <th class="text-start">Items Summary</th>
+                        <th class="text-end">Amount</th>
+                        <th class="text-center">Payment Mode</th>
+                        <th class="text-center">Receipt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.RecentOrders)
+                    {
+                        <tr>
+                            <td class="text-start fw-bold font-monospace text-plum">@order.BillNo</td>
+                            <td class="text-center small text-muted">@order.Time</td>
+                            <td class="text-center">
+                                <span class="badge @(order.OrderType == "Dine-in" ? "bg-plum" : "bg-saffron text-dark")">@order.OrderType</span>
+                            </td>
+                            <td class="text-start">@order.TableOrCustomer</td>
+                            <td class="text-start small text-muted text-truncate" style="max-width: 250px;">@order.ItemsSummary</td>
+                            <td class="text-end fw-bold font-monospace text-ink">₹@order.Amount.ToString("N2")</td>
+                            <td class="text-center">
+                                <span class="badge @(order.PaymentMode == "Cash" ? "bg-teal-subtle text-teal" : order.PaymentMode == "UPI" ? "bg-plum-subtle text-plum" : "bg-warning-subtle text-dark")">
+                                    @order.PaymentMode
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-link text-plum p-0" onclick="alert('Printing receipt for ' + '@order.BillNo')">
+                                    <i class="bi bi-printer fs-5"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

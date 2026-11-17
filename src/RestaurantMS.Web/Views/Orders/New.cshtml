@@ -1,0 +1,444 @@
+@model RestaurantMS.Web.Models.OrderTakingViewModel
+@{
+    ViewData["Title"] = Localizer["Orders_New_Title"].Value;
+}
+
+<div class="order-taking-page row g-3">
+    <!-- Left: Menu Item Catalog Browser -->
+    <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100 d-flex flex-column">
+            
+            <!-- Quick Short Code Fast Entry Bar -->
+            <div class="p-2 mb-3 rounded-3" style="background: #FFF8EC; border: 1.5px dashed #FF9F1C;">
+                <div class="row g-2 align-items-center">
+                    <div class="col-auto">
+                        <span class="badge bg-plum text-white px-2 py-2">
+                            <i class="bi bi-keyboard me-1"></i> Item Code
+                        </span>
+                    </div>
+                    <div class="col">
+                        <input type="text" id="shortCodeInput" class="form-control form-control-sm font-monospace fw-bold text-uppercase" 
+                               placeholder="Type short code (e.g. 101, 102, 105) &amp; press Enter..." 
+                               autocomplete="off" 
+                               onkeydown="if(event.key === 'Enter'){ event.preventDefault(); addByShortCode(); }" />
+                    </div>
+                    <div class="col-auto">
+                        <input type="number" id="shortCodeQty" class="form-control form-control-sm text-center font-monospace fw-bold" 
+                               style="width: 55px;" value="1" min="1" max="50" title="Quantity" />
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-sm btn-plum px-3 fw-bold shadow-sm" onclick="addByShortCode()">
+                            <i class="bi bi-plus-lg me-1"></i> Add (Enter)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search & Filter Bar -->
+            <div class="d-flex gap-2 mb-3">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="menuSearchInput" class="form-control border-start-0" placeholder="Search menu item by name, marathi name, or code..." onkeyup="filterMenuCards()" />
+                </div>
+            </div>
+
+            <!-- Category Tabs -->
+            <div class="d-flex gap-2 mb-3 overflow-x-auto pb-1" id="categoryTabContainer">
+                <button type="button" class="btn btn-sm btn-plum rounded-pill px-3 active" onclick="filterCategory(this, 'All')">All</button>
+                @foreach (var cat in Model.Categories)
+                {
+                    <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 text-nowrap" onclick="filterCategory(this, '@cat.Name')">
+                        <i class="bi bi-tag me-1"></i> @cat.Name
+                    </button>
+                }
+            </div>
+
+            <!-- Item Cards Grid with Images & Veg/Non-Veg/Egg Dots -->
+            <div class="row g-2 overflow-y-auto flex-grow-1" style="max-height: 520px;" id="menuCardsGrid">
+                @foreach (var item in Model.AvailableMenuItems)
+                {
+                    <div class="col-6 col-sm-4 menu-item-col" data-name="@item.Name.ToLowerInvariant()" data-code="@item.ShortCode.ToLowerInvariant()" data-category="@item.Category">
+                        <div class="card p-2 border rounded-3 bg-cream h-100 d-flex flex-column justify-content-between position-relative item-card-interactive" 
+                             style="cursor: pointer; transition: all 0.2s ease;" 
+                             onclick="addItemToTicket('@item.Id', '@item.ShortCode', '@item.Name', @item.Price, '@item.FoodType')">
+                            
+                            <!-- Top: Food Type Dot & Short Code Badge -->
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center gap-1">
+                                    <span class="food-type-icon @item.FoodType.ToLowerInvariant()" title="@item.FoodType"></span>
+                                    <span class="badge bg-white text-plum border font-monospace px-1 py-0" style="font-size: 0.65rem;">#@item.ShortCode</span>
+                                </div>
+                                <span class="fw-bold font-monospace text-plum small">₹@item.Price.ToString("N0")</span>
+                            </div>
+
+                            <!-- Middle: Dish Image & Names -->
+                            <div class="d-flex gap-2 align-items-center my-1">
+                                <img src="@item.ImageUrl" alt="@item.Name" class="rounded-2 shadow-sm flex-shrink-0" 
+                                     style="width: 52px; height: 52px; object-fit: cover;" 
+                                     onerror="this.src='https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=150&q=80'" />
+                                <div class="overflow-hidden">
+                                    <div class="fw-semibold text-ink small lh-sm text-truncate" title="@item.Name">@item.Name</div>
+                                    <div class="text-muted small text-truncate" style="font-size: 0.72rem;">@item.MarathiName</div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom: Category & Add Action -->
+                            <div class="d-flex justify-content-between align-items-center mt-1 pt-1 border-top border-light">
+                                <span class="badge bg-light text-muted" style="font-size: 0.65rem;">@item.Category</span>
+                                <button type="button" class="btn btn-sm btn-plum py-0 px-2 rounded-pill shadow-sm" style="font-size: 0.75rem;">
+                                    <i class="bi bi-plus-lg"></i> Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Right: Current Order Ticket -->
+    <div class="col-12 col-lg-5">
+        <form asp-action="SendKot" method="post" id="orderTicketForm" class="h-100">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="tableId" id="hiddenTableId" value="@Model.TableId" />
+
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <!-- Order Header: Table Selection Dropdown & Guests -->
+                    <div class="d-flex flex-wrap justify-content-between align-items-center border-bottom pb-2 mb-3 bg-cream p-2 rounded gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <label class="form-label mb-0 fw-bold text-plum small"><i class="bi bi-grid-3x3-gap me-1"></i>Table:</label>
+                            <select id="orderTableSelect" class="form-select form-select-sm fw-bold text-plum" style="min-width: 150px;" onchange="onTableSelectChanged(this)">
+                                @foreach (var t in Model.AvailableTables)
+                                {
+                                    <option value="@t.TableCode" data-section="@t.Section" selected="@(t.TableCode.Equals(Model.TableId, StringComparison.OrdinalIgnoreCase))">
+                                        @t.TableCode (@t.Section) - @t.Status
+                                    </option>
+                                }
+                            </select>
+                            <span class="badge bg-plum-subtle text-plum small" id="selectedSectionBadge">@Model.SectionName</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted"><i class="bi bi-people me-1"></i>Guests:</span>
+                            <input type="number" name="GuestCount" class="form-control form-control-sm text-center" style="width: 50px;" value="@Model.GuestCount" min="1" max="25" />
+                        </div>
+                    </div>
+
+                    <!-- Items List (Dynamic Ticket) -->
+                    <div class="table-responsive mb-2" style="max-height: 290px; min-height: 180px;">
+                        <table class="table table-sm align-middle mb-0" id="ticketItemsTable">
+                            <thead class="table-light small text-muted">
+                                <tr>
+                                    <th class="text-start">Item &amp; Customization</th>
+                                    <th class="text-center" style="width: 90px;">Qty</th>
+                                    <th class="text-end" style="width: 75px;">Amount</th>
+                                    <th class="text-center" style="width: 35px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticketItemsBody">
+                                <!-- Clean initial state: Items dynamically injected by JavaScript -->
+                            </tbody>
+                        </table>
+                        <div id="emptyTicketState" class="text-center py-4 text-muted">
+                            <i class="bi bi-basket2 fs-2 text-muted-subtle d-block mb-1"></i>
+                            <span class="small">No items added to this ticket yet.<br />Enter short code above or click any dish to add.</span>
+                        </div>
+                    </div>
+
+                    <!-- Kitchen Notes & Fast Addon Options -->
+                    <div class="mb-3 pt-2 border-top">
+                        <label class="form-label small fw-semibold text-ink mb-1 d-flex justify-content-between">
+                            <span><i class="bi bi-chat-left-text text-plum me-1"></i> Kitchen Special Notes</span>
+                            <span class="text-muted" style="font-size: 0.75rem;">(Print on KOT)</span>
+                        </label>
+                        <input type="text" name="kitchenNotes" id="kitchenNotesInput" class="form-control form-control-sm" placeholder="e.g. Less spicy, Jain preparation, extra crisp..." />
+                        
+                        <!-- Quick Addon Chips -->
+                        <div class="d-flex flex-wrap gap-1 mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.72rem;" onclick="appendNote('Extra Cheese (+₹30)')">+ Extra Cheese</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.72rem;" onclick="appendNote('Less Spicy')">Less Spicy</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.72rem;" onclick="appendNote('Extra Spicy')">Extra Spicy</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.72rem;" onclick="appendNote('No Onion/Garlic (Jain)')">Jain</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.72rem;" onclick="appendNote('Butter on Top (+₹20)')">+ Butter</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Summary & Actions -->
+                <div class="border-top pt-2">
+                    <div class="d-flex justify-content-between text-muted small py-1">
+                        <span>Items Subtotal:</span>
+                        <span class="font-monospace fw-semibold" id="ticketSubtotal">₹0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between text-muted small py-1">
+                        <span>GST (CGST 2.5% + SGST 2.5%):</span>
+                        <span class="font-monospace fw-semibold" id="ticketGst">₹0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3 fs-5 fw-bold text-ink border-top pt-1">
+                        <span>Total Payable</span>
+                        <span class="text-plum font-monospace" id="ticketGrandTotal">₹0.00</span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a id="btnBillingLink" asp-controller="Billing" asp-action="Index" asp-route-table="@Model.TableName" class="btn btn-outline-teal py-3 px-3 fw-bold">
+                            <i class="bi bi-receipt me-1"></i> Bill <span class="badge bg-teal text-white ms-1">F9</span>
+                        </a>
+                        <button type="submit" class="btn btn-plum flex-grow-1 py-3 fw-bold fs-6 shadow-sm" id="btnSendKot">
+                            <i class="bi bi-fire me-2"></i> Send KOT to Kitchen <span class="badge bg-saffron text-dark ms-1">F5</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Menu items lookup dictionary from Model
+    const menuCatalog = [
+        @foreach (var item in Model.AvailableMenuItems)
+        {
+            <text>{ id: @item.Id, code: '@item.ShortCode', name: '@Html.Raw(item.Name.Replace("'", "\\'"))', price: @item.Price, type: '@item.FoodType', category: '@item.Category' },</text>
+        }
+    ];
+
+    // Order Ticket State
+    let ticketItems = [];
+
+    function onTableSelectChanged(select) {
+        const selectedOption = select.options[select.selectedIndex];
+        const tableCode = select.value;
+        const section = selectedOption.getAttribute('data-section') || 'AC hall';
+        
+        document.getElementById('hiddenTableId').value = tableCode;
+        document.getElementById('selectedSectionBadge').textContent = section;
+        
+        const billLink = document.getElementById('btnBillingLink');
+        if (billLink) {
+            billLink.href = '/Billing?table=' + encodeURIComponent(tableCode);
+        }
+    }
+
+    function addByShortCode() {
+        const input = document.getElementById('shortCodeInput');
+        const qtyInput = document.getElementById('shortCodeQty');
+        const code = input.value.trim().toUpperCase();
+        const qty = parseInt(qtyInput.value) || 1;
+
+        if (!code) return;
+
+        // Find by short code or exact ID or name substring
+        const found = menuCatalog.find(m => m.code.toUpperCase() === code || m.id.toString() === code || m.name.toUpperCase().includes(code));
+        if (found) {
+            addItemToTicket(found.id, found.code, found.name, found.price, found.type, qty);
+            input.value = '';
+            qtyInput.value = '1';
+            input.focus();
+        } else {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Item Not Found',
+                text: 'No dish found matching code "' + code + '". Try 101, 102, 105, etc.',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    }
+
+    function addItemToTicket(id, code, name, price, type, qty = 1) {
+        const existing = ticketItems.find(t => t.id === id);
+        if (existing) {
+            existing.qty += qty;
+        } else {
+            ticketItems.push({
+                id: id,
+                code: code,
+                name: name,
+                price: price,
+                type: type,
+                qty: qty,
+                addon: ''
+            });
+        }
+        renderTicket();
+    }
+
+    function updateItemQty(index, change) {
+        ticketItems[index].qty += change;
+        if (ticketItems[index].qty <= 0) {
+            ticketItems.splice(index, 1);
+        }
+        renderTicket();
+    }
+
+    function removeItemFromTicket(index) {
+        ticketItems.splice(index, 1);
+        renderTicket();
+    }
+
+    function promptAddon(index) {
+        const item = ticketItems[index];
+        Swal.fire({
+            title: 'Addon for ' + item.name,
+            input: 'select',
+            inputOptions: {
+                '': '-- None --',
+                'Extra Cheese (+₹30)': 'Extra Cheese (+₹30)',
+                'Extra Butter (+₹20)': 'Extra Butter (+₹20)',
+                'Less Spicy': 'Less Spicy',
+                'Extra Spicy': 'Extra Spicy',
+                'No Onion/Garlic': 'No Onion/Garlic (Jain)'
+            },
+            inputPlaceholder: 'Select topping or customization',
+            showCancelButton: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                item.addon = result.value;
+                renderTicket();
+            }
+        });
+    }
+
+    function appendNote(note) {
+        const notesInput = document.getElementById('kitchenNotesInput');
+        if (notesInput.value) {
+            notesInput.value += ', ' + note;
+        } else {
+            notesInput.value = note;
+        }
+    }
+
+    function renderTicket() {
+        const tbody = document.getElementById('ticketItemsBody');
+        const emptyState = document.getElementById('emptyTicketState');
+        tbody.innerHTML = '';
+
+        if (ticketItems.length === 0) {
+            emptyState.style.display = 'block';
+            document.getElementById('ticketSubtotal').textContent = '₹0.00';
+            document.getElementById('ticketGst').textContent = '₹0.00';
+            document.getElementById('ticketGrandTotal').textContent = '₹0.00';
+            return;
+        }
+
+        emptyState.style.display = 'none';
+        let subtotal = 0;
+
+        ticketItems.forEach((item, index) => {
+            let itemPrice = item.price;
+            if (item.addon.includes('+₹30')) itemPrice += 30;
+            if (item.addon.includes('+₹20')) itemPrice += 20;
+
+            const itemTotal = itemPrice * item.qty;
+            subtotal += itemTotal;
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center gap-1">
+                        <span class="food-type-icon ${item.type.toLowerCase()}"></span>
+                        <span class="fw-semibold text-ink small">${item.name}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1 text-muted" style="font-size: 0.72rem;">
+                        <span>₹${itemPrice}</span>
+                        ${item.addon ? `<span class="badge bg-warning-subtle text-dark border">${item.addon}</span>` : ''}
+                        <button type="button" class="btn btn-link p-0 text-plum" style="font-size: 0.68rem;" onclick="promptAddon(${index})">+ Topping</button>
+                    </div>
+                </td>
+                <td class="text-center">
+                    <div class="input-group input-group-sm justify-content-center">
+                        <button class="btn btn-outline-secondary py-0 px-1" type="button" onclick="updateItemQty(${index}, -1)">-</button>
+                        <span class="form-control text-center py-0 px-1 font-monospace fw-bold" style="max-width: 34px;">${item.qty}</span>
+                        <button class="btn btn-outline-secondary py-0 px-1" type="button" onclick="updateItemQty(${index}, 1)">+</button>
+                    </div>
+                </td>
+                <td class="text-end fw-bold font-monospace text-ink small">₹${itemTotal.toFixed(2)}</td>
+                <td class="text-center">
+                    <button type="button" class="btn btn-link text-chili p-0" title="Remove item" onclick="removeItemFromTicket(${index})">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        const gst = subtotal * 0.05; // 5% GST
+        const grandTotal = subtotal + gst;
+
+        document.getElementById('ticketSubtotal').textContent = '₹' + subtotal.toFixed(2);
+        document.getElementById('ticketGst').textContent = '₹' + gst.toFixed(2);
+        document.getElementById('ticketGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
+    }
+
+    function filterMenuCards() {
+        const search = document.getElementById('menuSearchInput').value.trim().toLowerCase();
+        const cards = document.querySelectorAll('.menu-item-col');
+        cards.forEach(card => {
+            const name = card.getAttribute('data-name') || '';
+            const code = card.getAttribute('data-code') || '';
+            if (name.includes(search) || code.includes(search)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function filterCategory(btn, category) {
+        document.querySelectorAll('#categoryTabContainer button').forEach(b => {
+            b.className = 'btn btn-sm btn-light border rounded-pill px-3 text-nowrap';
+        });
+        btn.className = 'btn btn-sm btn-plum rounded-pill px-3 active';
+
+        const cards = document.querySelectorAll('.menu-item-col');
+        cards.forEach(card => {
+            const cardCategory = card.getAttribute('data-category') || '';
+            if (category === 'All' || cardCategory.toLowerCase() === category.toLowerCase()) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Auto-focus on Short Code Input and bind form submit
+    document.addEventListener('DOMContentLoaded', function () {
+        const shortCodeInput = document.getElementById('shortCodeInput');
+        if (shortCodeInput) shortCodeInput.focus();
+
+        const form = document.getElementById('orderTicketForm');
+        if (form) {
+            form.addEventListener('submit', function (e) {
+                if (ticketItems.length === 0) {
+                    e.preventDefault();
+                    if (window.Swal) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Empty Ticket',
+                            text: 'Please add at least one menu dish before sending KOT.'
+                        });
+                    } else {
+                        alert('Please add at least one menu dish before sending KOT.');
+                    }
+                    return false;
+                }
+
+                let itemsJsonInput = document.getElementById('hiddenItemsJson');
+                if (!itemsJsonInput) {
+                    itemsJsonInput = document.createElement('input');
+                    itemsJsonInput.type = 'hidden';
+                    itemsJsonInput.name = 'itemsJson';
+                    itemsJsonInput.id = 'hiddenItemsJson';
+                    form.appendChild(itemsJsonInput);
+                }
+                const payload = ticketItems.map(i => ({
+                    Name: i.name,
+                    Quantity: i.qty,
+                    Rate: i.price,
+                    Notes: i.addon
+                }));
+                itemsJsonInput.value = JSON.stringify(payload);
+            });
+        }
+    });
+</script>

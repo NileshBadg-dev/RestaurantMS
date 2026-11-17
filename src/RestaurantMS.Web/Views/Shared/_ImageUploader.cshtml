@@ -1,0 +1,66 @@
+@model RestaurantMS.Web.Models.ImageUploaderModel
+
+<div class="image-uploader-card card p-3 border rounded-3 bg-white" data-max-images="@Model.MaxImages" data-max-size="@Model.MaxSizeMb">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="form-label fw-bold mb-0">@Model.Label</label>
+        <span class="badge bg-light text-muted border">Max @Model.MaxImages images (@Model.MaxSizeMb MB each)</span>
+    </div>
+
+    <div class="upload-dropzone border border-dashed rounded-3 p-4 text-center mb-3 bg-cream position-relative" style="cursor: pointer;">
+        <input type="file" name="@Model.Name" id="@(Model.Name)_input" multiple accept=".jpg,.jpeg,.png,.webp" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" onchange="handleImageUpload(this, '@Model.Name')" />
+        <i class="bi bi-cloud-arrow-up text-plum display-6 mb-2"></i>
+        <div class="fw-semibold text-ink">Click or drag and drop images here</div>
+        <div class="small text-muted">@Model.HelpText</div>
+    </div>
+
+    <div class="row g-2 image-preview-container" id="@(Model.Name)_previews">
+        @foreach (var url in Model.ExistingImageUrls)
+        {
+            <div class="col-4 position-relative preview-item">
+                <img src="@url" class="img-thumbnail rounded-3 w-100" style="height: 100px; object-fit: cover;" alt="Image Preview" />
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle p-1" style="line-height: 1;" onclick="this.closest('.preview-item').remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+function handleImageUpload(input, prefix) {
+    const container = document.getElementById(prefix + '_previews');
+    const files = Array.from(input.files);
+    const maxFiles = parseInt(input.closest('[data-max-images]').getAttribute('data-max-images') || '3');
+    const maxSize = parseInt(input.closest('[data-max-size]').getAttribute('data-max-size') || '2') * 1024 * 1024;
+
+    if (container.children.length + files.length > maxFiles) {
+        alert('You can upload a maximum of ' + maxFiles + ' images.');
+        return;
+    }
+
+    files.forEach(file => {
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            alert('File ' + file.name + ' is not a valid JPG, PNG, or WEBP image.');
+            return;
+        }
+        if (file.size > maxSize) {
+            alert('File ' + file.name + ' exceeds ' + (maxSize / 1024 / 1024) + ' MB.');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const col = document.createElement('div');
+            col.className = 'col-4 position-relative preview-item';
+            col.innerHTML = `
+                <img src="${e.target.result}" class="img-thumbnail rounded-3 w-100" style="height: 100px; object-fit: cover;" />
+                <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle p-1" style="line-height: 1;" onclick="this.closest('.preview-item').remove()">
+                    <i class="bi bi-x"></i>
+                </button>
+            `;
+            container.appendChild(col);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+</script>

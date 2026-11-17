@@ -1,0 +1,16 @@
+@model RestaurantMS.Web.Models.EmptyStateModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+
+<div class="text-center py-5 px-3">
+    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light mb-3" style="width:72px; height:72px;">
+        <i class="bi @Model.Icon fs-1 text-muted"></i>
+    </div>
+    <h5 class="fw-bold text-dark mb-1">@Localizer[Model.Title]</h5>
+    <p class="text-muted small max-w-sm mx-auto mb-3" style="max-width:320px;">@Localizer[Model.Description]</p>
+    @if (!string.IsNullOrEmpty(Model.ActionUrl) && !string.IsNullOrEmpty(Model.ActionText))
+    {
+        <a href="@Model.ActionUrl" class="btn btn-sm btn-plum">
+            <i class="bi bi-plus-lg me-1"></i> @Localizer[Model.ActionText]
+        </a>
+    }
+</div>

@@ -1,0 +1,83 @@
+@model RestaurantMS.Web.Models.MastersViewModel
+@{
+    ViewData["Title"] = Localizer["Masters_Title"].Value;
+    var categories = Model.Masters.Select(m => m.Category).Distinct().ToList();
+}
+
+<div class="masters-page d-flex flex-column gap-3">
+    <!-- Header with Search -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1">
+                    <i class="bi bi-stack text-plum me-2"></i> @Localizer["Masters_Title"]
+                </h2>
+                <div class="text-muted small">
+                    @Localizer["Masters_Subtitle"]
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm" style="max-width: 280px;">
+                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="masterSearchInput" class="form-control border-start-0 bg-light" placeholder="Search masters..." onkeyup="filterMasters()" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Grouped Master Cards -->
+    @foreach (var cat in categories)
+    {
+        var itemsInCat = Model.Masters.Where(m => m.Category == cat).ToList();
+        <div class="master-category-group mb-2">
+            <h6 class="fw-bold text-ink text-uppercase small tracking-wide mb-3 ps-1 border-start border-3 border-plum ps-2">
+                @cat
+            </h6>
+
+            <div class="row g-3">
+                @foreach (var item in itemsInCat)
+                {
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3 master-card-wrapper" data-title="@item.Title.ToLower()" data-desc="@item.Subtitle.ToLower()">
+                        <div class="card border-0 shadow-sm rounded-3 bg-white h-100 p-3 d-flex flex-column justify-content-between hover-card transition-all">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center text-white" style="width: 44px; height: 44px; background-color: @item.ColorHex;">
+                                        <i class="bi @item.Icon fs-5"></i>
+                                    </div>
+                                    <span class="badge bg-light text-muted border small">@item.BadgeText</span>
+                                </div>
+                                <h5 class="fw-bold text-ink mb-1 fs-6">@item.Title</h5>
+                                <p class="text-muted small mb-3">@item.Subtitle</p>
+                            </div>
+
+                            <div class="pt-2 border-top mt-auto">
+                                <a asp-controller="@item.Controller" asp-action="@item.Action" class="btn btn-sm btn-outline-plum w-100 fw-semibold">
+                                    Manage <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+<script>
+function filterMasters() {
+    const query = document.getElementById('masterSearchInput').value.toLowerCase();
+    const cards = document.querySelectorAll('.master-card-wrapper');
+    cards.forEach(card => {
+        const title = card.getAttribute('data-title') || '';
+        const desc = card.getAttribute('data-desc') || '';
+        if (title.includes(query) || desc.includes(query)) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+</script>
+}

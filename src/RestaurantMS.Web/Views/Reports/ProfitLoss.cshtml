@@ -1,0 +1,202 @@
+@model RestaurantMS.Web.Models.ProfitLossReportViewModel
+@{
+    ViewData["Title"] = Localizer["Reports_ProfitLoss_Title"].Value;
+}
+
+<div class="profit-loss-page d-flex flex-column gap-3">
+    <!-- Header with KPI Badges -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-graph-up text-plum me-2"></i> @Localizer["Reports_ProfitLoss_Title"]</h2>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span>Period: <strong class="text-ink">@Model.FromDate.ToString("dd MMM yyyy") - @Model.ToDate.ToString("dd MMM yyyy")</strong></span>
+                    <span>&bull;</span>
+                    <span>Gross Margin: <strong class="text-teal">@Model.GrossProfitMargin.ToString("F1")%</strong></span>
+                    <span>&bull;</span>
+                    <span>Net Margin: <strong class="@(Model.NetProfit >= 0 ? "text-teal" : "text-chili")">@Model.NetProfitMargin.ToString("F1")%</strong></span>
+                </div>
+            </div>
+
+            <!-- Date Filter & Print -->
+            <form method="get" class="d-flex align-items-center gap-2">
+                <input type="date" name="from" class="form-control form-control-sm text-ink" value="@Model.FromDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()" />
+                <span class="text-muted small">to</span>
+                <input type="date" name="to" class="form-control form-control-sm text-ink" value="@Model.ToDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()" />
+                <a asp-action="Index" class="btn btn-outline-secondary px-3 py-2">
+                    <i class="bi bi-arrow-left me-1"></i> Reports Hub
+                </a>
+                <button type="button" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Print P&L
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Total Net Revenue</div>
+                <div class="h3 fw-bold text-ink mb-0">₹@Model.TotalNetRevenue.ToString("N0")</div>
+                <div class="text-muted small mt-1"><i class="bi bi-cart-check text-plum me-1"></i> Dine-in, Parcel & Online</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Direct Costs (COGS)</div>
+                <div class="h3 fw-bold text-chili mb-0">₹@Model.TotalCOGS.ToString("N0")</div>
+                <div class="text-muted small mt-1"><i class="bi bi-basket text-chili me-1"></i> Food & Packaging Cost</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Gross Profit</div>
+                <div class="h3 fw-bold text-teal mb-0">₹@Model.GrossProfit.ToString("N0")</div>
+                <div class="text-teal small mt-1"><i class="bi bi-pie-chart text-teal me-1"></i> @Model.GrossProfitMargin.ToString("F1")% Gross Margin</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Net Profit</div>
+                <div class="h3 fw-bold @(Model.NetProfit >= 0 ? "text-teal" : "text-chili") mb-0">₹@Model.NetProfit.ToString("N0")</div>
+                <div class="text-muted small mt-1"><i class="bi bi-cash-stack text-saffron me-1"></i> @Model.NetProfitMargin.ToString("F1")% Net Margin</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- P&L Statement Breakdowns -->
+    <div class="row g-3">
+        <!-- 1. Revenue Breakdown -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h5 class="fw-bold text-ink mb-3 pb-2 border-bottom">
+                    <i class="bi bi-cash-coin text-teal me-2"></i> 1. Operating Revenue & Income
+                </h5>
+                <table class="table table-sm align-middle mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-start">Dine-in Sales</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.DineInSales.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Parcel & Takeaway Sales</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.ParcelSales.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Online Aggregators (Zomato / Swiggy)</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.OnlineSales.ToString("N2")</td>
+                        </tr>
+                        <tr class="text-chili">
+                            <td class="text-start">Less: Customer Discounts & Offers</td>
+                            <td class="text-end font-monospace fw-semibold">-₹@Model.DiscountsGiven.ToString("N2")</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td class="text-start text-ink">Total Net Revenue</td>
+                            <td class="text-end font-monospace text-ink">₹@Model.TotalNetRevenue.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+
+        <!-- 2. Cost of Goods Sold -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h5 class="fw-bold text-ink mb-3 pb-2 border-bottom">
+                    <i class="bi bi-basket3 text-chili me-2"></i> 2. Cost of Goods Sold (COGS)
+                </h5>
+                <table class="table table-sm align-middle mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-start">Vegetables, Dairy & Paneer</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.VegetablesAndDairy.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Meat, Chicken & Poultry</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.MeatAndPoultry.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Grocery, Rice, Oil & Spices</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.GroceryAndSpices.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Packaging Boxes, Containers & Bags</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.PackagingMaterials.ToString("N2")</td>
+                        </tr>
+                    </tbody>
+                    <tfoot class="table-light fw-bold">
+                        <tr>
+                            <td class="text-start text-chili">Total Direct Costs (COGS)</td>
+                            <td class="text-end font-monospace text-chili">₹@Model.TotalCOGS.ToString("N2")</td>
+                        </tr>
+                        <tr class="table-success">
+                            <td class="text-start text-teal">Gross Profit</td>
+                            <td class="text-end font-monospace text-teal">₹@Model.GrossProfit.ToString("N2")</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Operating Expenses & Net Income -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <h5 class="fw-bold text-ink mb-3 pb-2 border-bottom">
+            <i class="bi bi-wallet2 text-plum me-2"></i> 3. Indirect & Operating Expenses
+        </h5>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <table class="table table-sm align-middle mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-start">Staff Salaries & Wages</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.StaffSalaries.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Restaurant Premises Rent</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.RestaurantRent.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Electricity & Commercial Water</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.ElectricityAndWater.ToString("N2")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-sm align-middle mb-0">
+                    <tbody>
+                        <tr>
+                            <td class="text-start">Commercial LPG Gas Cylinders</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.GasAndCommercialLpg.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Maintenance & Equipment Repairs</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.MaintenanceAndRepairs.ToString("N2")</td>
+                        </tr>
+                        <tr>
+                            <td class="text-start">Online Delivery Platform Commissions</td>
+                            <td class="text-end font-monospace fw-semibold">₹@Model.PlatformCommissions.ToString("N2")</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="border-top mt-3 pt-3">
+            <div class="d-flex justify-content-between align-items-center p-3 rounded-3 @(Model.NetProfit >= 0 ? "bg-teal-subtle text-teal" : "bg-danger-subtle text-chili")">
+                <div>
+                    <h4 class="fw-bold mb-0">Net Operating Profit / (Loss)</h4>
+                    <div class="small">After deducting all direct COGS and overhead expenses</div>
+                </div>
+                <div class="text-end">
+                    <h3 class="fw-bold font-monospace mb-0">₹@Model.NetProfit.ToString("N2")</h3>
+                    <div class="fw-semibold small">@Model.NetProfitMargin.ToString("F1")% Net Margin</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

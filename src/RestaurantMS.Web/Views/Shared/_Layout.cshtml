@@ -9,6 +9,9 @@
         : await SettingService.GetSettingAsync("HotelNameEn", "Grand Restaurant");
 
     var logoUrl = await SettingService.GetSettingAsync("LogoUrl", "/images/logo.png");
+    var userName = CurrentUser.UserName ?? "User";
+    var userInitial = !string.IsNullOrEmpty(userName) ? userName.Substring(0, 1).ToUpper() : "U";
+    var userRole = CurrentUser.Roles.FirstOrDefault() ?? "Staff";
 }
 <!DOCTYPE html>
 <html lang="@(isMarathi ? "mr" : "en")">
@@ -16,121 +19,328 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@(ViewData["Title"] != null ? $"{ViewData["Title"]} - {hotelName}" : hotelName)</title>
+
+    <!-- Google Fonts: Inter & Noto Sans Devanagari -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- CSS Frameworks -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css" />
+
+    <!-- Application Design System Stylesheet -->
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/app.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
+<body class="app-body">
     @if (User.Identity?.IsAuthenticated == true)
     {
-        <!-- App Navbar -->
-        <header class="app-navbar d-flex align-items-center justify-content-between px-3 sticky-top shadow-sm">
-            <div class="d-flex align-items-center">
-                <a asp-controller="Home" asp-action="Index" class="d-flex align-items-center text-decoration-none text-dark me-3">
-                    @if (!string.IsNullOrEmpty(logoUrl))
-                    {
-                        <img src="@logoUrl" alt="@hotelName" class="hotel-logo me-2" onerror="this.style.display='none'" />
-                    }
-                    <span class="fs-5 fw-bold text-primary">@hotelName</span>
-                </a>
-            </div>
-
-            <div class="d-flex align-items-center gap-3">
-                <!-- Language Toggle -->
-                <form asp-controller="Language" asp-action="SetLanguage" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
-                    @if (isMarathi)
-                    {
-                        <input type="hidden" name="culture" value="en-US" />
-                        <button type="submit" class="btn btn-outline-primary btn-sm px-2 py-1">
-                            <i class="bi bi-translate me-1"></i> English
-                        </button>
-                    }
-                    else
-                    {
-                        <input type="hidden" name="culture" value="mr-IN" />
-                        <button type="submit" class="btn btn-outline-primary btn-sm px-2 py-1">
-                            <i class="bi bi-translate me-1"></i> मराठी
-                        </button>
-                    }
-                </form>
-
-                <!-- User Dropdown -->
-                <div class="dropdown">
-                    <button class="btn btn-light btn-sm dropdown-toggle d-flex align-items-center gap-2 border" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="bi bi-person-circle fs-5 text-secondary"></i>
-                        <span class="fw-semibold">@CurrentUser.UserName</span>
-                        <span class="badge bg-secondary-subtle text-secondary small">@(CurrentUser.Roles.FirstOrDefault() ?? "Staff")</span>
+        <div class="app-shell d-flex">
+            <!-- Sidebar: Dark Plum -->
+            <aside class="app-sidebar" id="appSidebar">
+                <!-- Brand Header -->
+                <div class="sidebar-brand d-flex align-items-center justify-content-between p-2">
+                    <div class="d-flex align-items-center gap-2 overflow-hidden flex-grow-1">
+                        <a asp-controller="Dashboard" asp-action="Index" class="sidebar-brand-link d-flex align-items-center gap-2 text-decoration-none" title="Go to Dashboard">
+                            <div class="brand-logo-circle d-flex align-items-center justify-content-center text-white fw-bold bg-white text-plum rounded-circle shadow-sm" style="width: 38px; height: 38px; flex-shrink: 0;">
+                                <i class="bi bi-egg-fried fs-4" style="color: #FF9F1C;"></i>
+                            </div>
+                            <div class="brand-info overflow-hidden">
+                                <div class="brand-name fw-bold text-white text-truncate" style="font-size: 0.95rem;">@hotelName</div>
+                                <div class="brand-badge badge bg-saffron text-dark" style="font-size: 0.65rem;">POS v2.0</div>
+                            </div>
+                        </a>
+                    </div>
+                    <button class="btn btn-sm text-white sidebar-collapse-btn p-0 d-flex align-items-center justify-content-center shadow-sm" type="button" onclick="toggleSidebar()" aria-label="Toggle side menu" title="Collapse / Expand menu" style="width: 28px; height: 28px; border-radius: 6px; background: rgba(255,255,255,0.18); border: 1px solid rgba(255,255,255,0.25); flex-shrink: 0;">
+                        <i class="bi bi-chevron-left" id="sidebarCollapseChevron" style="font-size: 0.85rem;"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-                        <li>
-                            <a class="dropdown-item py-2" asp-controller="Account" asp-action="ChangePassword">
-                                <i class="bi bi-key me-2 text-primary"></i> @Localizer["Nav_ChangePassword"]
-                            </a>
-                        </li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <form asp-controller="Account" asp-action="Logout" method="post" class="px-2">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="dropdown-item text-danger py-2 rounded">
-                                    <i class="bi bi-box-arrow-right me-2"></i> @Localizer["Nav_Logout"]
-                                </button>
-                            </form>
-                        </li>
-                    </ul>
                 </div>
+
+                <!-- Navigation Menu Component -->
+                <nav class="sidebar-nav-container p-2 flex-grow-1 overflow-y-auto">
+                    @await Component.InvokeAsync("NavMenu")
+                </nav>
+
+                <!-- Sidebar Footer -->
+                <div class="sidebar-footer p-3 border-top border-secondary-subtle">
+                    <div class="d-flex align-items-center justify-content-between text-muted small">
+                        <span><i class="bi bi-shield-check text-teal me-1"></i> Clean Arch</span>
+                        <span>Phase 2</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Backdrop for Mobile Drawer -->
+            <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="closeSidebarMobile()"></div>
+
+            <!-- Content Area (Clean margin-left offset from fixed sidebar) -->
+            <div class="app-main flex-grow-1 d-flex flex-column" id="appMain">
+                <!-- Topbar -->
+                <header class="app-topbar sticky-top d-flex align-items-center justify-content-between px-3 py-2 bg-white border-bottom shadow-sm">
+                    <div class="d-flex align-items-center gap-2 gap-md-3">
+                        <div class="d-flex flex-column justify-content-center">
+                            <nav aria-label="breadcrumb" class="d-none d-sm-block">
+                                <ol class="breadcrumb mb-0 py-0" style="font-size: 0.75rem;">
+                                    <li class="breadcrumb-item">
+                                        <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-muted">
+                                            <i class="bi bi-house-door me-1"></i>Home
+                                        </a>
+                                    </li>
+                                    @if (ViewContext.RouteData.Values["controller"]?.ToString() is { } ctrl && !ctrl.Equals("Dashboard", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <li class="breadcrumb-item text-muted">@ctrl</li>
+                                    }
+                                    <li class="breadcrumb-item active text-plum fw-semibold" aria-current="page">@(ViewData["Title"] ?? hotelName)</li>
+                                </ol>
+                            </nav>
+                            <h1 class="page-title h5 mb-0 fw-bold text-ink text-truncate" style="max-width: 450px;">@(ViewData["Title"] ?? hotelName)</h1>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 gap-md-3">
+                        <!-- POS Shortcuts Helper Button -->
+                        <button type="button" class="btn btn-sm btn-outline-plum d-none d-md-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#shortcutsModal" title="POS Keyboard Shortcuts">
+                            <i class="bi bi-keyboard"></i>
+                            <span class="small">Shortcuts</span>
+                        </button>
+
+                        <!-- Language Switcher Pill -->
+                        <form asp-controller="Language" asp-action="SetLanguage" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
+                            @if (isMarathi)
+                            {
+                                <input type="hidden" name="culture" value="en-US" />
+                                <button type="submit" class="btn btn-sm btn-outline-teal rounded-pill px-3 py-1 fw-semibold">
+                                    <i class="bi bi-translate me-1"></i> English
+                                </button>
+                            }
+                            else
+                            {
+                                <input type="hidden" name="culture" value="mr-IN" />
+                                <button type="submit" class="btn btn-sm btn-outline-saffron rounded-pill px-3 py-1 fw-semibold">
+                                    <i class="bi bi-translate me-1"></i> मराठी
+                                </button>
+                            }
+                        </form>
+
+                        <!-- Notification System Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-light position-relative rounded-circle p-2 border shadow-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="System Notifications">
+                                <i class="bi bi-bell-fill text-plum"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
+                                    3
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 p-2 mt-2" style="width: 320px;">
+                                <li class="px-2 py-1 border-bottom d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold small text-ink"><i class="bi bi-bell me-1 text-plum"></i> Notifications</span>
+                                    <span class="badge bg-teal-subtle text-teal small">3 New</span>
+                                </li>
+                                <li class="py-2 px-2 border-bottom">
+                                    <a asp-controller="Kitchen" asp-action="Index" class="text-decoration-none d-flex gap-2 align-items-start">
+                                        <i class="bi bi-fire text-chili fs-5 mt-1"></i>
+                                        <div class="small">
+                                            <div class="fw-semibold text-ink">KOT #102 Ready for Table T4</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">Paneer Butter Masala, Butter Naan · 2m ago</div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="py-2 px-2 border-bottom">
+                                    <a asp-controller="Inventory" asp-action="LowStock" class="text-decoration-none d-flex gap-2 align-items-start">
+                                        <i class="bi bi-exclamation-triangle-fill text-warning fs-5 mt-1"></i>
+                                        <div class="small">
+                                            <div class="fw-semibold text-ink">Low Stock Alert: Basmati Rice</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">Stock below 15 kg threshold (8 kg left) · 10m ago</div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li class="py-2 px-2">
+                                    <a asp-controller="OnlineOrders" asp-action="Index" class="text-decoration-none d-flex gap-2 align-items-start">
+                                        <i class="bi bi-globe2 text-teal fs-5 mt-1"></i>
+                                        <div class="small">
+                                            <div class="fw-semibold text-ink">New Online Order: #ZM-841</div>
+                                            <div class="text-muted" style="font-size: 0.72rem;">Zomato · 1x Chicken Biryani · Accept now</div>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- User Profile Dropdown -->
+                        <div class="dropdown">
+                            <button class="btn btn-light btn-sm rounded-pill p-1 pe-3 border d-flex align-items-center gap-2 user-menu-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar-circle bg-plum text-white fw-bold rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                                    @userInitial
+                                </div>
+                                <div class="text-start d-none d-sm-block lh-sm">
+                                    <div class="fw-semibold text-ink small">@userName</div>
+                                    <div class="text-muted" style="font-size: 0.72rem;">@userRole</div>
+                                </div>
+                                <i class="bi bi-chevron-down text-muted small ms-1"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3 mt-2">
+                                <li class="px-3 py-2 border-bottom">
+                                    <div class="fw-bold text-ink">@userName</div>
+                                    <div class="badge bg-teal-subtle text-teal">@userRole</div>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" asp-controller="Account" asp-action="ChangePassword">
+                                        <i class="bi bi-key me-2 text-plum"></i> @Localizer["Nav_ChangePassword"]
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" asp-controller="AuditLogs" asp-action="Index">
+                                        <i class="bi bi-activity me-2 text-chili"></i> System Activity &amp; Audit Log
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item py-2" asp-controller="Reports" asp-action="ViewReport" asp-route-code="RPT17">
+                                        <i class="bi bi-shield-check me-2 text-plum"></i> Returns &amp; Cancellations Log
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="px-2 py-1">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="dropdown-item text-danger py-2 rounded-2">
+                                            <i class="bi bi-box-arrow-right me-2"></i> @Localizer["Nav_Logout"]
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Main Content Stage -->
+                <main class="app-main-content flex-grow-1 p-3 p-md-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                            <i class="bi bi-check-circle-fill me-2 text-teal"></i> @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2 text-chili"></i> @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @if (TempData["InfoMessage"] != null)
+                    {
+                        <div class="alert alert-info alert-dismissible fade show shadow-sm rounded-3 mb-4" role="alert">
+                            <i class="bi bi-info-circle-fill me-2 text-plum"></i> @TempData["InfoMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    @RenderBody()
+                </main>
             </div>
-        </header>
-
-        <div class="d-flex">
-            <!-- Sidebar -->
-            <nav class="sidebar p-3 d-none d-md-block">
-                @await Component.InvokeAsync("NavMenu")
-            </nav>
-
-            <!-- Main Content Area -->
-            <main class="main-content">
-                @if (TempData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-                        <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                }
-
-                @if (TempData["ErrorMessage"] != null)
-                {
-                    <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                }
-
-                @if (TempData["InfoMessage"] != null)
-                {
-                    <div class="alert alert-info alert-dismissible fade show shadow-sm" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i> @TempData["InfoMessage"]
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                }
-
-                @RenderBody()
-            </main>
         </div>
     }
     else
     {
-        <!-- Unauthenticated Fullpage Container (e.g. Login page) -->
-        <main>
+        <!-- Full-bleed Layout for Login / Unauthenticated screens -->
+        <main class="login-fullpage-wrapper min-vh-100">
             @RenderBody()
         </main>
     }
 
+    <!-- POS Keyboard Shortcuts Modal -->
+    <div class="modal fade" id="shortcutsModal" tabindex="-1" aria-labelledby="shortcutsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content rounded-3 border-0 shadow">
+                <div class="modal-header bg-plum text-white">
+                    <h5 class="modal-title" id="shortcutsModalLabel"><i class="bi bi-keyboard me-2"></i> POS Keyboard Shortcuts</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                            <span>New Order (Tables / POS)</span>
+                            <kbd class="bg-plum text-white px-2 py-1">F2</kbd>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                            <span>New Parcel Order</span>
+                            <kbd class="bg-plum text-white px-2 py-1">F4</kbd>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                            <span>Send KOT to Kitchen</span>
+                            <kbd class="bg-plum text-white px-2 py-1">F5</kbd>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                            <span>Print Bill Preview</span>
+                            <kbd class="bg-plum text-white px-2 py-1">F9</kbd>
+                        </div>
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
+                            <span>Settle Bill &amp; Print Receipt</span>
+                            <kbd class="bg-teal text-white px-2 py-1">F10</kbd>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SweetAlert2 Confirmation Dialog Bridge -->
     <partial name="_ConfirmModal" />
 
+    <!-- JavaScript Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+
+    <!-- App Modules -->
+    <script src="~/js/modules/appGrid.js" asp-append-version="true"></script>
+    <script src="~/js/modules/shortcuts.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script>
+    function toggleSidebar() {
+        if (window.innerWidth >= 992) {
+            document.body.classList.toggle('sidebar-collapsed');
+            const isCollapsed = document.body.classList.contains('sidebar-collapsed');
+            localStorage.setItem('sidebar_collapsed', isCollapsed ? '1' : '0');
+            const chevron = document.getElementById('sidebarCollapseChevron');
+            if (chevron) {
+                chevron.className = isCollapsed ? 'bi bi-chevron-right' : 'bi bi-chevron-left';
+            }
+        } else {
+            const sidebar = document.getElementById('appSidebar');
+            const backdrop = document.getElementById('sidebarBackdrop');
+            if (sidebar) sidebar.classList.toggle('show');
+            if (backdrop) backdrop.classList.toggle('show');
+        }
+    }
+
+    function closeSidebarMobile() {
+        const sidebar = document.getElementById('appSidebar');
+        const backdrop = document.getElementById('sidebarBackdrop');
+        if (sidebar) sidebar.classList.remove('show');
+        if (backdrop) backdrop.classList.remove('show');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Ensure sidebar starts expanded so all module titles are clearly visible
+        document.body.classList.remove('sidebar-collapsed');
+        localStorage.removeItem('sidebar_collapsed');
+        const chevron = document.getElementById('sidebarCollapseChevron');
+        if (chevron) chevron.className = 'bi bi-chevron-left';
+    });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

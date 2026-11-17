@@ -46,7 +46,9 @@
   <data name="Login_Password" xml:space="preserve"><value>पासवर्ड</value></data>
   <data name="Login_RememberMe" xml:space="preserve"><value>माझी नोंद ठेवा</value></data>
   <data name="Login_ForgotPassword" xml:space="preserve"><value>पासवर्ड विसरलात?</value></data>
-  <data name="Login_Submit" xml:space="preserve"><value>लॉगिन करा</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>पीओएस मध्ये लॉगिन करा</value></data>
+  <data name="Login_LoginButton" xml:space="preserve"><value>पीओएस मध्ये लॉगिन करा</value></data>
+  <data name="Login_SignInButton" xml:space="preserve"><value>पीओएस मध्ये लॉगिन करा</value></data>
   <data name="Login_ShowPassword" xml:space="preserve"><value>पासवर्ड दाखवा</value></data>
   <data name="Login_HidePassword" xml:space="preserve"><value>पासवर्ड लपवा</value></data>
   <data name="Login_GenericError" xml:space="preserve"><value>वापरकर्ता आयडी किंवा पासवर्ड चुकीचा आहे.</value></data>
@@ -113,4 +115,85 @@
 
   <data name="AccessDenied_Title" xml:space="preserve"><value>प्रवेश नाकारला (Access Denied)</value></data>
   <data name="AccessDenied_Message" xml:space="preserve"><value>आपल्याकडे या पानावर जाण्याची परवानगी नाही. कृपया व्यवस्थापकाशी संपर्क साधा.</value></data>
+
+  <!-- Phase 2 Navigation -->
+  <data name="Nav_Tables" xml:space="preserve"><value>टेबल्स (Tables)</value></data>
+  <data name="Nav_Parcel" xml:space="preserve"><value>पार्सल (Parcel)</value></data>
+  <data name="Nav_Orders" xml:space="preserve"><value>ऑर्डर्स (Orders)</value></data>
+  <data name="Nav_Kitchen" xml:space="preserve"><value>किचन डिस्प्ले (KOT)</value></data>
+  <data name="Nav_Billing" xml:space="preserve"><value>बिलिंग (Billing)</value></data>
+  <data name="Nav_Customers" xml:space="preserve"><value>ग्राहक आणि उधारी</value></data>
+  <data name="Nav_Accounts" xml:space="preserve"><value>हिशोब (Accounts)</value></data>
+  <data name="Nav_Reports" xml:space="preserve"><value>अहवाल (Reports)</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>मेनू व्यवस्थापन</value></data>
+  <data name="Nav_Inventory" xml:space="preserve"><value>साठा (Inventory)</value></data>
+  <data name="Nav_Staff" xml:space="preserve"><value>कर्मचारी</value></data>
+  <data name="Nav_Reservations" xml:space="preserve"><value>आरक्षण (Reservations)</value></data>
+  <data name="Nav_DayClosing" xml:space="preserve"><value>दिवस समाप्ती (Day Close)</value></data>
+  <data name="Nav_Masters" xml:space="preserve"><value>मास्टर्स (Masters)</value></data>
+  <data name="Masters_Title" xml:space="preserve"><value>मास्टर्स व्यवस्थापन</value></data>
+  <data name="Masters_Subtitle" xml:space="preserve"><value>सर्व रेस्टॉरंट मास्टर डेटा आणि कॅटलॉग व्यवस्थापित करा</value></data>
+  <data name="Common_Back" xml:space="preserve"><value>मागे जा</value></data>
+
+  <!-- Login Restyle -->
+  <data name="Login_WelcomeTitle" xml:space="preserve"><value>पुन्हा स्वागत आहे</value></data>
+  <data name="Login_WelcomeSubtitle" xml:space="preserve"><value>तुमच्या रेस्टॉरंट POS प्रणालीमध्ये साइन इन करा</value></data>
+
+  <!-- Dashboard -->
+  <data name="Dashboard_Title" xml:space="preserve"><value>डॅशबोर्ड</value></data>
+  <data name="Dashboard_Kpi_TodaySales" xml:space="preserve"><value>आजची विक्री</value></data>
+  <data name="Dashboard_Kpi_OrdersDone" xml:space="preserve"><value>पूर्ण झालेल्या ऑर्डर्स</value></data>
+  <data name="Dashboard_Kpi_ParcelsDone" xml:space="preserve"><value>पार्सल ऑर्डर्स</value></data>
+  <data name="Dashboard_Kpi_ActiveTables" xml:space="preserve"><value>सक्रिय टेबल्स</value></data>
+  <data name="Dashboard_Kpi_AvgTableTime" xml:space="preserve"><value>सरासरी टेबल वेळ</value></data>
+  <data name="Dashboard_Chart_SalesByHour" xml:space="preserve"><value>तासानुसार विक्री (डायन-इन वि. पार्सल)</value></data>
+  <data name="Dashboard_TopSellingToday" xml:space="preserve"><value>आजचे सर्वाधिक खपाचे पदार्थ</value></data>
+  <data name="Dashboard_Chart_7DaySales" xml:space="preserve"><value>७ दिवसांचा विक्री कल</value></data>
+
+  <!-- Screen Titles -->
+  <data name="Tables_Title" xml:space="preserve"><value>टेबल फ्लोअर प्लॅन</value></data>
+  <data name="Kitchen_Title" xml:space="preserve"><value>किचन डिस्प्ले प्रणाली (KDS)</value></data>
+  <data name="Billing_Title" xml:space="preserve"><value>बिलिंग आणि पावती</value></data>
+  <data name="Parcel_Title" xml:space="preserve"><value>पार्सल आणि टेक-अवे काउंटर</value></data>
+  <data name="Parcel_Create_Title" xml:space="preserve"><value>नवीन पार्सल तयार करा</value></data>
+  <data name="Orders_Title" xml:space="preserve"><value>सक्रिय ऑर्डर्स</value></data>
+  <data name="Orders_New_Title" xml:space="preserve"><value>नवीन ऑर्डर नोंदवा (POS)</value></data>
+  <data name="Customers_Title" xml:space="preserve"><value>ग्राहक आणि उधारी खाते</value></data>
+  <data name="Customers_Create_Title" xml:space="preserve"><value>नवीन ग्राहक नोंदणी</value></data>
+  <data name="Customers_Ledger_Title" xml:space="preserve"><value>ग्राहक उधारी लेजर</value></data>
+  <data name="Customers_Receipt_Title" xml:space="preserve"><value>उधारी रक्कम स्वीकारा</value></data>
+  <data name="Customers_Ageing_Title" xml:space="preserve"><value>उधारी कालावधी विश्लेषण</value></data>
+  <data name="Menu_Categories_Title" xml:space="preserve"><value>मेनू श्रेणी</value></data>
+  <data name="Menu_CategoryForm_Title" xml:space="preserve"><value>मेनू श्रेणी तपशील</value></data>
+  <data name="Menu_Items_Title" xml:space="preserve"><value>पदार्थ यादी आणि दर</value></data>
+  <data name="Menu_ItemForm_Title" xml:space="preserve"><value>पदार्थाचे तपशील</value></data>
+  <data name="Inventory_Title" xml:space="preserve"><value>साठा साहित्याची यादी</value></data>
+  <data name="Inventory_Purchase_Title" xml:space="preserve"><value>साहित्य खरेदी नोंद</value></data>
+  <data name="Inventory_Suppliers_Title" xml:space="preserve"><value>पुरवठादार (Vendors)</value></data>
+  <data name="Inventory_SupplierForm_Title" xml:space="preserve"><value>पुरवठादार तपशील</value></data>
+  <data name="Inventory_LowStock_Title" xml:space="preserve"><value>कमी साठा सूचना</value></data>
+  <data name="Accounts_Title" xml:space="preserve"><value>खाते चार्ट (Chart of Accounts)</value></data>
+  <data name="Accounts_Vouchers_Title" xml:space="preserve"><value>व्हाउचर यादी</value></data>
+  <data name="Accounts_CreateVoucher_Title" xml:space="preserve"><value>नवीन व्हाउचर नोंदवा</value></data>
+  <data name="Accounts_DayBook_Title" xml:space="preserve"><value>डे बुक (Day Book)</value></data>
+  <data name="Accounts_CashBook_Title" xml:space="preserve"><value>कॅश बुक (Cash Book)</value></data>
+  <data name="Reports_Title" xml:space="preserve"><value>अहवाल आणि विश्लेषण केंद्र</value></data>
+  <data name="Staff_Title" xml:space="preserve"><value>कर्मचारी आणि हजेरी</value></data>
+  <data name="Staff_Create_Title" xml:space="preserve"><value>नवीन कर्मचारी जोडा</value></data>
+  <data name="Reservations_Title" xml:space="preserve"><value>टेबल आरक्षण</value></data>
+  <data name="Reservations_Create_Title" xml:space="preserve"><value>टेबल आरक्षित करा</value></data>
+  <data name="DayClosing_Title" xml:space="preserve"><value>दिवस समाप्ती आणि हिशोब</value></data>
+  <data name="Nav_OnlineOrders" xml:space="preserve"><value>ऑनलाइन ऑर्डर्स</value></data>
+  <data name="Nav_Suppliers" xml:space="preserve"><value>पुरवठादार (Vendors)</value></data>
+  <data name="Nav_StaffAttendance" xml:space="preserve"><value>कर्मचारी हजेरी</value></data>
+  <data name="Nav_StaffAdvances" xml:space="preserve"><value>कर्मचारी उचल / अ‍ॅडव्हान्स</value></data>
+  <data name="Nav_SalaryReport" xml:space="preserve"><value>पगार पत्रक</value></data>
+  <data name="Nav_EmployeeReport" xml:space="preserve"><value>कर्मचारी कामगिरी</value></data>
+  <data name="OnlineOrders_Title" xml:space="preserve"><value>ऑनलाइन ऑर्डर्स (Zomato / Swiggy)</value></data>
+  <data name="Staff_Attendance_Title" xml:space="preserve"><value>कर्मचारी दैनंदिन हजेरी</value></data>
+  <data name="Staff_Advances_Title" xml:space="preserve"><value>कर्मचारी उचल नोंदवही</value></data>
+  <data name="Staff_SalaryReport_Title" xml:space="preserve"><value>मासिक पगार पत्रक</value></data>
+  <data name="Staff_EmployeeReport_Title" xml:space="preserve"><value>कर्मचारी कामगिरी अहवाल</value></data>
+  <data name="Staff_Details_Title" xml:space="preserve"><value>कर्मचारी तपशील</value></data>
+  <data name="Reports_ProfitLoss_Title" xml:space="preserve"><value>नफा-तोटा पत्रक (P&amp;L)</value></data>
 </root>

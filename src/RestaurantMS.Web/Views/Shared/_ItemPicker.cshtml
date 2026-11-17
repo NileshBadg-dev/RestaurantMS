@@ -1,0 +1,25 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+
+<div class="item-picker-component">
+    <div class="row g-2 mb-3">
+        <div class="col-12 col-md-7">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+                <input type="text" id="itemPickerSearch" class="form-control" placeholder="@Localizer["Search food items..."]" />
+            </div>
+        </div>
+        <div class="col-12 col-md-5 d-flex gap-2">
+            <select id="itemPickerCategory" class="form-select">
+                <option value="All">@Localizer["All Categories"]</option>
+                <option value="Main Course">Main Course</option>
+                <option value="Biryani">Biryani & Rice</option>
+                <option value="Breads">Breads</option>
+                <option value="Beverages">Beverages</option>
+            </select>
+            <button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-1" id="itemPickerVegToggle" title="Filter Vegetarian">
+                <span class="badge rounded-circle bg-success p-1"> </span>
+                <span class="small d-none d-sm-inline">Veg</span>
+            </button>
+        </div>
+    </div>
+</div>

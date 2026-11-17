@@ -6,11 +6,11 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
     <div>
-        <h2 class="h4 fw-bold text-dark mb-1">@Localizer["FeatureToggles_Title"]</h2>
+        <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-toggle-on text-plum me-2"></i> @Localizer["FeatureToggles_Title"]</h2>
         <p class="text-muted small mb-0">@Localizer["FeatureToggles_Subtitle"]</p>
     </div>
     <div>
-        <button type="submit" form="togglesForm" class="btn btn-primary btn-sm px-4" permission="@Permissions.FeatureToggles.Edit">
+        <button type="submit" form="togglesForm" class="btn btn-plum px-4 py-2 fw-bold shadow-sm" permission="@Permissions.FeatureToggles.Edit">
             <i class="bi bi-floppy me-1"></i> @Localizer["Btn_Save"]
         </button>
     </div>
@@ -22,11 +22,11 @@
     <div class="row g-4">
         @foreach (var group in groups)
         {
-            <div class="col-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-white py-3 border-bottom d-flex align-items-center">
-                        <i class="bi bi-collection me-2 text-primary"></i>
-                        <h5 class="h6 fw-bold mb-0 text-dark">@group.Key Module Features</h5>
+            <div class="col-12 col-lg-6">
+                <div class="card shadow-sm border-0 rounded-3 bg-white h-100">
+                    <div class="card-header bg-cream py-3 border-bottom d-flex align-items-center rounded-top">
+                        <i class="bi bi-collection me-2 text-plum fs-5"></i>
+                        <h5 class="h6 fw-bold mb-0 text-ink">@group.Key Module Features</h5>
                     </div>
                     <div class="card-body p-0">
                         <ul class="list-group list-group-flush">
@@ -35,7 +35,7 @@
                                 var isChecked = Model.ToggleStates.TryGetValue(toggle.Key, out var enabled) && enabled;
                                 <li class="list-group-item d-flex justify-content-between align-items-center p-3">
                                     <div class="me-3">
-                                        <div class="fw-semibold text-dark">@toggle.Name</div>
+                                        <div class="fw-semibold text-ink">@toggle.Name</div>
                                         <div class="text-muted small">@toggle.Description</div>
                                         <span class="badge bg-light text-secondary border font-monospace mt-1" style="font-size: 0.7rem;">@toggle.Key</span>
                                     </div>
@@ -55,7 +55,7 @@
     </div>
 
     <div class="d-flex justify-content-end mt-4 mb-5">
-        <button type="submit" class="btn btn-primary btn-sm px-4" permission="@Permissions.FeatureToggles.Edit">
+        <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm" permission="@Permissions.FeatureToggles.Edit">
             <i class="bi bi-floppy me-1"></i> @Localizer["Btn_Save"]
         </button>
     </div>

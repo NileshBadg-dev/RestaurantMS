@@ -1,0 +1,62 @@
+@model RestaurantMS.Web.Models.DataGridModel
+
+<div class="app-card shadow-sm mb-4">
+    <div class="table-responsive">
+        <table id="@Model.TableId" class="table table-hover app-datatable align-middle mb-0" style="width:100%">
+            <thead>
+                <tr>
+                    @foreach (var col in Model.Columns)
+                    {
+                        <th style="@(col.Width != null ? $"width:{col.Width};" : "")" class="@col.CustomClass">@col.Title</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Rendered by DataTables or Razor rows -->
+                @if (string.IsNullOrEmpty(Model.AjaxUrl))
+                {
+                    @RenderBody()
+                }
+            </tbody>
+            @if (Model.ShowTotals)
+            {
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        @foreach (var col in Model.Columns)
+                        {
+                            <th></th>
+                        }
+                    </tr>
+                </tfoot>
+            }
+        </table>
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(Model.AjaxUrl))
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.AppGrid && window.jQuery) {
+                var columnsConfig = [
+                    @foreach (var col in Model.Columns)
+                    {
+                        @:{ data: '@col.Data', orderable: @(col.Sortable ? "true" : "false"), className: '@col.CustomClass' },
+                    }
+                ];
+
+                window.AppGrid.init('#@Model.TableId', {
+                    ajax: {
+                        url: '@Model.AjaxUrl',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: function (d) {
+                            return JSON.stringify(d);
+                        }
+                    },
+                    columns: columnsConfig
+                });
+            }
+        });
+    </script>
+}

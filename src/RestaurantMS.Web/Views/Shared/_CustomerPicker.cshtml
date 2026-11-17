@@ -1,0 +1,69 @@
+@model RestaurantMS.Web.Models.CustomerPickerModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+
+<div class="customer-picker-container border rounded p-3 bg-light">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <label class="form-label mb-0 fw-semibold">
+            <i class="bi bi-person me-1"></i> @Localizer["Customer Details"]
+        </label>
+        <button type="button" class="btn btn-sm btn-outline-plum py-0 px-2" data-bs-toggle="modal" data-bs-target="#quickAddCustomerModal">
+            <i class="bi bi-person-plus me-1"></i> @Localizer["Quick Add"]
+        </button>
+    </div>
+
+    <div class="input-group mb-2">
+        <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+        <input type="text" id="customerSearchInput" class="form-control" placeholder="@Localizer["Search by name or 10-digit mobile..."]" value="@Model.CustomerName" autocomplete="off" />
+        <input type="hidden" name="@Model.FieldName" id="selectedCustomerId" value="@Model.CustomerId" />
+    </div>
+
+    <div id="customerSummaryBlock" class="p-2 rounded bg-white border @(Model.CustomerId.HasValue ? "" : "d-none")">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong id="pickedCustomerName">@(Model.CustomerName ?? "Ramesh Patil")</strong>
+                <span class="text-muted small ms-2" id="pickedCustomerMobile">@(Model.CustomerMobile ?? "98XXXXXX10")</span>
+            </div>
+            <button type="button" class="btn btn-sm text-danger p-0" id="btnClearCustomer" title="Clear customer">
+                <i class="bi bi-x-circle"></i>
+            </button>
+        </div>
+        <div class="d-flex gap-3 mt-1 small">
+            <span class="text-danger">
+                @Localizer["Outstanding"]: <strong id="pickedCustomerOutstanding">₹ @((Model.OutstandingAmount ?? 3200m).ToString("N0"))</strong>
+            </span>
+            <span class="text-muted">
+                @Localizer["Limit"]: <strong id="pickedCustomerLimit">₹ @((Model.CreditLimit ?? 10000m).ToString("N0"))</strong>
+            </span>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Customer Modal -->
+<div class="modal fade" id="quickAddCustomerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold"><i class="bi bi-person-plus me-1"></i> @Localizer["Quick Add Customer"]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">@Localizer["Full Name"] *</label>
+                    <input type="text" class="form-control" id="quickCustomerName" placeholder="e.g. Ramesh Patil" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Localizer["Mobile Number"] *</label>
+                    <input type="tel" class="form-control" id="quickCustomerMobile" placeholder="10 digits starting 6-9" pattern="^[6-9]\d{9}$" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">@Localizer["Credit Limit (₹)"]</label>
+                    <input type="number" class="form-control" id="quickCustomerLimit" value="5000" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                <button type="button" class="btn btn-teal" id="btnSaveQuickCustomer">@Localizer["Save Customer"]</button>
+            </div>
+        </div>
+    </div>
+</div>

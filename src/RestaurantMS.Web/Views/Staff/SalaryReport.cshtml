@@ -1,0 +1,123 @@
+@model RestaurantMS.Web.Models.SalaryReportViewModel
+@{
+    ViewData["Title"] = Localizer["Staff_SalaryReport_Title"].Value;
+}
+
+<div class="salary-report-page d-flex flex-column gap-3">
+    <!-- Header with KPI Badges -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-file-earmark-spreadsheet text-plum me-2"></i> @Localizer["Staff_SalaryReport_Title"]</h2>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span>Payroll Period: <strong class="text-ink">@Model.MonthName</strong></span>
+                    <span>&bull;</span>
+                    <span>Gross: <strong class="text-ink">₹@Model.TotalGrossSalary.ToString("N0")</strong></span>
+                    <span>&bull;</span>
+                    <span class="text-chili">Advance Recovered: <strong>₹@Model.TotalAdvanceDeductions.ToString("N0")</strong></span>
+                    <span>&bull;</span>
+                    <span class="text-teal"><strong class="badge bg-teal-subtle text-teal">₹@Model.TotalNetPayable.ToString("N0") Net Payable</strong></span>
+                </div>
+            </div>
+
+            <!-- Month/Year Filter & Print -->
+            <form method="get" class="d-flex align-items-center gap-2">
+                <select name="month" class="form-select form-select-sm" onchange="this.form.submit()">
+                    @for (int m = 1; m <= 12; m++)
+                    {
+                        <option value="@m" selected="@(m == Model.Month)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                    }
+                </select>
+                <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="2025" selected="@(Model.Year == 2025)">2025</option>
+                    <option value="2026" selected="@(Model.Year == 2026)">2026</option>
+                </select>
+                <a asp-action="Advances" class="btn btn-outline-saffron px-3 py-2 fw-semibold">
+                    <i class="bi bi-cash-coin me-1"></i> Advances
+                </a>
+                <button type="button" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Print Payslips
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Salary Statement Table Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="text-center">Code</th>
+                        <th class="text-start">Staff Name</th>
+                        <th class="text-center">Role</th>
+                        <th class="text-end">Base Pay</th>
+                        <th class="text-center">Attended</th>
+                        <th class="text-end">Earned Pay</th>
+                        <th class="text-end">Overtime</th>
+                        <th class="text-end text-chili">Advance Ded.</th>
+                        <th class="text-end">Net Salary</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Salaries)
+                    {
+                        <tr>
+                            <td class="text-center font-monospace text-muted">@s.EmployeeCode</td>
+                            <td class="text-start fw-bold text-ink">
+                                <a asp-action="Details" asp-route-id="@s.StaffId" class="text-decoration-none text-ink hover-underline">
+                                    @s.EmployeeName
+                                </a>
+                            </td>
+                            <td class="text-center"><span class="badge bg-plum-subtle text-plum">@s.Designation</span></td>
+                            <td class="text-end font-monospace">₹@s.MonthlyBaseSalary.ToString("N0")</td>
+                            <td class="text-center font-monospace small">@s.AttendedDays / @s.TotalDaysInMonth</td>
+                            <td class="text-end font-monospace">₹@s.GrossEarnedSalary.ToString("N0")</td>
+                            <td class="text-end font-monospace text-teal">+₹@s.OvertimeBonus.ToString("N0")</td>
+                            <td class="text-end font-monospace text-chili fw-semibold">-₹@s.AdvanceDeduction.ToString("N0")</td>
+                            <td class="text-end font-monospace fw-bold text-ink">₹@s.NetPayableSalary.ToString("N0")</td>
+                            <td class="text-center">
+                                @if (s.PaymentStatus == "Paid")
+                                {
+                                    <span class="badge bg-teal-subtle text-teal">Paid</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning-subtle text-warning">Pending</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                @if (s.PaymentStatus == "Paid")
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-secondary py-1 px-2" onclick="Swal.fire('Receipt', 'Payslip sent to WhatsApp', 'info')">
+                                        <i class="bi bi-whatsapp text-teal"></i> Slip
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-teal py-1 px-2" onclick="Swal.fire('Disbursed!', 'Salary marked as paid', 'success')">
+                                        <i class="bi bi-cash me-1"></i> Pay
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot class="table-light fw-bold">
+                    <tr>
+                        <td colspan="3" class="text-start">Grand Total</td>
+                        <td class="text-end font-monospace">₹@Model.Salaries.Sum(s => s.MonthlyBaseSalary).ToString("N0")</td>
+                        <td class="text-center">-</td>
+                        <td class="text-end font-monospace">₹@Model.TotalGrossSalary.ToString("N0")</td>
+                        <td class="text-end font-monospace text-teal">+₹@Model.Salaries.Sum(s => s.OvertimeBonus).ToString("N0")</td>
+                        <td class="text-end font-monospace text-chili">-₹@Model.TotalAdvanceDeductions.ToString("N0")</td>
+                        <td class="text-end font-monospace text-ink">₹@Model.TotalNetPayable.ToString("N0")</td>
+                        <td colspan="2" class="text-center text-teal">@(Model.Salaries.Count(s => s.PaymentStatus == "Paid")) of @Model.Salaries.Count Disbursed</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

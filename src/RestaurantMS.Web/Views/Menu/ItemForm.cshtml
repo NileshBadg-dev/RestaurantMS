@@ -1,0 +1,121 @@
+@model RestaurantMS.Web.Models.MenuItemFormViewModel
+@{
+    ViewData["Title"] = Localizer["Menu_ItemForm_Title"].Value;
+}
+
+<div class="item-form-page" style="max-width: 850px; margin: 0 auto;">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-egg-fried text-plum me-2"></i> @Localizer["Menu_ItemForm_Title"]</h3>
+                <div class="text-muted small">Dish pricing, dietary classifications, kitchen station &amp; food images</div>
+            </div>
+            <a asp-action="Items" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Dishes
+            </a>
+        </div>
+
+        <form asp-action="ItemForm" method="post" id="itemForm" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-4">
+                    <label asp-for="ItemCode" class="form-label fw-bold small text-ink">Dish / SKU Code *</label>
+                    <input asp-for="ItemCode" class="form-control font-monospace" placeholder="e.g. ST-01" required />
+                    <span asp-validation-for="ItemCode" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-8">
+                    <label asp-for="NameEn" class="form-label fw-bold small text-ink">Dish Name (English) *</label>
+                    <input asp-for="NameEn" class="form-control" placeholder="e.g. Paneer Butter Masala" required />
+                    <span asp-validation-for="NameEn" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="NameMr" class="form-label fw-bold small text-ink">Dish Name (मराठी) *</label>
+                    <input asp-for="NameMr" class="form-control" placeholder="उदा. पनीर बटर मसाला" required />
+                    <span asp-validation-for="NameMr" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="CategoryId" class="form-label fw-bold small text-ink">Category *</label>
+                    <select asp-for="CategoryId" class="form-select">
+                        <option value="cat1">Main Course</option>
+                        <option value="cat2">Starters</option>
+                        <option value="cat3">Breads &amp; Roti</option>
+                        <option value="cat4">Desserts &amp; Beverages</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="Price" class="form-label fw-bold small text-ink">Selling Price (₹) *</label>
+                    <money-input asp-for="Price" />
+                    <span asp-validation-for="Price" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="TaxRate" class="form-label fw-bold small text-ink">GST Tax Rate (%)</label>
+                    <select asp-for="TaxRate" class="form-select font-monospace">
+                        <option value="0.0">0% (Nil)</option>
+                        <option value="5.0" selected>5% (2.5% CGST + 2.5% SGST)</option>
+                        <option value="12.0">12% (6% CGST + 6% SGST)</option>
+                        <option value="18.0">18% (9% CGST + 9% SGST)</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="KitchenStation" class="form-label fw-bold small text-ink">Target Kitchen Station</label>
+                    <select asp-for="KitchenStation" class="form-select">
+                        <option value="Main">Main Curry Kitchen</option>
+                        <option value="Tandoor">Tandoor &amp; Breads</option>
+                        <option value="Chinese">Chinese Wok</option>
+                        <option value="Bar">Beverages &amp; Dessert</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded-3 bg-light">
+                        <label class="form-label fw-bold small text-ink d-block">Dietary Classification</label>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="IsVegetarian" value="true" id="vegRadio" checked />
+                            <label class="form-check-label text-success fw-bold" for="vegRadio"><i class="bi bi-circle-fill me-1"></i> Vegetarian</label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" asp-for="IsVegetarian" value="false" id="nonVegRadio" />
+                            <label class="form-check-label text-danger fw-bold" for="nonVegRadio"><i class="bi bi-triangle-fill me-1"></i> Non-Vegetarian</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="p-3 border rounded-3 bg-light">
+                        <label class="form-label fw-bold small text-ink d-block">Status</label>
+                        <div class="form-check form-switch mt-2">
+                            <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="availCheck" checked />
+                            <label class="form-check-label fw-semibold text-ink" for="availCheck">Available for Ordering Today</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Shared Image Uploader Partial -->
+                <div class="col-12">
+                    <partial name="_ImageUploader" model='new ImageUploaderModel {
+                        Name = "ItemImages",
+                        Label = "Dish Photographs (Up to 3 images, 2 MB max)",
+                        HelpText = "JPG, PNG or WEBP. File signature is verified.",
+                        MaxImages = 3,
+                        MaxSizeMb = 2
+                    }' />
+                </div>
+            </div>
+
+            <div class="border-top pt-3 d-flex justify-content-end gap-2">
+                <a asp-action="Items" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i> Save Dish
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

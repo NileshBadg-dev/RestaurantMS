@@ -1,0 +1,60 @@
+@model RestaurantMS.Web.Models.ReportsHubViewModel
+@{
+    ViewData["Title"] = Localizer["Reports_Title"].Value;
+}
+
+<div class="reports-hub-page d-flex flex-column gap-3">
+    <!-- Header with Category Tabs -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-bar-chart-line text-plum me-2"></i> @Localizer["Reports_Title"]</h2>
+                <div class="text-muted small">Standard operational, financial, GST compliance &amp; performance analytics</div>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="ProfitLoss" class="btn btn-teal px-3 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-graph-up me-1"></i> Profit &amp; Loss Statement
+                </a>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 border-top mt-3 pt-3 overflow-x-auto">
+            <a asp-action="Index" asp-route-category="All" class="btn btn-sm @(Model.SelectedCategory == "All" ? "btn-plum" : "btn-light border") rounded-pill px-3">All Reports</a>
+            <a asp-action="Index" asp-route-category="Sales" class="btn btn-sm @(Model.SelectedCategory == "Sales" ? "btn-plum" : "btn-light border") rounded-pill px-3">Sales</a>
+            <a asp-action="Index" asp-route-category="Financial" class="btn btn-sm @(Model.SelectedCategory == "Financial" ? "btn-plum" : "btn-light border") rounded-pill px-3">Financial &amp; GST</a>
+            <a asp-action="Index" asp-route-category="Operations" class="btn btn-sm @(Model.SelectedCategory == "Operations" ? "btn-plum" : "btn-light border") rounded-pill px-3">Operations &amp; Staff</a>
+            <a asp-action="Index" asp-route-category="Inventory" class="btn btn-sm @(Model.SelectedCategory == "Inventory" ? "btn-plum" : "btn-light border") rounded-pill px-3">Inventory</a>
+        </div>
+    </div>
+
+    <!-- Reports Cards Grid -->
+    <div class="row g-3">
+        @foreach (var r in Model.Reports)
+        {
+            <div class="col-12 col-md-6 col-xl-4">
+                <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100 d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-plum-subtle text-plum font-monospace">@r.Key</span>
+                            <span class="badge bg-light text-muted border">@r.Category</span>
+                        </div>
+                        <h5 class="fw-bold text-ink mb-1">
+                            <i class="bi @r.Icon text-plum me-2"></i>@r.Title
+                        </h5>
+                        @if (!string.IsNullOrWhiteSpace(r.MarathiTitle))
+                        {
+                            <div class="text-muted small mb-1">@r.MarathiTitle</div>
+                        }
+                        <p class="small text-muted mb-3">@r.Description</p>
+                    </div>
+
+                    <div class="pt-3 border-top mt-auto text-end">
+                        <a asp-action="ViewReport" asp-route-code="@r.Key" class="btn btn-sm btn-plum px-3 py-1 fw-semibold">
+                            Generate Report <i class="bi bi-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,62 @@
+@model RestaurantMS.Web.Models.CategoryFormViewModel
+@{
+    ViewData["Title"] = Localizer["Menu_CategoryForm_Title"].Value;
+}
+
+<div class="category-form-page" style="max-width: 600px; margin: 0 auto;">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-tag text-plum me-2"></i> @Localizer["Menu_CategoryForm_Title"]</h3>
+                <div class="text-muted small">Configure menu section and display sorting</div>
+            </div>
+            <a asp-action="Categories" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </a>
+        </div>
+
+        <form asp-action="CategoryForm" method="post" id="categoryForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label asp-for="NameEn" class="form-label fw-bold small text-ink">Category Name (English) *</label>
+                    <input asp-for="NameEn" class="form-control" placeholder="e.g. Starters & Snacks" required />
+                    <span asp-validation-for="NameEn" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="NameMr" class="form-label fw-bold small text-ink">Category Name (मराठी) *</label>
+                    <input asp-for="NameMr" class="form-control" placeholder="उदा. स्टार्टर्स आणि स्नॅक्स" required />
+                    <span asp-validation-for="NameMr" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Icon" class="form-label fw-bold small text-ink">Bootstrap Icon Class</label>
+                    <input asp-for="Icon" class="form-control" placeholder="bi-cup-hot" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="DisplayOrder" class="form-label fw-bold small text-ink">Display Order</label>
+                    <input asp-for="DisplayOrder" type="number" class="form-control" min="1" value="1" />
+                    <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <div class="form-check form-switch mt-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" id="categoryActiveCheck" checked />
+                        <label class="form-check-label fw-semibold small text-ink" for="categoryActiveCheck">Visible on POS Terminal</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top pt-3 d-flex justify-content-end gap-2">
+                <a asp-action="Categories" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i> Save Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,75 @@
+@model RestaurantMS.Web.Models.CustomerListViewModel
+@{
+    ViewData["Title"] = Localizer["Customers_Title"].Value;
+}
+
+<div class="customers-page d-flex flex-column gap-3">
+    <!-- Header with KPI Badges -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-people text-plum me-2"></i> @Localizer["Customers_Title"]</h2>
+                <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
+                    <span class="text-chili"><strong class="badge bg-danger-subtle text-chili">₹@Model.TotalOutstanding.ToString("N0") Outstanding Udhari</strong></span>
+                    <span class="text-plum"><strong class="badge bg-plum-subtle text-plum">@Model.TotalCreditCustomers Active Credit Accounts</strong></span>
+                    <span>&bull;</span>
+                    <span class="text-muted">Total Limit: ₹@Model.TotalCreditLimit.ToString("N0")</span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Ageing" class="btn btn-outline-plum px-3 py-2 fw-semibold">
+                    <i class="bi bi-bar-chart-steps me-1"></i> Ageing Analysis
+                </a>
+                <a asp-action="Create" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-person-plus me-1"></i> Add Customer
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customers Grid Table -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 font-monospace" id="customersTable">
+                <thead class="table-light small text-muted text-uppercase font-sans">
+                    <tr>
+                        <th class="text-start">Customer Name</th>
+                        <th class="text-start">Mobile</th>
+                        <th class="text-end">Outstanding</th>
+                        <th class="text-end">Credit Limit</th>
+                        <th class="text-center font-sans">Status</th>
+                        <th class="text-end font-sans">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var c in Model.Customers)
+                    {
+                        <tr>
+                            <td class="text-start fw-bold text-ink font-sans">@c.Name</td>
+                            <td class="text-start font-monospace small font-sans"><i class="bi bi-telephone text-muted me-1"></i>@c.Mobile</td>
+                            <td class="text-end fw-bold font-monospace @(c.OutstandingBalance > 0 ? "text-chili" : "text-muted")">
+                                ₹@c.OutstandingBalance.ToString("N2")
+                            </td>
+                            <td class="text-end font-monospace text-muted">₹@c.CreditLimit.ToString("N0")</td>
+                            <td class="text-center font-sans">
+                                <status-chip status="@(c.CreditAllowed ? "Active" : "Blocked")" />
+                            </td>
+                            <td class="text-end font-sans">
+                                <a asp-action="Ledger" asp-route-id="@c.Id" class="btn btn-sm btn-outline-plum me-1" title="View Ledger">
+                                    <i class="bi bi-journal-text me-1"></i> Ledger
+                                </a>
+                                @if (c.OutstandingBalance > 0)
+                                {
+                                    <a asp-action="Receipt" asp-route-id="@c.Id.ToString()" class="btn btn-sm btn-teal text-white" title="Receive Payment">
+                                        <i class="bi bi-cash me-1"></i> Pay
+                                    </a>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

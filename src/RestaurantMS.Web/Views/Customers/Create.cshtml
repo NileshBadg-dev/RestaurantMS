@@ -1,0 +1,75 @@
+@model RestaurantMS.Web.Models.CustomerFormViewModel
+@{
+    ViewData["Title"] = Localizer["Customers_Create_Title"].Value;
+}
+
+<div class="customer-create-page" style="max-width: 800px; margin: 0 auto;">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-person-plus text-plum me-2"></i> @Localizer["Customers_Create_Title"]</h3>
+                <div class="text-muted small">Register a customer profile for udhari credit tracking &amp; loyalty</div>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Customers
+            </a>
+        </div>
+
+        <form asp-action="Create" method="post" id="customerForm">
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-6">
+                    <label asp-for="FullName" class="form-label fw-bold small text-ink">Full Name *</label>
+                    <input asp-for="FullName" class="form-control" placeholder="e.g. Ramesh Patil" required />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="MobileNumber" class="form-label fw-bold small text-ink">Mobile Number *</label>
+                    <mobile-input asp-for="MobileNumber" />
+                    <span asp-validation-for="MobileNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Email" class="form-label fw-bold small text-ink">Email (Optional)</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="ramesh@example.com" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Gstin" class="form-label fw-bold small text-ink">GSTIN (for B2B customers)</label>
+                    <input asp-for="Gstin" class="form-control font-monospace" placeholder="27AAAAA0000A1Z2" maxlength="15" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="CreditLimit" class="form-label fw-bold small text-ink">Credit Limit (₹)</label>
+                    <money-input asp-for="CreditLimit" />
+                    <span asp-validation-for="CreditLimit" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="CreditDays" class="form-label fw-bold small text-ink">Credit Period (Days)</label>
+                    <input asp-for="CreditDays" type="number" class="form-control" min="0" max="365" value="30" />
+                    <span asp-validation-for="CreditDays" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label fw-bold small text-ink">Address</label>
+                    <input asp-for="Address" class="form-control" placeholder="Shop / Home address" />
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label fw-bold small text-ink">Internal Notes</label>
+                    <textarea asp-for="Notes" class="form-control" rows="2" placeholder="e.g. Regular lunch customer, monthly account settlement"></textarea>
+                </div>
+            </div>
+
+            <div class="border-top pt-3 d-flex justify-content-end gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i> Save Customer
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

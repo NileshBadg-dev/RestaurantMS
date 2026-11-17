@@ -1,0 +1,69 @@
+@model RestaurantMS.Web.Models.SupplierFormViewModel
+@{
+    ViewData["Title"] = Localizer["Inventory_SupplierForm_Title"].Value;
+}
+
+<div class="supplier-form-page" style="max-width: 650px; margin: 0 auto;">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-truck text-plum me-2"></i> @Localizer["Inventory_SupplierForm_Title"]</h3>
+                <div class="text-muted small">Vendor profile and payment credit terms</div>
+            </div>
+            <a asp-action="Suppliers" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Suppliers
+            </a>
+        </div>
+
+        <form asp-action="SupplierForm" method="post" id="supplierForm">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3 mb-4">
+                <div class="col-12">
+                    <label asp-for="Name" class="form-label fw-bold small text-ink">Supplier / Firm Name *</label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. Pawar Dairy Products" required />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="ContactPerson" class="form-label fw-bold small text-ink">Contact Person</label>
+                    <input asp-for="ContactPerson" class="form-control" placeholder="e.g. Dnyaneshwar Pawar" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Phone" class="form-label fw-bold small text-ink">Mobile / Phone *</label>
+                    <mobile-input asp-for="Phone" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Email" class="form-label fw-bold small text-ink">Email (Optional)</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="vendor@example.com" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="Gstin" class="form-label fw-bold small text-ink">GSTIN (Optional)</label>
+                    <input asp-for="Gstin" class="form-control font-monospace" placeholder="27AAAAA0000A1Z2" maxlength="15" />
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Address" class="form-label fw-bold small text-ink">Shop / Warehouse Address</label>
+                    <input asp-for="Address" class="form-control" placeholder="Market Yard, Sector 4" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="CreditDays" class="form-label fw-bold small text-ink">Credit Term (Days)</label>
+                    <input asp-for="CreditDays" type="number" class="form-control" value="30" min="0" max="180" />
+                </div>
+            </div>
+
+            <div class="border-top pt-3 d-flex justify-content-end gap-2">
+                <a asp-action="Suppliers" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i> Save Supplier
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

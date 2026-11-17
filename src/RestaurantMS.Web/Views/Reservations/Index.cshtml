@@ -1,0 +1,66 @@
+@model RestaurantMS.Web.Models.ReservationListViewModel
+@{
+    ViewData["Title"] = Localizer["Reservations_Title"].Value;
+}
+
+<div class="reservations-page d-flex flex-column gap-3">
+    <!-- Header with KPI Badges -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-calendar-check text-plum me-2"></i> @Localizer["Reservations_Title"]</h2>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span><strong class="text-ink">@Model.TodayReservationsCount</strong> Bookings Today</span>
+                    <span>&bull;</span>
+                    <span class="text-teal"><strong class="badge bg-teal-subtle text-teal">@Model.ConfirmedCount Confirmed</strong></span>
+                    <span class="text-saffron"><strong class="badge bg-warning-subtle text-dark">@Model.PendingCount Pending Confirmation</strong></span>
+                </div>
+            </div>
+
+            <a asp-action="Create" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
+                <i class="bi bi-calendar-plus me-1"></i> New Reservation
+            </a>
+        </div>
+    </div>
+
+    <!-- Reservations Table Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="text-center">Time</th>
+                        <th class="text-center">Table</th>
+                        <th class="text-start">Customer Name</th>
+                        <th class="text-start">Mobile</th>
+                        <th class="text-center">Guests</th>
+                        <th class="text-start">Special Notes</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model.Reservations)
+                    {
+                        <tr>
+                            <td class="text-center fw-bold font-monospace text-plum"><i class="bi bi-clock me-1"></i>@r.ReservationTime</td>
+                            <td class="text-center"><span class="badge bg-plum text-white font-monospace">@r.TableCode</span></td>
+                            <td class="text-start fw-bold text-ink">@r.CustomerName</td>
+                            <td class="text-start font-monospace small"><i class="bi bi-telephone text-muted me-1"></i>@r.Mobile</td>
+                            <td class="text-center"><i class="bi bi-people me-1"></i>@r.GuestsCount</td>
+                            <td class="text-start small text-muted text-truncate" style="max-width: 200px;">@(string.IsNullOrEmpty(r.SpecialRequest) ? "-" : r.SpecialRequest)</td>
+                            <td class="text-center">
+                                <partial name="_StatusChip" model="r.Status" />
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Orders" asp-action="New" asp-route-table="@r.TableCode" class="btn btn-sm btn-outline-teal">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Seat
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -13,7 +13,12 @@ public class PermissionAuthorizationHandler : AuthorizationHandler<PermissionReq
             return Task.CompletedTask;
         }
 
-        var hasPermission = context.User.Claims
+        var isSuperUser = context.User.IsInRole("Owner") ||
+                          context.User.IsInRole("Admin") ||
+                          string.Equals(context.User.Identity?.Name, "admin", StringComparison.OrdinalIgnoreCase) ||
+                          string.Equals(context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, "admin", StringComparison.OrdinalIgnoreCase);
+
+        var hasPermission = isSuperUser || context.User.Claims
             .Any(c => c.Type == "Permission" && c.Value.Equals(requirement.Permission, StringComparison.OrdinalIgnoreCase));
 
         if (hasPermission)

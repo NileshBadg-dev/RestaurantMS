@@ -1,0 +1,80 @@
+@model RestaurantMS.Web.Models.ReservationFormViewModel
+@{
+    ViewData["Title"] = Localizer["Reservations_Create_Title"].Value;
+}
+
+<div class="reservation-create-page" style="max-width: 650px; margin: 0 auto;">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-calendar-plus text-plum me-2"></i> @Localizer["Reservations_Create_Title"]</h3>
+                <div class="text-muted small">Reserve a table for guests, set date/time &amp; collect advance</div>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Reservations
+            </a>
+        </div>
+
+        <form asp-action="Create" method="post" id="reservationForm">
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-6">
+                    <label asp-for="CustomerName" class="form-label fw-bold small text-ink">Guest / Customer Name *</label>
+                    <input asp-for="CustomerName" class="form-control" placeholder="e.g. Rahul Deshmukh" required />
+                    <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="MobileNumber" class="form-label fw-bold small text-ink">Mobile Number *</label>
+                    <mobile-input asp-for="MobileNumber" />
+                    <span asp-validation-for="MobileNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="ReservationDate" class="form-label fw-bold small text-ink">Booking Date</label>
+                    <input asp-for="ReservationDate" type="date" class="form-control" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="ReservationTime" class="form-label fw-bold small text-ink">Booking Time</label>
+                    <input asp-for="ReservationTime" type="time" class="form-control" value="19:30" />
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="GuestCount" class="form-label fw-bold small text-ink">Guests *</label>
+                    <input asp-for="GuestCount" type="number" class="form-control" min="1" max="50" value="4" />
+                    <span asp-validation-for="GuestCount" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="TableNumber" class="form-label fw-bold small text-ink">Assign Table *</label>
+                    <select asp-for="TableNumber" class="form-select">
+                        <option value="T1">T1 (Ground AC · 4 Seater)</option>
+                        <option value="T3" selected>T3 (Ground AC · 4 Seater)</option>
+                        <option value="T5">T5 (Family Garden · 6 Seater)</option>
+                        <option value="T7">T7 (Family Garden · 4 Seater)</option>
+                        <option value="T9">T9 (Rooftop · 8 Seater)</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label asp-for="AdvanceAmount" class="form-label fw-bold small text-ink">Advance Paid (₹)</label>
+                    <money-input asp-for="AdvanceAmount" />
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="Notes" class="form-label fw-bold small text-ink">Special Arrangements / Notes</label>
+                    <textarea asp-for="Notes" class="form-control" rows="2" placeholder="e.g. Birthday decoration, high chair for infant"></textarea>
+                </div>
+            </div>
+
+            <div class="border-top pt-3 d-flex justify-content-end gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i> Confirm Reservation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

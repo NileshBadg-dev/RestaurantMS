@@ -10,6 +10,9 @@ using RestaurantMS.Infrastructure;
 using RestaurantMS.Infrastructure.Persistence;
 using RestaurantMS.Web;
 using RestaurantMS.Web.Authorization;
+using RestaurantMS.Web.SampleData;
+using RestaurantMS.Web.Services;
+using FluentValidation;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -30,6 +33,14 @@ try
 
     builder.Services.AddApplication();
     builder.Services.AddInfrastructure(builder.Configuration);
+
+    // Current User Context from Web Session
+    builder.Services.AddHttpContextAccessor();
+    builder.Services.AddScoped<ICurrentUser, WebCurrentUser>();
+
+    // Phase 2 Sample UI Data Services & Validators
+    builder.Services.AddSampleUiData(useSampleData: true);
+    builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
     // Localization
     builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");

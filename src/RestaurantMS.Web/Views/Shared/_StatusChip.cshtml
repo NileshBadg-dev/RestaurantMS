@@ -1,0 +1,30 @@
+@model string
+
+@{
+    var status = Model ?? "Default";
+    var lower = status.ToLowerInvariant();
+    var cssClass = lower switch
+    {
+        "free" or "served" or "ready" or "active" or "paid" or "settled" => "status-free",
+        "occupied" or "late" or "late order" or "danger" or "cancelled" or "unpaid" => "status-occupied",
+        "reserved" or "preparing" or "warning" or "parcel" or "partially paid" => "status-reserved",
+        "cleaning" or "ordered" or "muted" or "new" => "status-cleaning",
+        "billing" or "dine-in" => "status-billing",
+        _ => "status-cleaning"
+    };
+
+    var icon = lower switch
+    {
+        "free" or "ready" or "served" or "paid" or "settled" or "active" => "bi-check-circle-fill",
+        "occupied" or "late" or "late order" or "cancelled" or "unpaid" => "bi-exclamation-circle-fill",
+        "reserved" or "preparing" or "warning" or "partially paid" => "bi-clock-fill",
+        "cleaning" => "bi-stars",
+        "ordered" or "new" => "bi-hourglass-split",
+        _ => "bi-circle-fill"
+    };
+}
+
+<span class="status-chip @cssClass">
+    <i class="bi @icon" style="font-size:0.75rem;"></i>
+    @status
+</span>
