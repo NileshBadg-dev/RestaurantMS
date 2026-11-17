@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="AppName" xml:space="preserve"><value>Restaurant Management System</value></data>
+  <data name="Nav_Dashboard" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Nav_Users" xml:space="preserve"><value>Users</value></data>
+  <data name="Nav_Roles" xml:space="preserve"><value>Roles &amp; Permissions</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>Hotel Settings</value></data>
+  <data name="Nav_FeatureToggles" xml:space="preserve"><value>Feature Toggles</value></data>
+  <data name="Nav_Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Nav_Logout" xml:space="preserve"><value>Sign Out</value></data>
+  <data name="Nav_ChangePassword" xml:space="preserve"><value>Change Password</value></data>
+
+  <data name="Login_Title" xml:space="preserve"><value>Sign In</value></data>
+  <data name="Login_Subtitle" xml:space="preserve"><value>Enter your credentials to access your account</value></data>
+  <data name="Login_UserId" xml:space="preserve"><value>User ID</value></data>
+  <data name="Login_Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Login_RememberMe" xml:space="preserve"><value>Remember Me</value></data>
+  <data name="Login_ForgotPassword" xml:space="preserve"><value>Forgot Password?</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>Sign In</value></data>
+  <data name="Login_ShowPassword" xml:space="preserve"><value>Show Password</value></data>
+  <data name="Login_HidePassword" xml:space="preserve"><value>Hide Password</value></data>
+  <data name="Login_GenericError" xml:space="preserve"><value>Incorrect User ID or password.</value></data>
+
+  <data name="Btn_Save" xml:space="preserve"><value>Save Changes</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Btn_Create" xml:space="preserve"><value>Create New</value></data>
+  <data name="Btn_Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Btn_Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="Btn_Activate" xml:space="preserve"><value>Activate</value></data>
+  <data name="Btn_Deactivate" xml:space="preserve"><value>Deactivate</value></data>
+  <data name="Btn_ResetPassword" xml:space="preserve"><value>Reset Password</value></data>
+  <data name="Btn_Back" xml:space="preserve"><value>Back to List</value></data>
+  <data name="Btn_Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Btn_Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Btn_Search" xml:space="preserve"><value>Search</value></data>
+  <data name="Btn_Reset" xml:space="preserve"><value>Reset</value></data>
+
+  <data name="Users_Title" xml:space="preserve"><value>User Management</value></data>
+  <data name="Users_Subtitle" xml:space="preserve"><value>Manage staff credentials, assigned roles and account status.</value></data>
+  <data name="Users_CreateNew" xml:space="preserve"><value>Add New User</value></data>
+  <data name="Users_EditUser" xml:space="preserve"><value>Edit User</value></data>
+  <data name="Users_SearchPlaceholder" xml:space="preserve"><value>Search by User ID, Name, Mobile or Email...</value></data>
+  <data name="Users_Col_UserId" xml:space="preserve"><value>User ID</value></data>
+  <data name="Users_Col_Name" xml:space="preserve"><value>Full Name</value></data>
+  <data name="Users_Col_Role" xml:space="preserve"><value>Role</value></data>
+  <data name="Users_Col_Contact" xml:space="preserve"><value>Contact</value></data>
+  <data name="Users_Col_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Users_Col_Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Users_Status_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Users_Status_Inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="Users_Empty" xml:space="preserve"><value>No users found matching your criteria.</value></data>
+
+  <data name="Roles_Title" xml:space="preserve"><value>Roles &amp; Permissions</value></data>
+  <data name="Roles_Subtitle" xml:space="preserve"><value>Configure operational roles and assign granular screen capabilities.</value></data>
+  <data name="Roles_CreateNew" xml:space="preserve"><value>Add New Role</value></data>
+  <data name="Roles_EditRole" xml:space="preserve"><value>Edit Role</value></data>
+  <data name="Roles_Col_Name" xml:space="preserve"><value>Role Name</value></data>
+  <data name="Roles_Col_Desc" xml:space="preserve"><value>Description</value></data>
+  <data name="Roles_Col_Users" xml:space="preserve"><value>Assigned Users</value></data>
+  <data name="Roles_Col_Permissions" xml:space="preserve"><value>Permissions</value></data>
+  <data name="Roles_Col_Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Roles_SystemBadge" xml:space="preserve"><value>System Role</value></data>
+  <data name="Roles_Matrix_Title" xml:space="preserve"><value>Permission Matrix for</value></data>
+  <data name="Roles_Matrix_Screen" xml:space="preserve"><value>Screen / Module</value></data>
+
+  <data name="Settings_Title" xml:space="preserve"><value>Hotel Settings</value></data>
+  <data name="Settings_Subtitle" xml:space="preserve"><value>Configure hotel branding, legal identifiers, receipt templates and regional settings.</value></data>
+  <data name="Settings_Tab_Profile" xml:space="preserve"><value>Hotel Profile</value></data>
+  <data name="Settings_Tab_Billing" xml:space="preserve"><value>Billing &amp; Tax</value></data>
+  <data name="Settings_Tab_Printing" xml:space="preserve"><value>Printing &amp; Receipts</value></data>
+  <data name="Settings_Tab_Language" xml:space="preserve"><value>Language &amp; Region</value></data>
+
+  <data name="FeatureToggles_Title" xml:space="preserve"><value>Feature Toggles</value></data>
+  <data name="FeatureToggles_Subtitle" xml:space="preserve"><value>Control operational features across the hotel dynamically.</value></data>
+
+  <data name="Language_English" xml:space="preserve"><value>English</value></data>
+  <data name="Language_Marathi" xml:space="preserve"><value>मराठी</value></data>
+
+  <data name="ChangePassword_Title" xml:space="preserve"><value>Change Password</value></data>
+  <data name="ChangePassword_Subtitle" xml:space="preserve"><value>Update your password to keep your account secure.</value></data>
+  <data name="ForgotPassword_Title" xml:space="preserve"><value>Forgot Password</value></data>
+  <data name="ForgotPassword_Subtitle" xml:space="preserve"><value>Reset your account password through system administrator.</value></data>
+
+  <data name="AccessDenied_Title" xml:space="preserve"><value>Access Denied</value></data>
+  <data name="AccessDenied_Message" xml:space="preserve"><value>You do not have the necessary permission to access this resource. Please contact your manager.</value></data>
+</root>

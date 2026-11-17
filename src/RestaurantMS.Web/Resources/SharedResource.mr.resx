@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <data name="AppName" xml:space="preserve"><value>रेस्टॉरंट व्यवस्थापन प्रणाली</value></data>
+  <data name="Nav_Dashboard" xml:space="preserve"><value>डॅशबोर्ड</value></data>
+  <data name="Nav_Users" xml:space="preserve"><value>वापरकर्ते</value></data>
+  <data name="Nav_Roles" xml:space="preserve"><value>भूमिका आणि परवानग्या</value></data>
+  <data name="Nav_Settings" xml:space="preserve"><value>हॉटेल सेटिंग्ज</value></data>
+  <data name="Nav_FeatureToggles" xml:space="preserve"><value>वैशिष्ट्य नियंत्रणे</value></data>
+  <data name="Nav_Profile" xml:space="preserve"><value>प्रोफाइल</value></data>
+  <data name="Nav_Logout" xml:space="preserve"><value>बाहेर पडा</value></data>
+  <data name="Nav_ChangePassword" xml:space="preserve"><value>पासवर्ड बदला</value></data>
+
+  <data name="Login_Title" xml:space="preserve"><value>लॉगिन करा</value></data>
+  <data name="Login_Subtitle" xml:space="preserve"><value>आपल्या खात्यामध्ये प्रवेश करण्यासाठी माहिती भरा</value></data>
+  <data name="Login_UserId" xml:space="preserve"><value>वापरकर्ता आयडी (User ID)</value></data>
+  <data name="Login_Password" xml:space="preserve"><value>पासवर्ड</value></data>
+  <data name="Login_RememberMe" xml:space="preserve"><value>माझी नोंद ठेवा</value></data>
+  <data name="Login_ForgotPassword" xml:space="preserve"><value>पासवर्ड विसरलात?</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>लॉगिन करा</value></data>
+  <data name="Login_ShowPassword" xml:space="preserve"><value>पासवर्ड दाखवा</value></data>
+  <data name="Login_HidePassword" xml:space="preserve"><value>पासवर्ड लपवा</value></data>
+  <data name="Login_GenericError" xml:space="preserve"><value>वापरकर्ता आयडी किंवा पासवर्ड चुकीचा आहे.</value></data>
+
+  <data name="Btn_Save" xml:space="preserve"><value>बदल जतन करा</value></data>
+  <data name="Btn_Cancel" xml:space="preserve"><value>रद्द करा</value></data>
+  <data name="Btn_Create" xml:space="preserve"><value>नवीन तयार करा</value></data>
+  <data name="Btn_Edit" xml:space="preserve"><value>संपादित करा</value></data>
+  <data name="Btn_Delete" xml:space="preserve"><value>हटवा</value></data>
+  <data name="Btn_Activate" xml:space="preserve"><value>सक्रिय करा</value></data>
+  <data name="Btn_Deactivate" xml:space="preserve"><value>निष्क्रिय करा</value></data>
+  <data name="Btn_ResetPassword" xml:space="preserve"><value>पासवर्ड रीसेट करा</value></data>
+  <data name="Btn_Back" xml:space="preserve"><value>यादीकडे परत जा</value></data>
+  <data name="Btn_Close" xml:space="preserve"><value>बंद करा</value></data>
+  <data name="Btn_Confirm" xml:space="preserve"><value>नक्की करा</value></data>
+  <data name="Btn_Search" xml:space="preserve"><value>शोधा</value></data>
+  <data name="Btn_Reset" xml:space="preserve"><value>रीसेट</value></data>
+
+  <data name="Users_Title" xml:space="preserve"><value>वापरकर्ता व्यवस्थापन</value></data>
+  <data name="Users_Subtitle" xml:space="preserve"><value>कर्मचाऱ्यांची खाती, भूमिका आणि प्रवेश परवानग्या व्यवस्थापित करा.</value></data>
+  <data name="Users_CreateNew" xml:space="preserve"><value>नवीन वापरकर्ता जोडा</value></data>
+  <data name="Users_EditUser" xml:space="preserve"><value>वापरकर्ता संपादित करा</value></data>
+  <data name="Users_SearchPlaceholder" xml:space="preserve"><value>आयडी, नाव, मोबाइल किंवा ईमेलने शोधा...</value></data>
+  <data name="Users_Col_UserId" xml:space="preserve"><value>वापरकर्ता आयडी</value></data>
+  <data name="Users_Col_Name" xml:space="preserve"><value>पूर्ण नाव</value></data>
+  <data name="Users_Col_Role" xml:space="preserve"><value>भूमिका</value></data>
+  <data name="Users_Col_Contact" xml:space="preserve"><value>संपर्क</value></data>
+  <data name="Users_Col_Status" xml:space="preserve"><value>स्थिती</value></data>
+  <data name="Users_Col_Actions" xml:space="preserve"><value>क्रिया</value></data>
+  <data name="Users_Status_Active" xml:space="preserve"><value>सक्रिय</value></data>
+  <data name="Users_Status_Inactive" xml:space="preserve"><value>निष्क्रिय</value></data>
+  <data name="Users_Empty" xml:space="preserve"><value>कोणतेही वापरकर्ते आढळले नाहीत.</value></data>
+
+  <data name="Roles_Title" xml:space="preserve"><value>भूमिका आणि परवानग्या</value></data>
+  <data name="Roles_Subtitle" xml:space="preserve"><value>कर्मचारी भूमिका तयार करा आणि स्क्रीननुसार परवानग्या निश्चित करा.</value></data>
+  <data name="Roles_CreateNew" xml:space="preserve"><value>नवीन भूमिका जोडा</value></data>
+  <data name="Roles_EditRole" xml:space="preserve"><value>भूमिका संपादित करा</value></data>
+  <data name="Roles_Col_Name" xml:space="preserve"><value>भूमिकेचे नाव</value></data>
+  <data name="Roles_Col_Desc" xml:space="preserve"><value>वर्णन</value></data>
+  <data name="Roles_Col_Users" xml:space="preserve"><value>वापरकर्ते संख्या</value></data>
+  <data name="Roles_Col_Permissions" xml:space="preserve"><value>परवानग्या</value></data>
+  <data name="Roles_Col_Actions" xml:space="preserve"><value>क्रिया</value></data>
+  <data name="Roles_SystemBadge" xml:space="preserve"><value>सिस्टम भूमिका</value></data>
+  <data name="Roles_Matrix_Title" xml:space="preserve"><value>परवानगी मॅट्रिक्स:</value></data>
+  <data name="Roles_Matrix_Screen" xml:space="preserve"><value>स्क्रीन / विभाग</value></data>
+
+  <data name="Settings_Title" xml:space="preserve"><value>हॉटेल सेटिंग्ज</value></data>
+  <data name="Settings_Subtitle" xml:space="preserve"><value>हॉटेलचे नाव, लोगो, कर तपशील, पावती आणि प्रादेशिक भाषा निवडा.</value></data>
+  <data name="Settings_Tab_Profile" xml:space="preserve"><value>हॉटेल प्रोफाइल</value></data>
+  <data name="Settings_Tab_Billing" xml:space="preserve"><value>बिलिंग आणि कर</value></data>
+  <data name="Settings_Tab_Printing" xml:space="preserve"><value>मुद्रण आणि पावत्या</value></data>
+  <data name="Settings_Tab_Language" xml:space="preserve"><value>भाषा आणि प्रदेश</value></data>
+
+  <data name="FeatureToggles_Title" xml:space="preserve"><value>वैशिष्ट्य नियंत्रणे (Feature Toggles)</value></data>
+  <data name="FeatureToggles_Subtitle" xml:space="preserve"><value>हॉटेलच्या विविध सुविधा चालू किंवा बंद करा.</value></data>
+
+  <data name="Language_English" xml:space="preserve"><value>English</value></data>
+  <data name="Language_Marathi" xml:space="preserve"><value>मराठी</value></data>
+
+  <data name="ChangePassword_Title" xml:space="preserve"><value>पासवर्ड बदला</value></data>
+  <data name="ChangePassword_Subtitle" xml:space="preserve"><value>आपले खाते सुरक्षित ठेवण्यासाठी नवीन पासवर्ड सेट करा.</value></data>
+  <data name="ForgotPassword_Title" xml:space="preserve"><value>पासवर्ड विसरलात?</value></data>
+  <data name="ForgotPassword_Subtitle" xml:space="preserve"><value>सिस्टम ॲडमिनिस्ट्रेटरशी संपर्क साधून पासवर्ड रीसेट करा.</value></data>
+
+  <data name="AccessDenied_Title" xml:space="preserve"><value>प्रवेश नाकारला (Access Denied)</value></data>
+  <data name="AccessDenied_Message" xml:space="preserve"><value>आपल्याकडे या पानावर जाण्याची परवानगी नाही. कृपया व्यवस्थापकाशी संपर्क साधा.</value></data>
+</root>

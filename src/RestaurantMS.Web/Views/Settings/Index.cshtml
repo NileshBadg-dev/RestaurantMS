@@ -1,0 +1,187 @@
+@model RestaurantMS.Web.Models.HotelSettingsViewModel
+@{
+    ViewData["Title"] = Localizer["Settings_Title"].Value;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+    <div>
+        <h2 class="h4 fw-bold text-dark mb-1">@Localizer["Settings_Title"]</h2>
+        <p class="text-muted small mb-0">@Localizer["Settings_Subtitle"]</p>
+    </div>
+    <div>
+        <button type="submit" form="settingsForm" class="btn btn-primary btn-sm px-4" permission="@Permissions.Settings.Edit">
+            <i class="bi bi-floppy me-1"></i> @Localizer["Btn_Save"]
+        </button>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom p-0">
+        <ul class="nav nav-tabs card-header-tabs mx-3 mt-2" id="settingsTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(Model.ActiveTab == "profile" ? "active fw-bold" : "")" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-pane" type="button" role="tab">
+                    <i class="bi bi-building me-1"></i> @Localizer["Settings_Tab_Profile"]
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(Model.ActiveTab == "billing" ? "active fw-bold" : "")" id="billing-tab" data-bs-toggle="tab" data-bs-target="#billing-pane" type="button" role="tab">
+                    <i class="bi bi-receipt me-1"></i> @Localizer["Settings_Tab_Billing"]
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(Model.ActiveTab == "printing" ? "active fw-bold" : "")" id="printing-tab" data-bs-toggle="tab" data-bs-target="#printing-pane" type="button" role="tab">
+                    <i class="bi bi-printer me-1"></i> @Localizer["Settings_Tab_Printing"]
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link @(Model.ActiveTab == "language" ? "active fw-bold" : "")" id="language-tab" data-bs-toggle="tab" data-bs-target="#language-pane" type="button" role="tab">
+                    <i class="bi bi-globe me-1"></i> @Localizer["Settings_Tab_Language"]
+                </button>
+            </li>
+        </ul>
+    </div>
+
+    <div class="card-body p-4">
+        @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+        {
+            <div class="alert alert-danger py-2 small mb-4">
+                @ViewData.ModelState[string.Empty]!.Errors[0].ErrorMessage
+            </div>
+        }
+
+        <form id="settingsForm" asp-action="Index" method="post" enctype="multipart/form-data" novalidate>
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="LogoUrl" />
+            <input type="hidden" asp-for="ActiveTab" id="activeTabInput" />
+
+            <div class="tab-content" id="settingsTabContent">
+                <!-- Tab 1: Hotel Profile -->
+                <div class="tab-pane fade @(Model.ActiveTab == "profile" ? "show active" : "")" id="profile-pane" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="HotelNameEn" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="HotelNameEn" class="form-control" />
+                            <span asp-validation-for="HotelNameEn" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="HotelNameMr" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="HotelNameMr" class="form-control" />
+                            <span asp-validation-for="HotelNameMr" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="Email" class="form-control" type="email" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="ContactNumber" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="ContactNumber" class="form-control" />
+                            <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Address" class="form-label fw-semibold small text-secondary"></label>
+                            <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                            <span asp-validation-for="Address" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="LogoFile" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="LogoFile" class="form-control" type="file" accept=".jpg,.jpeg,.png,.webp" />
+                            <span asp-validation-for="LogoFile" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+                            {
+                                <div class="p-2 border rounded bg-light">
+                                    <span class="small text-muted d-block mb-1">Current Logo Preview:</span>
+                                    <img src="@Model.LogoUrl" alt="Logo" class="img-fluid" style="max-height: 50px;" onerror="this.style.display='none'" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Billing & Tax -->
+                <div class="tab-pane fade @(Model.ActiveTab == "billing" ? "show active" : "")" id="billing-pane" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Gstin" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="Gstin" class="form-control text-uppercase" placeholder="e.g. 27AAAAA0000A1Z5" />
+                            <span asp-validation-for="Gstin" class="text-danger small"></span>
+                            <div class="form-text small">15-character valid GSTIN with checksum.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Fssai" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="Fssai" class="form-control" placeholder="14 digits" />
+                            <span asp-validation-for="Fssai" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Currency" class="form-label fw-semibold small text-secondary"></label>
+                            <select asp-for="Currency" class="form-select">
+                                <option value="INR">INR (₹ - Indian Rupee)</option>
+                                <option value="USD">USD ($ - US Dollar)</option>
+                                <option value="EUR">EUR (€ - Euro)</option>
+                                <option value="GBP">GBP (£ - British Pound)</option>
+                            </select>
+                            <span asp-validation-for="Currency" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: Printing & Receipts -->
+                <div class="tab-pane fade @(Model.ActiveTab == "printing" ? "show active" : "")" id="printing-pane" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label asp-for="ReceiptHeader" class="form-label fw-semibold small text-secondary"></label>
+                            <textarea asp-for="ReceiptHeader" class="form-control font-monospace" rows="3" placeholder="Text displayed at top of customer invoice"></textarea>
+                            <span asp-validation-for="ReceiptHeader" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="ReceiptFooter" class="form-label fw-semibold small text-secondary"></label>
+                            <textarea asp-for="ReceiptFooter" class="form-control font-monospace" rows="3" placeholder="Text displayed at bottom of customer invoice"></textarea>
+                            <span asp-validation-for="ReceiptFooter" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 4: Language & Region -->
+                <div class="tab-pane fade @(Model.ActiveTab == "language" ? "show active" : "")" id="language-pane" role="tabpanel">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="Timezone" class="form-label fw-semibold small text-secondary"></label>
+                            <select asp-for="Timezone" class="form-select">
+                                <option value="Asia/Kolkata">Asia/Kolkata (IST - UTC+05:30)</option>
+                                <option value="UTC">UTC (Coordinated Universal Time)</option>
+                            </select>
+                            <span asp-validation-for="Timezone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="alert alert-light border small">
+                                <h6 class="fw-bold mb-1"><i class="bi bi-info-circle text-primary me-1"></i> Multi-language Support</h6>
+                                <p class="mb-0 text-muted">The system supports full dual-language English and Marathi (मराठी) localization. Staff members can toggle their interface language instantly using the language button in the header bar.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('#settingsTab button[data-bs-toggle="tab"]').forEach(btn => {
+            btn.addEventListener('shown.bs.tab', function (e) {
+                var tabId = e.target.getAttribute('data-bs-target').replace('#', '').replace('-pane', '');
+                document.getElementById('activeTabInput').value = tabId;
+            });
+        });
+    </script>
+}

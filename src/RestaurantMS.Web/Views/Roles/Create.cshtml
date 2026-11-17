@@ -1,0 +1,48 @@
+@model RestaurantMS.Web.Models.CreateRoleViewModel
+@{
+    ViewData["Title"] = Localizer["Roles_CreateNew"].Value;
+}
+
+<div class="row justify-content-center py-3">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0 text-dark">@Localizer["Roles_CreateNew"]</h5>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">@Localizer["Btn_Back"]</a>
+            </div>
+            <div class="card-body p-4">
+                @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
+                {
+                    <div class="alert alert-danger py-2 small mb-3">
+                        @ViewData.ModelState[string.Empty]!.Errors[0].ErrorMessage
+                    </div>
+                }
+
+                <form asp-action="Create" method="post" novalidate>
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label fw-semibold small text-secondary"></label>
+                        <input asp-for="Name" class="form-control" placeholder="e.g. Supervisor" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Description" class="form-label fw-semibold small text-secondary"></label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Brief explanation of duties and access level"></textarea>
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 pt-2 border-top">
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm px-3">@Localizer["Btn_Cancel"]</a>
+                        <button type="submit" class="btn btn-primary btn-sm px-4">@Localizer["Btn_Save"]</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
