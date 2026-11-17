@@ -46,7 +46,9 @@
   <data name="Login_Password" xml:space="preserve"><value>Password</value></data>
   <data name="Login_RememberMe" xml:space="preserve"><value>Remember Me</value></data>
   <data name="Login_ForgotPassword" xml:space="preserve"><value>Forgot Password?</value></data>
-  <data name="Login_Submit" xml:space="preserve"><value>Sign In</value></data>
+  <data name="Login_Submit" xml:space="preserve"><value>Sign In to POS</value></data>
+  <data name="Login_LoginButton" xml:space="preserve"><value>Sign In to POS</value></data>
+  <data name="Login_SignInButton" xml:space="preserve"><value>Sign In to POS</value></data>
   <data name="Login_ShowPassword" xml:space="preserve"><value>Show Password</value></data>
   <data name="Login_HidePassword" xml:space="preserve"><value>Hide Password</value></data>
   <data name="Login_GenericError" xml:space="preserve"><value>Incorrect User ID or password.</value></data>
@@ -113,4 +115,85 @@
 
   <data name="AccessDenied_Title" xml:space="preserve"><value>Access Denied</value></data>
   <data name="AccessDenied_Message" xml:space="preserve"><value>You do not have the necessary permission to access this resource. Please contact your manager.</value></data>
+
+  <!-- Phase 2 Navigation -->
+  <data name="Nav_Tables" xml:space="preserve"><value>Tables</value></data>
+  <data name="Nav_Parcel" xml:space="preserve"><value>Parcel</value></data>
+  <data name="Nav_Orders" xml:space="preserve"><value>Orders</value></data>
+  <data name="Nav_Kitchen" xml:space="preserve"><value>Kitchen</value></data>
+  <data name="Nav_Billing" xml:space="preserve"><value>Billing</value></data>
+  <data name="Nav_Customers" xml:space="preserve"><value>Customers</value></data>
+  <data name="Nav_Accounts" xml:space="preserve"><value>Accounts</value></data>
+  <data name="Nav_Reports" xml:space="preserve"><value>Reports</value></data>
+  <data name="Nav_Menu" xml:space="preserve"><value>Menu Management</value></data>
+  <data name="Nav_Inventory" xml:space="preserve"><value>Inventory</value></data>
+  <data name="Nav_Staff" xml:space="preserve"><value>Staff</value></data>
+  <data name="Nav_Reservations" xml:space="preserve"><value>Reservations</value></data>
+  <data name="Nav_DayClosing" xml:space="preserve"><value>Day Closing</value></data>
+  <data name="Nav_Masters" xml:space="preserve"><value>Masters</value></data>
+  <data name="Masters_Title" xml:space="preserve"><value>Masters Management</value></data>
+  <data name="Masters_Subtitle" xml:space="preserve"><value>Configure and manage all restaurant master data and catalogs</value></data>
+  <data name="Common_Back" xml:space="preserve"><value>Back</value></data>
+
+  <!-- Login Restyle -->
+  <data name="Login_WelcomeTitle" xml:space="preserve"><value>Welcome back</value></data>
+  <data name="Login_WelcomeSubtitle" xml:space="preserve"><value>Sign in to your restaurant POS system</value></data>
+
+  <!-- Dashboard -->
+  <data name="Dashboard_Title" xml:space="preserve"><value>Dashboard</value></data>
+  <data name="Dashboard_Kpi_TodaySales" xml:space="preserve"><value>Today's Sales</value></data>
+  <data name="Dashboard_Kpi_OrdersDone" xml:space="preserve"><value>Orders Done</value></data>
+  <data name="Dashboard_Kpi_ParcelsDone" xml:space="preserve"><value>Parcels Done</value></data>
+  <data name="Dashboard_Kpi_ActiveTables" xml:space="preserve"><value>Active Tables</value></data>
+  <data name="Dashboard_Kpi_AvgTableTime" xml:space="preserve"><value>Average Table Time</value></data>
+  <data name="Dashboard_Chart_SalesByHour" xml:space="preserve"><value>Sales by Hour (Dine-in vs Parcel)</value></data>
+  <data name="Dashboard_TopSellingToday" xml:space="preserve"><value>Top Selling Items Today</value></data>
+  <data name="Dashboard_Chart_7DaySales" xml:space="preserve"><value>7-Day Sales Trend</value></data>
+
+  <!-- Screen Titles -->
+  <data name="Tables_Title" xml:space="preserve"><value>Table Floor Plan</value></data>
+  <data name="Kitchen_Title" xml:space="preserve"><value>Kitchen Display System</value></data>
+  <data name="Billing_Title" xml:space="preserve"><value>Billing &amp; Settlement</value></data>
+  <data name="Parcel_Title" xml:space="preserve"><value>Parcel &amp; Takeaway Counter</value></data>
+  <data name="Parcel_Create_Title" xml:space="preserve"><value>Create New Parcel</value></data>
+  <data name="Orders_Title" xml:space="preserve"><value>Active Orders</value></data>
+  <data name="Orders_New_Title" xml:space="preserve"><value>Take Order (POS)</value></data>
+  <data name="Customers_Title" xml:space="preserve"><value>Customers &amp; Udhari Ledger</value></data>
+  <data name="Customers_Create_Title" xml:space="preserve"><value>Add New Customer</value></data>
+  <data name="Customers_Ledger_Title" xml:space="preserve"><value>Customer Ledger Account</value></data>
+  <data name="Customers_Receipt_Title" xml:space="preserve"><value>Receive Customer Payment</value></data>
+  <data name="Customers_Ageing_Title" xml:space="preserve"><value>Udhari Ageing Analysis</value></data>
+  <data name="Menu_Categories_Title" xml:space="preserve"><value>Menu Categories</value></data>
+  <data name="Menu_CategoryForm_Title" xml:space="preserve"><value>Menu Category</value></data>
+  <data name="Menu_Items_Title" xml:space="preserve"><value>Menu Dishes &amp; Pricing</value></data>
+  <data name="Menu_ItemForm_Title" xml:space="preserve"><value>Dish Details</value></data>
+  <data name="Inventory_Title" xml:space="preserve"><value>Current Stock Inventory</value></data>
+  <data name="Inventory_Purchase_Title" xml:space="preserve"><value>Inward Stock Purchase</value></data>
+  <data name="Inventory_Suppliers_Title" xml:space="preserve"><value>Suppliers &amp; Vendors</value></data>
+  <data name="Inventory_SupplierForm_Title" xml:space="preserve"><value>Supplier Details</value></data>
+  <data name="Inventory_LowStock_Title" xml:space="preserve"><value>Low Stock Reorder Alerts</value></data>
+  <data name="Accounts_Title" xml:space="preserve"><value>Chart of Accounts</value></data>
+  <data name="Accounts_Vouchers_Title" xml:space="preserve"><value>Accounting Vouchers</value></data>
+  <data name="Accounts_CreateVoucher_Title" xml:space="preserve"><value>Create Voucher Entry</value></data>
+  <data name="Accounts_DayBook_Title" xml:space="preserve"><value>Day Book</value></data>
+  <data name="Accounts_CashBook_Title" xml:space="preserve"><value>Cash Book</value></data>
+  <data name="Reports_Title" xml:space="preserve"><value>Reports &amp; Analytics Hub</value></data>
+  <data name="Staff_Title" xml:space="preserve"><value>Staff &amp; Attendance</value></data>
+  <data name="Staff_Create_Title" xml:space="preserve"><value>Add Staff Member</value></data>
+  <data name="Reservations_Title" xml:space="preserve"><value>Table Reservations</value></data>
+  <data name="Reservations_Create_Title" xml:space="preserve"><value>Book Table Reservation</value></data>
+  <data name="DayClosing_Title" xml:space="preserve"><value>Day Closing &amp; Shift Settlement</value></data>
+  <data name="Nav_OnlineOrders" xml:space="preserve"><value>Online Orders</value></data>
+  <data name="Nav_Suppliers" xml:space="preserve"><value>Suppliers &amp; Vendors</value></data>
+  <data name="Nav_StaffAttendance" xml:space="preserve"><value>Staff Attendance</value></data>
+  <data name="Nav_StaffAdvances" xml:space="preserve"><value>Employee Advances</value></data>
+  <data name="Nav_SalaryReport" xml:space="preserve"><value>Salary Statement</value></data>
+  <data name="Nav_EmployeeReport" xml:space="preserve"><value>Employee Performance</value></data>
+  <data name="OnlineOrders_Title" xml:space="preserve"><value>Online Aggregator Orders</value></data>
+  <data name="Staff_Attendance_Title" xml:space="preserve"><value>Daily Staff Attendance</value></data>
+  <data name="Staff_Advances_Title" xml:space="preserve"><value>Employee Advances Ledger</value></data>
+  <data name="Staff_SalaryReport_Title" xml:space="preserve"><value>Monthly Payroll &amp; Salary Statement</value></data>
+  <data name="Staff_EmployeeReport_Title" xml:space="preserve"><value>Employee Performance &amp; Analytics</value></data>
+  <data name="Staff_Details_Title" xml:space="preserve"><value>Staff Profile &amp; Details</value></data>
+  <data name="Reports_ProfitLoss_Title" xml:space="preserve"><value>Profit &amp; Loss (P&amp;L) Statement</value></data>
 </root>

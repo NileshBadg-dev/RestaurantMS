@@ -87,6 +87,7 @@ public class AccountController : Controller
             new(ClaimTypes.NameIdentifier, loginData.UserId),
             new(ClaimTypes.Name, loginData.FullName),
             new(ClaimTypes.Role, loginData.RoleName),
+            new("UserId", loginData.UserId),
             new("MustChangePassword", loginData.MustChangePassword.ToString())
         };
 

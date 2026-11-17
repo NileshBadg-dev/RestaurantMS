@@ -1,0 +1,77 @@
+@model RestaurantMS.Web.Models.EmployeeReportViewModel
+@{
+    ViewData["Title"] = Localizer["Staff_EmployeeReport_Title"].Value;
+}
+
+<div class="employee-report-page d-flex flex-column gap-3">
+    <!-- Header with KPI Badges -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-graph-up-arrow text-plum me-2"></i> @Localizer["Staff_EmployeeReport_Title"]</h2>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span>Avg Attendance: <strong class="text-teal">@Model.OverallAttendanceRate.ToString("F1")%</strong></span>
+                    <span>&bull;</span>
+                    <span>Tables Served: <strong class="text-ink">@Model.TotalTablesServed</strong></span>
+                    <span>&bull;</span>
+                    <span>Total Sales Generated: <strong class="text-ink">₹@Model.TotalSalesContribution.ToString("N0")</strong></span>
+                </div>
+            </div>
+
+            <!-- Date Range & Back -->
+            <form method="get" class="d-flex align-items-center gap-2">
+                <input type="date" name="from" class="form-control form-control-sm text-ink" value="@Model.FromDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()" />
+                <span class="text-muted small">to</span>
+                <input type="date" name="to" class="form-control form-control-sm text-ink" value="@Model.ToDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()" />
+                <a asp-action="Index" class="btn btn-outline-secondary px-3 py-2">
+                    <i class="bi bi-people me-1"></i> Staff List
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Performance Table Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="text-start">Employee Name</th>
+                        <th class="text-center">Designation</th>
+                        <th class="text-center">Shifts</th>
+                        <th class="text-center">Attendance %</th>
+                        <th class="text-center">Tables Served</th>
+                        <th class="text-center">Orders Handled</th>
+                        <th class="text-end">Sales Value</th>
+                        <th class="text-end">Avg Order Value</th>
+                        <th class="text-center">Guest Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Employees)
+                    {
+                        <tr>
+                            <td class="text-start fw-bold text-ink">
+                                <a asp-action="Details" asp-route-id="@row.StaffId" class="text-decoration-none text-ink hover-underline">
+                                    @row.EmployeeName
+                                </a>
+                            </td>
+                            <td class="text-center"><span class="badge bg-plum-subtle text-plum">@row.Designation</span></td>
+                            <td class="text-center font-monospace">@row.ShiftsAttended</td>
+                            <td class="text-center font-monospace fw-semibold @(row.AttendancePercentage >= 90 ? "text-teal" : "text-warning")">
+                                @row.AttendancePercentage.ToString("F1")%
+                            </td>
+                            <td class="text-center font-monospace">@row.TablesServed</td>
+                            <td class="text-center font-monospace">@row.OrdersPunched</td>
+                            <td class="text-end font-monospace fw-bold text-ink">₹@row.TotalSalesValue.ToString("N0")</td>
+                            <td class="text-end font-monospace text-muted">₹@row.AverageOrderValue.ToString("N0")</td>
+                            <td class="text-center">
+                                <span class="badge bg-warning text-dark"><i class="bi bi-star-fill text-dark me-1"></i>@row.Rating.ToString("F1")</span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

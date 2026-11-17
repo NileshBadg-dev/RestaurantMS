@@ -1,0 +1,130 @@
+@model RestaurantMS.Web.Models.PurchaseEntryViewModel
+@{
+    ViewData["Title"] = Localizer["Inventory_Purchase_Title"].Value;
+}
+
+<div class="purchase-entry-page" style="max-width: 950px; margin: 0 auto;">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-cart-plus text-plum me-2"></i> @Localizer["Inventory_Purchase_Title"]</h3>
+                <div class="text-muted small">Record raw material &amp; ingredient purchase from vendor</div>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Inventory
+            </a>
+        </div>
+
+        <form asp-action="Purchase" method="post" id="purchaseForm">
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-4">
+                    <label asp-for="SupplierId" class="form-label fw-bold small text-ink">Supplier / Vendor *</label>
+                    <select asp-for="SupplierId" class="form-select">
+                        <option value="sup1">Pawar Dairy Products</option>
+                        <option value="sup2">Kisan Fresh Vegetables</option>
+                        <option value="sup3">Shree Ganesh Spices &amp; Grocery</option>
+                    </select>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="InvoiceNumber" class="form-label fw-bold small text-ink">Vendor Invoice # *</label>
+                    <input asp-for="InvoiceNumber" class="form-control font-monospace" placeholder="e.g. INV-2024-89" required />
+                    <span asp-validation-for="InvoiceNumber" class="text-danger small"></span>
+                </div>
+
+                <div class="col-12 col-md-4">
+                    <label asp-for="InvoiceDate" class="form-label fw-bold small text-ink">Invoice Date</label>
+                    <input asp-for="InvoiceDate" type="date" class="form-control" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+                </div>
+            </div>
+
+            <!-- Items Inward Grid Table -->
+            <div class="table-responsive mb-4 border rounded-3 p-2 bg-light">
+                <table class="table table-sm align-middle mb-0" id="purchaseItemsTable">
+                    <thead class="small text-muted text-uppercase">
+                        <tr>
+                            <th>Item Name</th>
+                            <th style="width: 110px;">Qty</th>
+                            <th style="width: 90px;">Unit</th>
+                            <th style="width: 120px;" class="text-end">Rate (₹)</th>
+                            <th style="width: 100px;">Tax (%)</th>
+                            <th style="width: 130px;" class="text-end">Total (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Items.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="text" name="Items[@i].ItemName" class="form-control form-control-sm" value="@Model.Items[i].ItemName" />
+                                </td>
+                                <td>
+                                    <input type="number" name="Items[@i].Quantity" class="form-control form-control-sm text-end" value="@Model.Items[i].Quantity" />
+                                </td>
+                                <td>
+                                    <select name="Items[@i].Unit" class="form-select form-select-sm">
+                                        <option value="Kg">Kg</option>
+                                        <option value="Ltr">Ltr</option>
+                                        <option value="Pkt">Pkt</option>
+                                        <option value="Nos">Nos</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="number" name="Items[@i].Rate" class="form-control form-control-sm text-end" value="@Model.Items[i].Rate" />
+                                </td>
+                                <td>
+                                    <input type="number" name="Items[@i].TaxRate" class="form-control form-control-sm text-end" value="@Model.Items[i].TaxRate" />
+                                </td>
+                                <td>
+                                    <input type="number" name="Items[@i].Total" class="form-control form-control-sm text-end fw-bold font-monospace" value="@Model.Items[i].Total" readonly />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Totals & Payment Mode -->
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-6">
+                    <label asp-for="PaymentMode" class="form-label fw-bold small text-ink">Payment Mode</label>
+                    <select asp-for="PaymentMode" class="form-select">
+                        <option value="Credit">Credit (Pay Later to Supplier)</option>
+                        <option value="Cash">Cash Paid Immediately</option>
+                        <option value="Bank">Bank Transfer (UPI / RTGS)</option>
+                    </select>
+                    <div class="mt-2">
+                        <label asp-for="Notes" class="form-label small text-muted">Notes / Delivery Memo</label>
+                        <input asp-for="Notes" class="form-control form-control-sm" placeholder="Optional notes" />
+                    </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <div class="p-3 bg-cream rounded-3 border">
+                        <div class="d-flex justify-content-between py-1 small">
+                            <span class="text-muted">Subtotal:</span>
+                            <span class="font-monospace">₹@Model.Subtotal.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-1 small border-bottom pb-2">
+                            <span class="text-muted">GST Tax:</span>
+                            <span class="font-monospace">₹@Model.TaxTotal.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between pt-2 fs-5 fw-bold text-ink">
+                            <span>Invoice Grand Total:</span>
+                            <span class="font-monospace text-plum">₹@Model.GrandTotal.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top pt-3 d-flex justify-content-end gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
+                    <i class="bi bi-check-circle me-1"></i> Save Purchase Entry
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

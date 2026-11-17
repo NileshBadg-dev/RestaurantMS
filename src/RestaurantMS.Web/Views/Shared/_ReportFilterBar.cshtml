@@ -1,0 +1,94 @@
+@model RestaurantMS.Web.Models.ReportFilterBarModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+
+<div class="app-card shadow-sm p-3 mb-4">
+    <form method="get" class="row g-2 align-items-end">
+        @if (Model.ShowDateRange)
+        {
+            <div class="col-12 col-sm-6 col-md-3">
+                <label class="form-label small text-muted">@Localizer["From Date"]</label>
+                <input type="date" name="from" value="@Model.StartDate" class="form-control form-control-sm" />
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+                <label class="form-label small text-muted">@Localizer["To Date"]</label>
+                <input type="date" name="to" value="@Model.EndDate" class="form-control form-control-sm" />
+            </div>
+        }
+
+        @if (Model.ShowShift)
+        {
+            <div class="col-12 col-sm-6 col-md-2">
+                <label class="form-label small text-muted">@Localizer["Shift"]</label>
+                <select name="shift" class="form-select form-select-sm">
+                    <option value="All">@Localizer["All Shifts"]</option>
+                    <option value="Morning">@Localizer["Morning Shift"]</option>
+                    <option value="Evening">@Localizer["Evening Shift"]</option>
+                    <option value="Night">@Localizer["Night Shift"]</option>
+                </select>
+            </div>
+        }
+
+        @if (Model.ShowWaiter)
+        {
+            <div class="col-12 col-sm-6 col-md-2">
+                <label class="form-label small text-muted">@Localizer["Waiter / Captain"]</label>
+                <select name="waiter" class="form-select form-select-sm">
+                    <option value="All">@Localizer["All Staff"]</option>
+                    <option value="Suresh">Suresh Patil</option>
+                    <option value="Anil">Anil Deshmukh</option>
+                    <option value="Meena">Meena Jadhav</option>
+                </select>
+            </div>
+        }
+
+        @if (Model.ShowTable)
+        {
+            <div class="col-12 col-sm-6 col-md-2">
+                <label class="form-label small text-muted">@Localizer["Table / Section"]</label>
+                <select name="table" class="form-select form-select-sm">
+                    <option value="All">@Localizer["All Tables"]</option>
+                    <option value="AC">AC Hall</option>
+                    <option value="Garden">Garden</option>
+                    <option value="Family">Family Hall</option>
+                </select>
+            </div>
+        }
+
+        @if (Model.ShowCategory)
+        {
+            <div class="col-12 col-sm-6 col-md-2">
+                <label class="form-label small text-muted">@Localizer["Menu Category"]</label>
+                <select name="category" class="form-select form-select-sm">
+                    <option value="All">@Localizer["All Categories"]</option>
+                    <option value="Main Course">Main Course</option>
+                    <option value="Biryani">Biryani & Rice</option>
+                    <option value="Breads">Breads</option>
+                    <option value="Beverages">Beverages</option>
+                </select>
+            </div>
+        }
+
+        @if (Model.ShowPaymentMode)
+        {
+            <div class="col-12 col-sm-6 col-md-2">
+                <label class="form-label small text-muted">@Localizer["Payment Mode"]</label>
+                <select name="paymentMode" class="form-select form-select-sm">
+                    <option value="All">@Localizer["All Modes"]</option>
+                    <option value="Cash">Cash</option>
+                    <option value="UPI">UPI</option>
+                    <option value="Card">Card</option>
+                    <option value="Udhari">Udhari (Credit)</option>
+                </select>
+            </div>
+        }
+
+        <div class="col-12 col-sm-6 col-md-auto d-flex gap-2">
+            <button type="submit" class="btn btn-sm btn-plum">
+                <i class="bi bi-funnel me-1"></i> @Localizer["Filter"]
+            </button>
+            <a href="?" class="btn btn-sm btn-outline-secondary">
+                @Localizer["Reset"]
+            </a>
+        </div>
+    </form>
+</div>

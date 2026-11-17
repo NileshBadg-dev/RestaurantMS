@@ -1,0 +1,58 @@
+@model RestaurantMS.Web.Models.DayBookViewModel
+@{
+    ViewData["Title"] = Localizer["Accounts_DayBook_Title"].Value;
+}
+
+<div class="daybook-page d-flex flex-column gap-3">
+    <!-- Header with Date Picker -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-calendar3 text-plum me-2"></i> @Localizer["Accounts_DayBook_Title"]</h2>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span>Total Debits: <strong class="text-chili font-monospace">₹@Model.TotalDebit.ToString("N2")</strong></span>
+                    <span>&bull;</span>
+                    <span>Total Credits: <strong class="text-teal font-monospace">₹@Model.TotalCredit.ToString("N2")</strong></span>
+                </div>
+            </div>
+
+            <form method="get" class="d-flex align-items-center gap-2">
+                <input type="date" name="date" class="form-control form-control-sm" value="@Model.SelectedDate.ToString("yyyy-MM-dd")" onchange="this.form.submit()" />
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Accounts</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Day Book Entries Table -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 font-monospace">
+                <thead class="table-light small text-muted text-uppercase font-sans">
+                    <tr>
+                        <th>Time</th>
+                        <th>Voucher #</th>
+                        <th>Type</th>
+                        <th class="font-sans">Account Name</th>
+                        <th class="font-sans">Narration</th>
+                        <th class="text-end text-chili">Debit (₹)</th>
+                        <th class="text-end text-teal">Credit (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.Entries)
+                    {
+                        <tr>
+                            <td class="small text-muted">@e.Time</td>
+                            <td class="fw-bold text-plum">@e.VoucherNo</td>
+                            <td><span class="badge bg-light text-dark border">@e.VoucherType</span></td>
+                            <td class="font-sans small">@e.AccountName</td>
+                            <td class="font-sans small text-muted">@e.Narration</td>
+                            <td class="text-end @(e.DebitAmount > 0 ? "text-chili fw-bold" : "text-muted")">@(e.DebitAmount > 0 ? "₹" + e.DebitAmount.ToString("N2") : "-")</td>
+                            <td class="text-end @(e.CreditAmount > 0 ? "text-teal fw-bold" : "text-muted")">@(e.CreditAmount > 0 ? "₹" + e.CreditAmount.ToString("N2") : "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

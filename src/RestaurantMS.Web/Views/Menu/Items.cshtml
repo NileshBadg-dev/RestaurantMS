@@ -1,0 +1,117 @@
+@model RestaurantMS.Web.Models.MenuItemsViewModel
+@{
+    ViewData["Title"] = Localizer["Menu_Items_Title"].Value;
+}
+
+<div class="menu-items-page d-flex flex-column gap-3">
+    <!-- Header with KPI Badges -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-egg-fried text-plum me-2"></i> @Localizer["Menu_Items_Title"]</h2>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span><strong class="text-ink">@Model.TotalItems</strong> Items Listed</span>
+                    <span>&bull;</span>
+                    <span class="text-success"><strong class="badge bg-success-subtle text-success">@Model.VegCount Vegetarian</strong></span>
+                    <span class="text-danger"><strong class="badge bg-danger-subtle text-danger">@Model.NonVegCount Non-Vegetarian</strong></span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Categories" class="btn btn-outline-plum px-3 py-2 fw-semibold">
+                    <i class="bi bi-card-list me-1"></i> Categories
+                </a>
+                @if (!User.IsInRole("Waiter"))
+                {
+                    <a asp-action="ItemForm" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
+                        <i class="bi bi-plus-circle me-1"></i> Add Dish
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Grid Table -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th class="text-center" style="width: 50px;">Photo</th>
+                        <th class="text-center">Code</th>
+                        <th class="text-start">Item Name</th>
+                        <th class="text-start">Category</th>
+                        <th class="text-end">Price</th>
+                        <th class="text-end">Tax Rate</th>
+                        <th class="text-center">Type</th>
+                        <th class="text-center">Available</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td class="text-center">
+                                <div class="rounded-3 bg-cream border d-inline-flex align-items-center justify-content-center overflow-hidden" style="width: 44px; height: 44px;">
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <img src="@item.ImageUrl" alt="@item.Name" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='<i class=\'bi bi-image text-muted\'></i>'" />
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-image text-muted"></i>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-center font-monospace fw-semibold text-plum">#@item.Id.ToString("D3")</td>
+                            <td class="text-start">
+                                <div class="fw-bold text-ink">@item.Name</div>
+                                @if (!string.IsNullOrWhiteSpace(item.MarathiName))
+                                {
+                                    <small class="text-muted">@item.MarathiName · @item.PreparationMinutes min</small>
+                                }
+                                else
+                                {
+                                    <small class="text-muted">@item.PreparationMinutes min prep</small>
+                                }
+                            </td>
+                            <td class="text-start"><span class="badge bg-light text-dark border">@item.CategoryName</span></td>
+                            <td class="text-end fw-bold font-monospace text-ink">₹@item.Price.ToString("N2")</td>
+                            <td class="text-end font-monospace text-muted">@item.TaxPercent.ToString("N1")%</td>
+                            <td class="text-center">
+                                <span class="food-type-icon @(item.IsVegetarian ? "veg" : "nonveg") me-1" title="@(item.IsVegetarian ? "Vegetarian" : "Non-Vegetarian")"></span>
+                                <span class="badge @(item.IsVegetarian ? "bg-success" : "bg-danger")" style="font-size: 0.65rem;">
+                                    @(item.IsVegetarian ? "VEG" : "NON-VEG")
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <div class="form-check form-switch d-inline-block">
+                                    <input class="form-check-input" type="checkbox" checked="@item.IsAvailable" />
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                @if (!User.IsInRole("Waiter"))
+                                {
+                                    <a asp-action="ItemForm" asp-route-id="@item.Id" class="btn btn-sm btn-outline-plum py-1 px-2 me-1" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="DeleteItem" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('Remove @item.Name from menu?');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Delete Dish">
+                                            <i class="bi bi-trash3"></i>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">View Only</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

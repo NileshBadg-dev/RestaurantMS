@@ -1,0 +1,255 @@
+<!-- Thermal Bill Print Preview Modal (80 mm & 50 mm) & WhatsApp Sharing -->
+<div class="modal fade" id="thermalBillModal" tabindex="-1" aria-labelledby="thermalBillModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-plum text-white py-2 px-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-printer-fill fs-5 text-saffron"></i>
+                    <h5 class="modal-title h6 mb-0 fw-bold" id="thermalBillModalLabel">Thermal Bill Print Preview</h5>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <!-- 80mm vs 50mm Width Switcher -->
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-light active px-2 py-1 fw-bold" id="btnPaper80" onclick="setThermalPaperWidth('80mm')">80 mm</button>
+                        <button type="button" class="btn btn-outline-light px-2 py-1 fw-bold" id="btnPaper50" onclick="setThermalPaperWidth('50mm')">50 mm</button>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal-body bg-light d-flex justify-content-center p-3 overflow-auto">
+                <!-- Thermal Paper Roll Container -->
+                <div class="thermal-receipt-paper shadow-sm bg-white p-3 font-monospace" id="thermalPaperContainer" style="width: 80mm; min-height: 400px; color: #000; font-size: 12px; line-height: 1.35;">
+                    <!-- Hotel Header with Logo -->
+                    <div class="text-center mb-2">
+                        <div class="d-flex justify-content-center mb-1">
+                            <div class="d-inline-flex align-items-center justify-content-center rounded-circle border border-dark p-1" style="width: 44px; height: 44px;">
+                                <i class="bi bi-egg-fried fs-3 text-dark"></i>
+                            </div>
+                        </div>
+                        <div class="fw-bold fs-6 text-uppercase" id="printHotelName">Grand Restaurant</div>
+                        <div class="small" id="printHotelAddress">Main Road, Shivajinagar, Pune - 411005</div>
+                        <div class="small">Ph: +91 98220 12345</div>
+                        <div class="small">GSTIN: 27AAAAA0000A1Z5 | FSSAI: 11521034000123</div>
+                    </div>
+
+                    <div class="border-top border-bottom border-dark border-dashed my-2 py-1">
+                        <div class="d-flex justify-content-between">
+                            <span>Bill No: <strong id="printBillNo">TAX-2026-0842</strong></span>
+                            <span id="printBillDate">17-Nov-2026 14:30</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Type: <strong id="printOrderType">Dine-in</strong> (<span id="printTableOrToken">T4</span>)</span>
+                            <span>Cashier: Admin</span>
+                        </div>
+                        <div class="d-flex justify-content-between" id="printCustomerRow">
+                            <span>Cust: <strong id="printCustomerName">Ramesh Patil</strong></span>
+                            <span id="printCustomerMobile">9822112233</span>
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    <table class="w-100 mb-2 font-monospace" style="font-size: 11px;">
+                        <thead>
+                            <tr class="border-bottom border-dark border-dashed">
+                                <th class="text-start pb-1">Item</th>
+                                <th class="text-center pb-1" style="width: 32px;">Qty</th>
+                                <th class="text-end pb-1" style="width: 48px;">Rate</th>
+                                <th class="text-end pb-1" style="width: 58px;">Amt</th>
+                            </tr>
+                        </thead>
+                        <tbody id="printItemsTbody">
+                            <tr>
+                                <td class="text-start py-1">Paneer Butter Masala</td>
+                                <td class="text-center py-1">2</td>
+                                <td class="text-end py-1">280.00</td>
+                                <td class="text-end py-1">560.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-start py-1">Butter Roti</td>
+                                <td class="text-center py-1">6</td>
+                                <td class="text-end py-1">30.00</td>
+                                <td class="text-end py-1">180.00</td>
+                            </tr>
+                            <tr>
+                                <td class="text-start py-1">Veg Biryani Handi</td>
+                                <td class="text-center py-1">1</td>
+                                <td class="text-end py-1">240.00</td>
+                                <td class="text-end py-1">240.00</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Summary & Totals -->
+                    <div class="border-top border-dark border-dashed pt-1 small">
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span id="printSubtotal">₹980.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>CGST (2.5%):</span>
+                            <span id="printCgst">₹24.50</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>SGST (2.5%):</span>
+                            <span id="printSgst">₹24.50</span>
+                        </div>
+                        <div class="d-flex justify-content-between" id="printDiscountRow">
+                            <span>Discount:</span>
+                            <span id="printDiscount">- ₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between border-top border-dark border-dashed pt-1 my-1 fw-bold fs-6">
+                            <span>GRAND TOTAL:</span>
+                            <span id="printGrandTotal">₹1,029.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between text-muted">
+                            <span>Payment: <strong id="printPayMode">Cash</strong></span>
+                            <span id="printPayStatus" class="fw-bold text-uppercase">PAID</span>
+                        </div>
+                        <div id="printUdhariBalanceRow" style="display: none;" class="mt-1 p-1 bg-light border border-dark border-dashed">
+                            <div class="d-flex justify-content-between small">
+                                <span>Prev Outstanding:</span>
+                                <span id="printPrevOutstanding">₹0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between small fw-bold">
+                                <span>Total Current Udhari:</span>
+                                <span id="printTotalUdhari">₹1,029.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer & QR Code -->
+                    <div class="text-center mt-3 pt-2 border-top border-dark border-dashed small">
+                        <div class="fw-bold">*** THANK YOU! VISIT AGAIN ***</div>
+                        <div class="text-muted" style="font-size: 10px;">Please check bill before leaving</div>
+                        <div class="my-2 d-inline-block p-1 bg-white border border-dark">
+                            <i class="bi bi-qr-code fs-1 d-block"></i>
+                        </div>
+                        <div class="text-muted" style="font-size: 9px;">Scan to download e-bill or pay via UPI</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer: Print & WhatsApp actions -->
+            <div class="modal-footer d-flex justify-content-between bg-white py-2 px-3">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                    Close
+                </button>
+                <div class="d-flex gap-2">
+                    <!-- WhatsApp Share Button -->
+                    <button type="button" class="btn btn-success btn-sm d-flex align-items-center gap-1 shadow-sm" onclick="sendBillOnWhatsApp()" title="Send bill receipt to customer via WhatsApp">
+                        <i class="bi bi-whatsapp fs-6"></i>
+                        <span>Send WhatsApp Receipt</span>
+                    </button>
+                    <!-- Print Button -->
+                    <button type="button" class="btn btn-plum btn-sm d-flex align-items-center gap-1 shadow-sm px-3" onclick="triggerThermalPrint()">
+                        <i class="bi bi-printer fs-6"></i>
+                        <span>Print Bill</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Thermal Receipt Print Stylesheet */
+.thermal-receipt-paper {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+    margin: 0 auto;
+    transition: width 0.2s ease;
+}
+
+@@media print {
+    body * {
+        visibility: hidden !important;
+    }
+    #thermalBillModal,
+    #thermalBillModal .modal-dialog,
+    #thermalBillModal .modal-content,
+    #thermalBillModal .modal-body,
+    #thermalPaperContainer,
+    #thermalPaperContainer * {
+        visibility: visible !important;
+    }
+    #thermalBillModal {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+    #thermalBillModal .modal-dialog {
+        max-width: 100% !important;
+        margin: 0 !important;
+    }
+    #thermalBillModal .modal-header,
+    #thermalBillModal .modal-footer {
+        display: none !important;
+    }
+    #thermalPaperContainer {
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
+</style>
+
+<script>
+function setThermalPaperWidth(width) {
+    const container = document.getElementById('thermalPaperContainer');
+    const btn80 = document.getElementById('btnPaper80');
+    const btn50 = document.getElementById('btnPaper50');
+
+    if (width === '50mm') {
+        container.style.width = '50mm';
+        container.style.fontSize = '10px';
+        btn50.classList.add('active');
+        btn80.classList.remove('active');
+    } else {
+        container.style.width = '80mm';
+        container.style.fontSize = '12px';
+        btn80.classList.add('active');
+        btn50.classList.remove('active');
+    }
+}
+
+function triggerThermalPrint() {
+    window.print();
+}
+
+function sendBillOnWhatsApp(mobile, billNo, total) {
+    const phone = mobile || document.getElementById('printCustomerMobile')?.textContent?.trim() || '9822112233';
+    const bNo = billNo || document.getElementById('printBillNo')?.textContent?.trim() || 'TAX-2026-0842';
+    const amt = total || document.getElementById('printGrandTotal')?.textContent?.trim() || '₹1,029.00';
+    const hotel = document.getElementById('printHotelName')?.textContent?.trim() || 'Grand Restaurant';
+
+    const msg = `*${hotel}* - Bill Receipt\n` +
+                `Bill No: ${bNo}\n` +
+                `Grand Total: ${amt}\n` +
+                `Status: PAID\n\n` +
+                `Thank you for dining with us! Download your detailed tax invoice here:\n` +
+                `http://localhost:5000/Billing/Receipt?billNo=${bNo}`;
+
+    const cleanPhone = phone.replace(/[^0-9]/g, '');
+    const waPhone = cleanPhone.length === 10 ? '91' + cleanPhone : cleanPhone;
+    const url = `https://api.whatsapp.com/send?phone=${waPhone}&text=${encodeURIComponent(msg)}`;
+
+    // Open WhatsApp Web or App
+    window.open(url, '_blank');
+
+    if (window.Swal) {
+        Swal.fire({
+            icon: 'success',
+            title: 'WhatsApp Receipt Sent!',
+            text: `Receipt message for ${bNo} sent to WhatsApp (+${waPhone}).`,
+            timer: 2500,
+            showConfirmButton: false
+        });
+    } else {
+        alert(`Receipt sent to WhatsApp (+${waPhone})!`);
+    }
+}
+</script>

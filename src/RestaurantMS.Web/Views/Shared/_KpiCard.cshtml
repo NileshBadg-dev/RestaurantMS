@@ -1,0 +1,13 @@
+@model RestaurantMS.Web.Models.KpiCardModel
+
+<div class="kpi-card kpi-card-@Model.Theme">
+    <div class="d-flex justify-content-between align-items-start">
+        <div class="kpi-title">@Model.Title</div>
+        @if (!string.IsNullOrEmpty(Model.Icon))
+        {
+            <i class="bi @Model.Icon fs-5 opacity-75"></i>
+        }
+    </div>
+    <div class="kpi-value">@Model.Value</div>
+    <div class="kpi-subtitle">@Model.Subtitle</div>
+</div>

@@ -1,0 +1,66 @@
+@model RestaurantMS.Web.Models.ChartModel
+
+<div class="card p-3 border-0 shadow-sm rounded-3 bg-white h-100">
+    @if (!string.IsNullOrWhiteSpace(Model.Title))
+    {
+        <h6 class="fw-bold text-ink mb-3">@Model.Title</h6>
+    }
+    <div style="position: relative; height: @(Model.HeightPx)px; width: 100%;">
+        <canvas id="@Model.ChartId"></canvas>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const ctx = document.getElementById('@Model.ChartId');
+    if (!ctx) return;
+
+    const chartType = '@Model.Type.ToLowerInvariant()';
+    const isStacked = chartType === 'stackedbar';
+    const effectiveType = isStacked ? 'bar' : chartType;
+
+    const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Labels));
+    const datasets = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Datasets.Select(d => new {
+        label = d.Label,
+        data = d.Data,
+        backgroundColor = d.BackgroundColor,
+        borderColor = d.BorderColor,
+        borderWidth = d.BorderWidth,
+        fill = d.Fill,
+        stack = d.Stack
+    })));
+
+    new Chart(ctx, {
+        type: effectiveType,
+        data: {
+            labels: labels,
+            datasets: datasets
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        boxWidth: 12,
+                        padding: 15,
+                        font: { family: 'Inter, sans-serif', size: 12 }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    stacked: isStacked,
+                    grid: { display: false }
+                },
+                y: {
+                    stacked: isStacked,
+                    beginAtZero: true,
+                    grid: { color: '#F3F0FA' }
+                }
+            }
+        }
+    });
+});
+</script>

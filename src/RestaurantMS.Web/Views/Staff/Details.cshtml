@@ -1,0 +1,127 @@
+@model RestaurantMS.Web.Models.StaffDetailsViewModel
+@{
+    ViewData["Title"] = Localizer["Staff_Details_Title"].Value;
+}
+
+<div class="staff-details-page d-flex flex-column gap-3">
+    <!-- Header with Quick Navigation -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-circle p-2" title="Back to Staff List" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <div>
+                    <h2 class="h4 fw-bold text-ink mb-0">@Model.FullName</h2>
+                    <div class="text-muted small">
+                        <span class="badge bg-plum-subtle text-plum me-2">@Model.Role</span>
+                        <span class="font-monospace text-muted">@Model.EmployeeCode</span>
+                        <span class="mx-2">&bull;</span>
+                        <span>Joined @Model.JoiningDate.ToString("dd MMM yyyy")</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Attendance" class="btn btn-outline-teal px-3 py-2 fw-semibold">
+                    <i class="bi bi-calendar-check me-1"></i> Attendance
+                </a>
+                <a asp-action="Advances" class="btn btn-outline-saffron px-3 py-2 fw-semibold">
+                    <i class="bi bi-cash-coin me-1"></i> Advance History
+                </a>
+                <a asp-action="SalaryReport" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Salary Statement
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stat Cards -->
+    <div class="row g-3">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Monthly Base Salary</div>
+                <div class="h3 fw-bold text-ink mb-0">₹@Model.MonthlySalary.ToString("N0")</div>
+                <div class="text-muted small mt-1"><i class="bi bi-wallet2 text-plum me-1"></i> Fixed Pay</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Outstanding Advance</div>
+                <div class="h3 fw-bold text-chili mb-0">₹@Model.TotalAdvanceBalance.ToString("N0")</div>
+                <div class="text-muted small mt-1"><i class="bi bi-exclamation-circle text-chili me-1"></i> To be recovered</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Days Present This Month</div>
+                <div class="h3 fw-bold text-teal mb-0">@Model.DaysPresentThisMonth / 30</div>
+                <div class="text-muted small mt-1"><i class="bi bi-check-circle text-teal me-1"></i> @Model.DaysAbsentThisMonth days leave</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+                <div class="text-muted small mb-1">Sales Handled</div>
+                <div class="h3 fw-bold text-saffron mb-0">₹@Model.TotalSalesHandled.ToString("N0")</div>
+                <div class="text-muted small mt-1"><i class="bi bi-graph-up text-saffron me-1"></i> Performance rating 4.9★</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Employee Information Grid -->
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h5 class="fw-bold text-ink mb-3 pb-2 border-bottom">
+                    <i class="bi bi-person-lines-fill text-plum me-2"></i> Personal & Contact Details
+                </h5>
+                <dl class="row mb-0 small">
+                    <dt class="col-sm-4 text-muted">Full Name</dt>
+                    <dd class="col-sm-8 text-ink fw-semibold">@Model.FullName</dd>
+
+                    <dt class="col-sm-4 text-muted">Mobile Number</dt>
+                    <dd class="col-sm-8 font-monospace text-ink"><i class="bi bi-telephone text-muted me-1"></i>@Model.MobileNumber</dd>
+
+                    <dt class="col-sm-4 text-muted">Official Email</dt>
+                    <dd class="col-sm-8 text-ink">@Model.Email</dd>
+
+                    <dt class="col-sm-4 text-muted">Emergency Contact</dt>
+                    <dd class="col-sm-8 text-ink">@Model.EmergencyContact</dd>
+
+                    <dt class="col-sm-4 text-muted">Aadhaar (Govt ID)</dt>
+                    <dd class="col-sm-8 font-monospace text-muted">@Model.AadhaarNumber</dd>
+
+                    <dt class="col-sm-4 text-muted">Assigned Shift</dt>
+                    <dd class="col-sm-8 text-ink"><span class="badge bg-secondary-subtle text-dark">@Model.Shift</span></dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h5 class="fw-bold text-ink mb-3 pb-2 border-bottom">
+                    <i class="bi bi-bank text-teal me-2"></i> Payroll & Bank Account
+                </h5>
+                <dl class="row mb-0 small">
+                    <dt class="col-sm-4 text-muted">Designation</dt>
+                    <dd class="col-sm-8 text-ink fw-semibold">@Model.Role</dd>
+
+                    <dt class="col-sm-4 text-muted">Bank / UPI Handle</dt>
+                    <dd class="col-sm-8 font-monospace text-ink">@Model.BankAccountOrUpi</dd>
+
+                    <dt class="col-sm-4 text-muted">Joining Date</dt>
+                    <dd class="col-sm-8 text-ink">@Model.JoiningDate.ToString("dd MMMM yyyy")</dd>
+
+                    <dt class="col-sm-4 text-muted">Current Advance Ledger</dt>
+                    <dd class="col-sm-8 font-monospace fw-bold text-chili">₹@Model.TotalAdvanceBalance.ToString("N2")</dd>
+
+                    <dt class="col-sm-4 text-muted">Payroll Frequency</dt>
+                    <dd class="col-sm-8 text-ink">Monthly (1st to 30th)</dd>
+
+                    <dt class="col-sm-4 text-muted">Account Status</dt>
+                    <dd class="col-sm-8"><span class="badge bg-teal-subtle text-teal">Active Employee</span></dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>

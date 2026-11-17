@@ -32,11 +32,11 @@
         <table class="table table-hover align-middle mb-0">
             <thead>
                 <tr>
-                    <th class="ps-3">@Localizer["Users_Col_UserId"]</th>
-                    <th>@Localizer["Users_Col_Name"]</th>
-                    <th>@Localizer["Users_Col_Role"]</th>
-                    <th>@Localizer["Users_Col_Contact"]</th>
-                    <th>@Localizer["Users_Col_Status"]</th>
+                    <th class="ps-3 text-start">@Localizer["Users_Col_UserId"]</th>
+                    <th class="text-start">@Localizer["Users_Col_Name"]</th>
+                    <th class="text-center">@Localizer["Users_Col_Role"]</th>
+                    <th class="text-start">@Localizer["Users_Col_Contact"]</th>
+                    <th class="text-center">@Localizer["Users_Col_Status"]</th>
                     <th class="text-end pe-3" permission="@Permissions.Users.Edit">@Localizer["Users_Col_Actions"]</th>
                 </tr>
             </thead>
@@ -55,20 +55,20 @@
                     @foreach (var user in Model.Users.Items)
                     {
                         <tr>
-                            <td class="ps-3 fw-bold text-dark">
+                            <td class="ps-3 text-start fw-bold text-dark">
                                 <span class="badge bg-light text-dark border font-monospace">@user.UserId</span>
                             </td>
-                            <td>
+                            <td class="text-start">
                                 <div class="fw-semibold">@user.FullName</div>
                                 @if (user.MustChangePassword)
                                 {
                                     <span class="badge bg-warning-subtle text-warning small">Password change required</span>
                                 }
                             </td>
-                            <td>
+                            <td class="text-center">
                                 <span class="badge bg-primary-subtle text-primary">@user.RoleName</span>
                             </td>
-                            <td class="small text-muted">
+                            <td class="text-start small text-muted">
                                 @if (!string.IsNullOrEmpty(user.PhoneNumber))
                                 {
                                     <div><i class="bi bi-telephone me-1"></i> @user.PhoneNumber</div>
@@ -78,7 +78,7 @@
                                     <div><i class="bi bi-envelope me-1"></i> @user.Email</div>
                                 }
                             </td>
-                            <td>
+                            <td class="text-center">
                                 @if (user.IsActive)
                                 {
                                     <span class="badge bg-success-subtle text-success">@Localizer["Users_Status_Active"]</span>

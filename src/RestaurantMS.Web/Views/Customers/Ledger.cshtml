@@ -1,0 +1,77 @@
+@model RestaurantMS.Web.Models.CustomerLedgerViewModel
+@{
+    ViewData["Title"] = Localizer["Customers_Ledger_Title"].Value;
+}
+
+<div class="customer-ledger-page d-flex flex-column gap-3">
+    <!-- Header with Customer Summary Card -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-1">
+                    <h2 class="h4 fw-bold text-ink mb-0">@Model.CustomerName</h2>
+                    <span class="badge bg-light text-muted border font-monospace"><i class="bi bi-telephone me-1"></i>+91 @Model.MobileNumber</span>
+                </div>
+                <div class="text-muted small">Customer Account Statement &bull; Credit &amp; Payment History</div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="p-3 bg-cream rounded-3 border text-end">
+                    <div class="small text-muted">Current Outstanding</div>
+                    <div class="fs-4 fw-bold font-monospace text-chili">₹@Model.CurrentBalance.ToString("N2")</div>
+                </div>
+                <div class="p-3 bg-light rounded-3 border text-end">
+                    <div class="small text-muted">Credit Limit</div>
+                    <div class="fs-5 fw-bold font-monospace text-ink">₹@Model.CreditLimit.ToString("N0")</div>
+                </div>
+                <a asp-action="Receipt" asp-route-id="@Model.CustomerId.ToString()" class="btn btn-teal text-white px-3 py-3 fw-bold shadow-sm">
+                    <i class="bi bi-cash me-1"></i> Receive Payment
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ledger Entries Table -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="fw-bold text-ink mb-0"><i class="bi bi-journal-text me-1 text-plum"></i> Transaction History</h6>
+            <button type="button" class="btn btn-sm btn-outline-plum" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Print Statement
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 font-monospace">
+                <thead class="table-light small text-muted text-uppercase font-sans">
+                    <tr>
+                        <th>Date</th>
+                        <th>Voucher / Ref #</th>
+                        <th class="font-sans">Particulars</th>
+                        <th class="text-end text-chili">Debit (Bill)</th>
+                        <th class="text-end text-teal">Credit (Payment)</th>
+                        <th class="text-end fw-bold text-ink">Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var entry in Model.Entries)
+                    {
+                        <tr>
+                            <td class="small text-muted font-sans">@entry.DateFormatted</td>
+                            <td class="fw-semibold text-plum">@entry.ReferenceNumber</td>
+                            <td class="font-sans small">@entry.Description</td>
+                            <td class="text-end @(entry.DebitAmount > 0 ? "text-chili fw-bold" : "text-muted")">
+                                @(entry.DebitAmount > 0 ? "₹" + entry.DebitAmount.ToString("N2") : "-")
+                            </td>
+                            <td class="text-end @(entry.CreditAmount > 0 ? "text-teal fw-bold" : "text-muted")">
+                                @(entry.CreditAmount > 0 ? "₹" + entry.CreditAmount.ToString("N2") : "-")
+                            </td>
+                            <td class="text-end fw-bold text-ink">
+                                ₹@entry.RunningBalance.ToString("N2")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

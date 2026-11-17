@@ -1,0 +1,64 @@
+@model RestaurantMS.Web.Models.VouchersListViewModel
+@{
+    ViewData["Title"] = Localizer["Accounts_Vouchers_Title"].Value;
+}
+
+<div class="vouchers-page d-flex flex-column gap-3">
+    <!-- Header with Type Filter -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-journal-text text-plum me-2"></i> @Localizer["Accounts_Vouchers_Title"]</h2>
+                <div class="text-muted small">Double-entry accounting journal, payment, receipt and contra vouchers</div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i> Chart of Accounts</a>
+                <a asp-action="CreateVoucher" class="btn btn-plum btn-sm shadow-sm"><i class="bi bi-plus-circle me-1"></i> New Voucher</a>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2 border-top mt-3 pt-3">
+            <a asp-action="Vouchers" asp-route-type="All" class="btn btn-sm @(Model.SelectedType == "All" ? "btn-plum" : "btn-light border") rounded-pill px-3">All</a>
+            <a asp-action="Vouchers" asp-route-type="Payment" class="btn btn-sm @(Model.SelectedType == "Payment" ? "btn-plum" : "btn-light border") rounded-pill px-3">Payment</a>
+            <a asp-action="Vouchers" asp-route-type="Receipt" class="btn btn-sm @(Model.SelectedType == "Receipt" ? "btn-plum" : "btn-light border") rounded-pill px-3">Receipt</a>
+            <a asp-action="Vouchers" asp-route-type="Journal" class="btn btn-sm @(Model.SelectedType == "Journal" ? "btn-plum" : "btn-light border") rounded-pill px-3">Journal</a>
+            <a asp-action="Vouchers" asp-route-type="Contra" class="btn btn-sm @(Model.SelectedType == "Contra" ? "btn-plum" : "btn-light border") rounded-pill px-3">Contra</a>
+        </div>
+    </div>
+
+    <!-- Vouchers Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 font-monospace">
+                <thead class="table-light small text-muted text-uppercase font-sans">
+                    <tr>
+                        <th class="text-start">Voucher #</th>
+                        <th class="text-center">Date</th>
+                        <th class="text-center">Type</th>
+                        <th class="text-start font-sans">Particulars</th>
+                        <th class="text-end">Debit Amount</th>
+                        <th class="text-end">Credit Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var v in Model.Vouchers)
+                    {
+                        <tr>
+                            <td class="text-start fw-bold text-plum">@v.VoucherNo</td>
+                            <td class="text-center small text-muted">@v.DateFormatted</td>
+                            <td class="text-center"><span class="badge bg-light text-dark border">@v.Type</span></td>
+                            <td class="text-start font-sans small">@v.Particulars</td>
+                            <td class="text-end @(v.DebitAmount > 0 ? "fw-bold text-chili" : "text-muted")">
+                                @(v.DebitAmount > 0 ? "₹" + v.DebitAmount.ToString("N2") : "-")
+                            </td>
+                            <td class="text-end @(v.CreditAmount > 0 ? "fw-bold text-teal" : "text-muted")">
+                                @(v.CreditAmount > 0 ? "₹" + v.CreditAmount.ToString("N2") : "-")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

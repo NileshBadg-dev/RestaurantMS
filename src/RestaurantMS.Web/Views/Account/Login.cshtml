@@ -9,80 +9,130 @@
     var isMarathi = currentCulture.StartsWith("mr", StringComparison.OrdinalIgnoreCase);
 }
 
-<div class="min-vh-100 d-flex align-items-center justify-content-center bg-light py-5">
-    <div class="card shadow border-0" style="max-width: 440px; width: 100%;">
-        <div class="card-body p-4 p-sm-5">
-            <!-- Language toggle in top-right of login box -->
-            <div class="d-flex justify-content-end mb-3">
+<div class="login-split-container min-vh-100 d-flex flex-column flex-md-row">
+    <!-- Left Panel: Brand Showcase (Gradient Plum to Chili) -->
+    <div class="login-brand-panel d-flex flex-column justify-content-between p-4 p-lg-5 text-white position-relative overflow-hidden">
+        <!-- Decorative Ambient Circles -->
+        <div class="brand-ambient-circle-teal position-absolute"></div>
+        <div class="brand-ambient-circle-saffron position-absolute"></div>
+
+        <!-- Top Brand Header -->
+        <div class="position-relative z-1 d-flex align-items-center gap-3">
+            <div class="brand-logo-circle d-flex align-items-center justify-content-center bg-white rounded-circle shadow" style="width: 52px; height: 52px; flex-shrink: 0;">
+                <i class="bi bi-egg-fried fs-1" style="color: #FF9F1C !important; line-height: 1;"></i>
+            </div>
+            <div>
+                <h2 class="h4 fw-bold mb-0 text-white">@Model.HotelName</h2>
+                <div class="badge bg-saffron text-dark fw-semibold mt-1">NextGen Restaurant Suite</div>
+            </div>
+        </div>
+
+        <!-- Hero Content Center -->
+        <div class="my-auto py-5 position-relative z-1">
+            <h1 class="display-6 fw-bold mb-3 text-white lh-sm">
+                Smart Billing,<br />
+                Real-Time Kitchen,<br />
+                <span class="text-saffron">Effortless Control.</span>
+            </h1>
+            <p class="lead text-white-50 mb-4" style="max-width: 440px;">
+                Designed specifically for Indian dining, fast-paced parcel takeaway, and complete udhari management.
+            </p>
+
+            <!-- Feature Pills Grid (Translucent with visible crisp white text) -->
+            <div class="d-flex flex-wrap gap-2 pt-2">
+                <span class="login-feature-pill px-3 py-2 rounded-pill fw-semibold text-white d-inline-flex align-items-center gap-2" style="background: rgba(0, 0, 0, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.35) !important; color: #ffffff !important;">
+                    <i class="bi bi-grid-3x3-gap text-saffron"></i> Table Floor Plan
+                </span>
+                <span class="login-feature-pill px-3 py-2 rounded-pill fw-semibold text-white d-inline-flex align-items-center gap-2" style="background: rgba(0, 0, 0, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.35) !important; color: #ffffff !important;">
+                    <i class="bi bi-printer text-teal"></i> KOT Printing
+                </span>
+                <span class="login-feature-pill px-3 py-2 rounded-pill fw-semibold text-white d-inline-flex align-items-center gap-2" style="background: rgba(0, 0, 0, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.35) !important; color: #ffffff !important;">
+                    <i class="bi bi-journal-bookmark text-saffron"></i> Udhari Ledger
+                </span>
+                <span class="login-feature-pill px-3 py-2 rounded-pill fw-semibold text-white d-inline-flex align-items-center gap-2" style="background: rgba(0, 0, 0, 0.25) !important; border: 1px solid rgba(255, 255, 255, 0.35) !important; color: #ffffff !important;">
+                    <i class="bi bi-file-earmark-bar-graph text-teal"></i> GST Reports
+                </span>
+            </div>
+        </div>
+
+        <!-- Bottom Footer Info -->
+        <div class="position-relative z-1 d-flex justify-content-between align-items-center text-white-50 small border-top border-white border-opacity-25 pt-3">
+            <span>&copy; @DateTime.UtcNow.Year @Model.HotelName</span>
+            <span>Clean Architecture · Secure POS</span>
+        </div>
+    </div>
+
+    <!-- Right Panel: Login Form (Cream Background) -->
+    <div class="login-form-panel d-flex flex-column justify-content-center p-4 p-md-5 bg-cream flex-grow-1">
+        <div class="login-form-card mx-auto w-100" style="max-width: 440px;">
+            <!-- Language Switcher Bar -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="badge bg-plum-subtle text-plum px-3 py-2 rounded-pill">RestaurantMS v2</span>
                 <form asp-controller="Language" asp-action="SetLanguage" method="post" class="d-inline">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="returnUrl" value="@Context.Request.Path@Context.Request.QueryString" />
                     @if (isMarathi)
                     {
                         <input type="hidden" name="culture" value="en-US" />
-                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                        <button type="submit" class="btn btn-outline-plum btn-sm rounded-pill px-3 py-1 fw-semibold">
                             <i class="bi bi-translate me-1"></i> English
                         </button>
                     }
                     else
                     {
                         <input type="hidden" name="culture" value="mr-IN" />
-                        <button type="submit" class="btn btn-sm btn-outline-secondary">
+                        <button type="submit" class="btn btn-outline-plum btn-sm rounded-pill px-3 py-1 fw-semibold">
                             <i class="bi bi-translate me-1"></i> मराठी
                         </button>
                     }
                 </form>
             </div>
 
-            <!-- Hotel Branding -->
-            <div class="text-center mb-4">
-                @if (!string.IsNullOrEmpty(Model.LogoUrl))
-                {
-                    <img src="@Model.LogoUrl" alt="@Model.HotelName" class="mb-3" style="max-height: 60px; max-width: 160px; object-fit: contain;" onerror="this.style.display='none'" />
-                }
-                <h1 class="h4 fw-bold text-dark mb-1">@Model.HotelName</h1>
-                <p class="text-muted small">@Localizer["Login_Subtitle"]</p>
+            <!-- Welcome Header -->
+            <div class="mb-4">
+                <h2 class="h3 fw-bold text-ink mb-1">@Localizer["Login_WelcomeTitle"]</h2>
+                <p class="text-muted small mb-0">@Localizer["Login_WelcomeSubtitle"]</p>
             </div>
 
             @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
             {
-                <div class="alert alert-danger py-2 px-3 small" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
-                    @ViewData.ModelState[string.Empty]!.Errors[0].ErrorMessage
+                <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 d-flex align-items-center" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2 text-chili"></i>
+                    <div>@ViewData.ModelState[string.Empty]!.Errors[0].ErrorMessage</div>
                 </div>
             }
 
-            <form asp-action="Login" method="post" novalidate id="loginForm">
+            <form asp-action="Login" method="post" novalidate id="loginForm" class="login-form-body">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="ReturnUrl" />
 
-                <!-- User ID -->
+                <!-- User ID Field -->
                 <div class="mb-3">
-                    <label asp-for="UserId" class="form-label fw-semibold small text-secondary">@Localizer["Login_UserId"]</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person"></i></span>
-                        <input asp-for="UserId" class="form-control border-start-0" placeholder="admin" autofocus />
+                    <label asp-for="UserId" class="form-label fw-bold small text-ink mb-1">@Localizer["Login_UserId"]</label>
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-person fs-5"></i></span>
+                        <input asp-for="UserId" class="form-control border-start-0 bg-white py-2" placeholder="admin" autofocus />
                     </div>
-                    <span asp-validation-for="UserId" class="text-danger small"></span>
+                    <span asp-validation-for="UserId" class="text-danger small fw-medium mt-1 d-block"></span>
                 </div>
 
-                <!-- Password with Show/Hide toggle -->
+                <!-- Password Field with Show/Hide (Unified Seamless Input Group) -->
                 <div class="mb-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <label asp-for="Password" class="form-label fw-semibold small text-secondary mb-0">@Localizer["Login_Password"]</label>
-                        <a asp-action="ForgotPassword" class="text-decoration-none small text-primary">@Localizer["Login_ForgotPassword"]</a>
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label asp-for="Password" class="form-label fw-bold small text-ink mb-0">@Localizer["Login_Password"]</label>
+                        <a asp-action="ForgotPassword" class="text-decoration-none small text-plum fw-semibold">@Localizer["Login_ForgotPassword"]</a>
                     </div>
-                    <div class="input-group mt-1">
-                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock"></i></span>
-                        <input asp-for="Password" class="form-control border-start-0 border-end-0" id="loginPasswordInput" type="password" />
-                        <button type="button" class="btn btn-outline-secondary border-start-0" id="togglePasswordBtn" title="@Localizer["Login_ShowPassword"]">
+                    <div class="input-group shadow-sm">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-lock fs-5"></i></span>
+                        <input asp-for="Password" class="form-control border-start-0 border-end-0 bg-white py-2" id="loginPasswordInput" type="password" />
+                        <button type="button" class="btn bg-white border border-start-0 text-muted px-3" id="togglePasswordBtn" title="@Localizer["Login_ShowPassword"]" style="border-color: #dee2e6;">
                             <i class="bi bi-eye" id="togglePasswordIcon"></i>
                         </button>
                     </div>
-                    <span asp-validation-for="Password" class="text-danger small"></span>
+                    <span asp-validation-for="Password" class="text-danger small fw-medium mt-1 d-block"></span>
                 </div>
 
-                <!-- Remember Me -->
+                <!-- Remember Me Checkbox -->
                 <div class="form-check mb-4">
                     <input asp-for="RememberMe" class="form-check-input" type="checkbox" id="rememberMeCheck" />
                     <label class="form-check-label small text-muted" for="rememberMeCheck">
@@ -90,10 +140,16 @@
                     </label>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold shadow-sm">
-                    <i class="bi bi-box-arrow-in-right me-1"></i> @Localizer["Login_Submit"]
+                <!-- Login Action Button (Saffron) -->
+                <button type="submit" class="btn btn-saffron w-100 py-2 fw-bold text-dark shadow-sm rounded-3 mb-3 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-box-arrow-in-right fs-5"></i>
+                    <span>@Localizer["Login_LoginButton"]</span>
                 </button>
+
+                <!-- Seed Helper Box -->
+                <div class="p-3 bg-white rounded-3 border border-light-subtle text-center small text-muted">
+                    <span class="fw-semibold text-ink">Demo Sign In:</span> User ID: <code class="text-plum">admin</code> &bull; Password: <code class="text-chili">Admin@@123</code>
+                </div>
             </form>
         </div>
     </div>
@@ -102,17 +158,18 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.getElementById('togglePasswordBtn').addEventListener('click', function () {
-            var pwdInput = document.getElementById('loginPasswordInput');
-            var icon = document.getElementById('togglePasswordIcon');
-            if (pwdInput.type === 'password') {
-                pwdInput.type = 'text';
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            } else {
-                pwdInput.type = 'password';
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleBtn = document.getElementById('togglePasswordBtn');
+            const passwordInput = document.getElementById('loginPasswordInput');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
+
+            if (toggleBtn && passwordInput && toggleIcon) {
+                toggleBtn.addEventListener('click', function () {
+                    const isPassword = passwordInput.getAttribute('type') === 'password';
+                    passwordInput.setAttribute('type', isPassword ? 'text' : 'password');
+                    toggleIcon.classList.toggle('bi-eye', !isPassword);
+                    toggleIcon.classList.toggle('bi-eye-slash', isPassword);
+                });
             }
         });
     </script>

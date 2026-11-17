@@ -1,0 +1,90 @@
+@model RestaurantMS.Web.Models.DayClosingViewModel
+@{
+    ViewData["Title"] = Localizer["DayClosing_Title"].Value;
+}
+
+<div class="day-closing-page" style="max-width: 900px; margin: 0 auto;">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+            <div>
+                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-clock-history text-plum me-2"></i> @Localizer["DayClosing_Title"]</h3>
+                <div class="text-muted small">Verify register cash, review collections &amp; finalize shift for @DateTime.UtcNow.ToString("dd MMMM yyyy")</div>
+            </div>
+            <span class="badge bg-teal-subtle text-teal fs-6 px-3 py-2">Shift #1 (Dinner Active)</span>
+        </div>
+
+        <!-- 4 Collections Summary Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-teal-subtle text-teal border border-teal-subtle text-end">
+                    <div class="small fw-semibold"><i class="bi bi-cash me-1"></i> System Cash</div>
+                    <div class="fs-4 fw-bold font-monospace">₹@Model.Summary.ExpectedDrawerCash.ToString("N0")</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-plum-subtle text-plum border border-plum-subtle text-end">
+                    <div class="small fw-semibold"><i class="bi bi-qr-code me-1"></i> UPI Total</div>
+                    <div class="fs-4 fw-bold font-monospace">₹@Model.Summary.UpiCollected.ToString("N0")</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-warning-subtle text-dark border border-warning-subtle text-end">
+                    <div class="small fw-semibold"><i class="bi bi-credit-card me-1"></i> Card Total</div>
+                    <div class="fs-4 fw-bold font-monospace">₹@Model.Summary.CardCollected.ToString("N0")</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="p-3 rounded-3 bg-danger-subtle text-chili border border-danger-subtle text-end">
+                    <div class="small fw-semibold"><i class="bi bi-journal-bookmark me-1"></i> Udhari Given</div>
+                    <div class="fs-4 fw-bold font-monospace">₹@Model.Summary.UdhariCreditIssued.ToString("N0")</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Overall Day Financial Summary Table -->
+        <div class="card p-3 bg-cream rounded-3 border mb-4">
+            <div class="d-flex justify-content-between py-1 border-bottom">
+                <span class="text-muted">Total Gross Sales Today</span>
+                <span class="fw-bold font-monospace text-ink">₹@Model.Summary.TotalSalesAmount.ToString("N2")</span>
+            </div>
+            <div class="d-flex justify-content-between py-1 border-bottom">
+                <span class="text-muted">Cash Expenses / Petty Cash Paid Out (-)</span>
+                <span class="font-monospace text-chili">₹@Model.Summary.CashPayouts.ToString("N2")</span>
+            </div>
+            <div class="d-flex justify-content-between pt-2 fs-5 fw-bold text-ink">
+                <span>Net Expected Cash in Cash Drawer</span>
+                <span class="font-monospace text-teal">₹@Model.Summary.ExpectedDrawerCash.ToString("N2")</span>
+            </div>
+        </div>
+
+        <!-- Day Closing Verification Form -->
+        <form asp-action="CloseDay" method="post" id="dayClosingForm">
+            @Html.AntiForgeryToken()
+
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-md-6">
+                    <label asp-for="ActualCashInDrawer" class="form-label fw-bold small text-ink">Physical Cash Counted in Drawer (₹) *</label>
+                    <money-input asp-for="ActualCashInDrawer" />
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="form-label fw-bold small text-ink">Cash Difference / Discrepancy</label>
+                    <input type="text" class="form-control fw-bold font-monospace @(Model.Discrepancy == 0 ? "text-teal" : "text-chili")" value="₹@Model.Discrepancy.ToString("N2")" readonly />
+                </div>
+
+                <div class="col-12">
+                    <label asp-for="ClosingRemarks" class="form-label fw-bold small text-ink">Closing Remarks / Handover Notes</label>
+                    <textarea asp-for="ClosingRemarks" class="form-control" rows="2" placeholder="e.g. Handed over cash to night manager, drawer balanced perfectly."></textarea>
+                </div>
+            </div>
+
+            <div class="border-top pt-3 d-flex justify-content-between align-items-center">
+                <span class="text-muted small"><i class="bi bi-shield-lock me-1 text-teal"></i> Closing will lock today's billing period.</span>
+                <button type="submit" class="btn btn-chili text-white px-4 py-3 fw-bold shadow-sm" onclick="return confirm('Are you sure you want to CLOSE THE DAY? This will finalize today\'s cash drawer and lock registers.');">
+                    <i class="bi bi-lock-fill me-2"></i> Close Day &amp; Print EOD Report
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

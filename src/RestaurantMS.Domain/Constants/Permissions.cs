@@ -11,14 +11,20 @@ public static class Permissions
         public const string FeatureToggles = "FeatureToggles";
         public const string AuditLogs = "AuditLogs";
         public const string Tables = "Tables";
+        public const string Parcel = "Parcel";
         public const string Orders = "Orders";
         public const string Kitchen = "Kitchen";
         public const string Billing = "Billing";
         public const string Customers = "Customers";
         public const string Credit = "Credit";
         public const string Accounts = "Accounts";
+        public const string Menu = "Menu";
         public const string Inventory = "Inventory";
         public const string Reports = "Reports";
+        public const string Reservations = "Reservations";
+        public const string Staff = "Staff";
+        public const string DayClosing = "DayClosing";
+        public const string OnlineOrders = "OnlineOrders";
     }
 
     public static class Actions
@@ -80,6 +86,14 @@ public static class Permissions
         public const string Delete = "Tables.Delete";
     }
 
+    public static class Parcel
+    {
+        public const string View = "Parcel.View";
+        public const string Create = "Parcel.Create";
+        public const string Edit = "Parcel.Edit";
+        public const string Print = "Parcel.Print";
+    }
+
     public static class Orders
     {
         public const string View = "Orders.View";
@@ -132,6 +146,15 @@ public static class Permissions
         public const string Export = "Accounts.Export";
     }
 
+    public static class Menu
+    {
+        public const string View = "Menu.View";
+        public const string Create = "Menu.Create";
+        public const string Edit = "Menu.Edit";
+        public const string Delete = "Menu.Delete";
+        public const string Export = "Menu.Export";
+    }
+
     public static class Inventory
     {
         public const string View = "Inventory.View";
@@ -148,6 +171,36 @@ public static class Permissions
         public const string Export = "Reports.Export";
     }
 
+    public static class Reservations
+    {
+        public const string View = "Reservations.View";
+        public const string Create = "Reservations.Create";
+        public const string Edit = "Reservations.Edit";
+        public const string Delete = "Reservations.Delete";
+    }
+
+    public static class Staff
+    {
+        public const string View = "Staff.View";
+        public const string Create = "Staff.Create";
+        public const string Edit = "Staff.Edit";
+        public const string Delete = "Staff.Delete";
+    }
+
+    public static class DayClosing
+    {
+        public const string View = "DayClosing.View";
+        public const string Create = "DayClosing.Create";
+        public const string Print = "DayClosing.Print";
+    }
+
+    public static class OnlineOrders
+    {
+        public const string View = "OnlineOrders.View";
+        public const string Create = "OnlineOrders.Create";
+        public const string Edit = "OnlineOrders.Edit";
+    }
+
     public static IReadOnlyList<string> GetAll()
     {
         return
@@ -159,14 +212,20 @@ public static class Permissions
             FeatureToggles.View, FeatureToggles.Edit,
             AuditLogs.View, AuditLogs.Export,
             Tables.View, Tables.Create, Tables.Edit, Tables.Delete,
+            Parcel.View, Parcel.Create, Parcel.Edit, Parcel.Print,
             Orders.View, Orders.Create, Orders.Edit, Orders.Delete, Orders.Print,
             Kitchen.View, Kitchen.Edit, Kitchen.Print,
             Billing.View, Billing.Create, Billing.Edit, Billing.Print, Billing.Export,
             Customers.View, Customers.Create, Customers.Edit, Customers.Delete, Customers.Export,
             Credit.View, Credit.Create, Credit.Edit, Credit.Print, Credit.Export,
             Accounts.View, Accounts.Create, Accounts.Edit, Accounts.Print, Accounts.Export,
+            Menu.View, Menu.Create, Menu.Edit, Menu.Delete, Menu.Export,
             Inventory.View, Inventory.Create, Inventory.Edit, Inventory.Delete, Inventory.Export,
-            Reports.View, Reports.Print, Reports.Export
+            Reports.View, Reports.Print, Reports.Export,
+            Reservations.View, Reservations.Create, Reservations.Edit, Reservations.Delete,
+            Staff.View, Staff.Create, Staff.Edit, Staff.Delete,
+            DayClosing.View, DayClosing.Create, DayClosing.Print,
+            OnlineOrders.View, OnlineOrders.Create, OnlineOrders.Edit
         ];
     }
 }

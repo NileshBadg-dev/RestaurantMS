@@ -122,10 +122,13 @@ public static class DbInitializer
         Assign("Cashier",
         [
             Permissions.Dashboard.View,
+            Permissions.Tables.View,
+            Permissions.Parcel.View, Permissions.Parcel.Create, Permissions.Parcel.Edit, Permissions.Parcel.Print,
             Permissions.Orders.View, Permissions.Orders.Create, Permissions.Orders.Edit, Permissions.Orders.Print,
             Permissions.Billing.View, Permissions.Billing.Create, Permissions.Billing.Edit, Permissions.Billing.Print,
             Permissions.Customers.View, Permissions.Customers.Create, Permissions.Customers.Edit,
-            Permissions.Credit.View, Permissions.Credit.Create, Permissions.Credit.Edit
+            Permissions.Credit.View, Permissions.Credit.Create, Permissions.Credit.Edit,
+            Permissions.DayClosing.View, Permissions.DayClosing.Create, Permissions.DayClosing.Print
         ]);
 
         // Waiter
@@ -133,6 +136,7 @@ public static class DbInitializer
         [
             Permissions.Dashboard.View,
             Permissions.Tables.View,
+            Permissions.Parcel.View, Permissions.Parcel.Create,
             Permissions.Orders.View, Permissions.Orders.Create, Permissions.Orders.Print
         ]);
 
@@ -206,11 +210,16 @@ public static class DbInitializer
         var toggleDefinitions = new (string Key, string Name, string Description, string Group)[]
         {
             (FeatureKeys.KitchenDisplay, "Kitchen Display System (KDS)", "Digital order display and management in the kitchen", "Operations"),
+            (FeatureKeys.Kitchen, "Kitchen Module", "Enable or disable the kitchen display screen", "Operations"),
             (FeatureKeys.InventoryTracking, "Inventory & Stock Tracking", "Real-time stock deduction, ingredient mapping and alerts", "Operations"),
             (FeatureKeys.CreditUdhari, "Credit (Udhari) Management", "Customer credit accounts, ledger tracking and settlements", "Billing"),
+            (FeatureKeys.Credit, "Credit & Udhari Options", "Show or hide credit options in customer and billing screens", "Billing"),
             (FeatureKeys.CustomerLoyalty, "Customer Loyalty Program", "Reward points, membership tiers and repeat customer discounts", "Marketing"),
             (FeatureKeys.OnlineOrdering, "Online Ordering Integration", "Accept orders from Swiggy, Zomato and direct web store", "Integrations"),
             (FeatureKeys.TableReservation, "Table Reservation", "Advance table booking, guest preferences and slot allocations", "Operations"),
+            (FeatureKeys.Tables, "Tables Module", "Enable or disable dine-in tables screen", "Operations"),
+            (FeatureKeys.Accounts, "Accounts Module", "Enable or disable accounting screens and charts of accounts", "Enterprise"),
+            (FeatureKeys.Images, "Menu Images", "Show or hide item photos in menu and order screens", "Marketing"),
             (FeatureKeys.MultiCurrency, "Multi-Currency Billing", "Support for foreign currency billing and exchange conversions", "Billing"),
             (FeatureKeys.BarcodeScanning, "Barcode Scanning", "Scan barcodes for fast item addition and inventory counts", "Operations"),
             (FeatureKeys.SmsNotifications, "SMS Notifications", "Automated SMS updates for bills, OTP and reservations", "Integrations"),

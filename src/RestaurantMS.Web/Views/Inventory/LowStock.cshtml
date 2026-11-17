@@ -1,0 +1,65 @@
+@model RestaurantMS.Web.Models.LowStockViewModel
+@{
+    ViewData["Title"] = Localizer["Inventory_LowStock_Title"].Value;
+}
+
+<div class="low-stock-page d-flex flex-column gap-3">
+    <!-- Header with Alert Badge -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-exclamation-triangle-fill text-chili me-2"></i> @Localizer["Inventory_LowStock_Title"]</h2>
+                <div class="d-flex align-items-center gap-3 text-muted small">
+                    <span class="text-chili"><strong class="badge bg-danger-subtle text-chili">@Model.CriticalItemCount Items</strong> Below Reorder Point</span>
+                    <span>&bull;</span>
+                    <span class="fw-bold text-plum font-monospace">Estimated Restock Cost: ₹@Model.EstimatedReorderCost.ToString("N0")</span>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary px-3 py-2">
+                    <i class="bi bi-arrow-left me-1"></i> Stock List
+                </a>
+                <a asp-action="Purchase" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
+                    <i class="bi bi-cart-plus me-1"></i> Order Stock
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Items Table Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 font-monospace">
+                <thead class="table-light small text-muted text-uppercase font-sans">
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Category</th>
+                        <th class="text-end text-danger">Current Stock</th>
+                        <th class="text-end">Reorder Point</th>
+                        <th class="text-end">Deficit</th>
+                        <th class="text-end font-sans">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.AlertItems)
+                    {
+                        var deficit = item.ReorderLevel - item.CurrentStock;
+                        <tr>
+                            <td class="font-sans fw-bold text-ink">@item.Name</td>
+                            <td class="font-sans small text-muted">@item.Category</td>
+                            <td class="text-end fw-bold text-danger">@item.CurrentStock.ToString("N1") @item.Unit</td>
+                            <td class="text-end text-muted">@item.ReorderLevel.ToString("N1") @item.Unit</td>
+                            <td class="text-end fw-bold text-chili">@deficit.ToString("N1") @item.Unit</td>
+                            <td class="text-end font-sans">
+                                <a asp-action="Purchase" class="btn btn-sm btn-teal text-white py-1 px-2">
+                                    <i class="bi bi-cart-plus me-1"></i> Restock
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

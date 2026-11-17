@@ -1,0 +1,91 @@
+@model RestaurantMS.Web.Models.ReportDetailViewModel
+@{
+    ViewData["Title"] = Model.ReportTitle;
+}
+
+<div class="view-report-page d-flex flex-column gap-3">
+    <!-- Header with Back Button and Export Options -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-file-earmark-text text-plum me-2"></i> @Model.ReportTitle</h2>
+                <div class="text-muted small">Generated for period @Model.FromDate.ToString("dd MMM yyyy") to @Model.ToDate.ToString("dd MMM yyyy")</div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-teal" onclick="alert('Exporting to Excel...')"><i class="bi bi-file-earmark-excel me-1"></i> Excel</button>
+                <button type="button" class="btn btn-sm btn-outline-chili" onclick="alert('Exporting to PDF...')"><i class="bi bi-file-earmark-pdf me-1"></i> PDF</button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i> Print</button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">All Reports</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar Partial -->
+    <partial name="_ReportFilterBar" model='new ReportFilterBarModel {
+        StartDate = Model.FromDate.ToString("yyyy-MM-dd"),
+        EndDate = Model.ToDate.ToString("yyyy-MM-dd"),
+        ShowDateRange = true,
+        ShowShift = true,
+        ShowWaiter = true,
+        ShowTable = true,
+        ShowCategory = true,
+        ShowPaymentMode = true
+    }' />
+
+    <!-- Report Table Grid -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 font-monospace">
+                <thead class="table-light small text-muted text-uppercase font-sans">
+                    <tr>
+                        @foreach (var col in Model.Result.Headers)
+                        {
+                            <th>@col</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Result.Rows)
+                    {
+                        <tr>
+                            @foreach (var cell in row)
+                            {
+                                <td>@cell</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+                @if (Model.Result.Totals != null && Model.Result.Totals.Count > 0)
+                {
+                    <tfoot class="table-light fw-bold font-monospace">
+                        <tr>
+                            @foreach (var col in Model.Result.Headers)
+                            {
+                                <td>@(Model.Result.Totals.TryGetValue(col, out var tot) ? tot : "")</td>
+                            }
+                        </tr>
+                    </tfoot>
+                }
+            </table>
+        </div>
+    </div>
+
+    @if (Model.Result.Totals != null && Model.Result.Totals.Count > 0)
+    {
+        <div class="card border-0 shadow-sm rounded-3 bg-cream p-3">
+            <h6 class="fw-bold text-plum mb-2"><i class="bi bi-calculator me-1"></i> Key Metrics &amp; Totals</h6>
+            <div class="row g-2">
+                @foreach (var kvp in Model.Result.Totals)
+                {
+                    <div class="col-6 col-md-3">
+                        <div class="p-2 bg-white rounded border">
+                            <div class="text-muted small">@kvp.Key</div>
+                            <div class="fw-bold font-monospace text-ink">@kvp.Value</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

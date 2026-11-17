@@ -9,4 +9,5 @@ public class NavItem
     public string RequiredPermission { get; init; } = string.Empty;
     public string? FeatureKey { get; init; }
     public string Category { get; init; } = "General";
+    public List<NavItem> Children { get; init; } = new();
 }

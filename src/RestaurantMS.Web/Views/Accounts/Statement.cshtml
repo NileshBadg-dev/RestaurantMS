@@ -1,0 +1,136 @@
+@model RestaurantMS.Web.Models.FinancialReportViewModel
+@{
+    var title = Model.Statement.Title;
+    if (string.IsNullOrEmpty(title))
+    {
+        title = Model.ReportType switch
+        {
+            "ProfitLoss" => "Profit & Loss Statement",
+            "BalanceSheet" => "Balance Sheet",
+            _ => "Trial Balance"
+        };
+    }
+    ViewData["Title"] = title;
+}
+
+<div class="financial-statement-page d-flex flex-column gap-3">
+    <!-- Header with Single Date and Date Range Selection -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-file-earmark-spreadsheet text-plum me-2"></i> @title</h2>
+                <div class="text-muted small">@Model.Statement.PeriodOrAsOf &bull; Generated from general ledger</div>
+            </div>
+
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <form method="get" class="d-flex flex-wrap align-items-center gap-2">
+                    @if (Model.ReportType == "ProfitLoss")
+                    {
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-muted">From</span>
+                            <input type="date" name="from" class="form-control" value="@Model.AsOfDate.AddMonths(-1).ToString("yyyy-MM-dd")" />
+                        </div>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-muted">To</span>
+                            <input type="date" name="to" class="form-control" value="@Model.AsOfDate.ToString("yyyy-MM-dd")" />
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-light text-muted">As Of Date</span>
+                            <input type="date" name="asOf" class="form-control" value="@Model.AsOfDate.ToString("yyyy-MM-dd")" />
+                        </div>
+                    }
+                    <button type="submit" class="btn btn-sm btn-plum fw-semibold">
+                        <i class="bi bi-filter me-1"></i> Apply
+                    </button>
+                </form>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i> Print
+                </button>
+                <a asp-action="AuditReport" class="btn btn-outline-teal btn-sm"><i class="bi bi-shield-check me-1"></i> Audit Report</a>
+                <a asp-action="Index" class="btn btn-outline-plum btn-sm">Accounts Hub</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statement Table (Side by Side Two Column T-Format) -->
+    <div class="row g-3">
+        <!-- Left Column -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h6 class="fw-bold text-plum border-bottom pb-2">
+                    @(Model.ReportType == "BalanceSheet" ? "Liabilities & Equity" : Model.ReportType == "ProfitLoss" ? "Expenses & Outflows" : "Debit Balances (Assets & Expenses)")
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 font-monospace">
+                        <thead class="table-light small text-muted text-uppercase font-sans">
+                            <tr>
+                                <th class="font-sans">Particulars</th>
+                                <th class="text-end">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var line in Model.Statement.LeftLines)
+                            {
+                                <tr>
+                                    <td class="font-sans @(line.IsTotal ? "fw-bold text-plum" : line.IsHeader ? "fw-bold text-ink" : "text-ink")">
+                                        @line.AccountName
+                                    </td>
+                                    <td class="text-end @(line.IsTotal ? "fw-bold text-plum" : "text-ink")">
+                                        ₹@line.Amount.ToString("N2")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light fw-bold fs-6">
+                            <tr>
+                                <td class="font-sans">Total:</td>
+                                <td class="text-end text-plum">₹@Model.Statement.TotalLeft.ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-12 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h6 class="fw-bold text-teal border-bottom pb-2">
+                    @(Model.ReportType == "BalanceSheet" ? "Assets (Current & Fixed)" : Model.ReportType == "ProfitLoss" ? "Income & Operating Revenues" : "Credit Balances (Liabilities, Equity & Income)")
+                </h6>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 font-monospace">
+                        <thead class="table-light small text-muted text-uppercase font-sans">
+                            <tr>
+                                <th class="font-sans">Particulars</th>
+                                <th class="text-end">Amount (₹)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var line in Model.Statement.RightLines)
+                            {
+                                <tr>
+                                    <td class="font-sans @(line.IsTotal ? "fw-bold text-teal" : line.IsHeader ? "fw-bold text-ink" : "text-ink")">
+                                        @line.AccountName
+                                    </td>
+                                    <td class="text-end @(line.IsTotal ? "fw-bold text-teal" : "text-ink")">
+                                        ₹@line.Amount.ToString("N2")
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light fw-bold fs-6">
+                            <tr>
+                                <td class="font-sans">Total:</td>
+                                <td class="text-end text-teal">₹@Model.Statement.TotalRight.ToString("N2")</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
