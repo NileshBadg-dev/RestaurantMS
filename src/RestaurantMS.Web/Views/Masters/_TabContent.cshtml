@@ -1,0 +1,597 @@
+@model RestaurantMS.Web.Models.MastersViewModel
+
+@{
+    var currentTabDef = Model.Tabs.FirstOrDefault(t => t.Id == Model.ActiveTab) 
+                       ?? Model.Tabs.FirstOrDefault() 
+                       ?? new RestaurantMS.Web.Models.MasterTabDefinition { Id = "menu-items", TitleKey = "Master_MenuItems", Icon = "bi-egg-fried", PrimaryActionKey = "Master_AddMenuItem" };
+}
+
+<div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+    <!-- Card Top Header: Title + Action Buttons -->
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 pb-3 border-bottom">
+        <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center justify-content-center bg-teal-subtle text-teal rounded-3" style="width: 36px; height: 36px;">
+                <i class="bi @currentTabDef.Icon fs-5"></i>
+            </div>
+            <h2 class="h5 fw-bold text-ink mb-0">@Localizer[currentTabDef.TitleKey]</h2>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            @if (!string.IsNullOrEmpty(currentTabDef.SecondaryActionKey))
+            {
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold shadow-sm"
+                        data-drawer-url="@Url.Action("DrawerForm", "Masters", new { tab = "categories" })"
+                        data-drawer-title="@Localizer[currentTabDef.SecondaryActionKey]"
+                        data-drawer-subtitle="Quick-add a menu category"
+                        data-drawer-icon="bi-tags">
+                    <i class="bi bi-plus-lg me-1"></i> @Localizer[currentTabDef.SecondaryActionKey]
+                </button>
+            }
+
+            @if (Model.ActiveTab == "menu-items")
+            {
+                <a asp-controller="Menu" asp-action="ItemForm" class="btn btn-teal btn-sm rounded-pill px-3 fw-semibold text-white shadow-sm">
+                    <i class="bi bi-plus-lg me-1"></i> @Localizer[currentTabDef.PrimaryActionKey]
+                </a>
+            }
+            else if (Model.ActiveTab == "hotel-info")
+            {
+                <a asp-controller="Settings" asp-action="Index" class="btn btn-teal btn-sm rounded-pill px-3 fw-semibold text-white shadow-sm">
+                    <i class="bi bi-gear me-1"></i> @Localizer[currentTabDef.PrimaryActionKey]
+                </a>
+            }
+            else
+            {
+                <button type="button"
+                        class="btn btn-teal btn-sm rounded-pill px-3 fw-semibold text-white shadow-sm"
+                        data-drawer-url="@Url.Action("DrawerForm", "Masters", new { tab = Model.ActiveTab })"
+                        data-drawer-title="@Localizer[currentTabDef.PrimaryActionKey]"
+                        data-drawer-subtitle="@Localizer[currentTabDef.TitleKey]"
+                        data-drawer-icon="@currentTabDef.Icon">
+                    <i class="bi bi-plus-lg me-1"></i> @Localizer[currentTabDef.PrimaryActionKey]
+                </button>
+            }
+        </div>
+    </div>
+
+    @* Tab: Menu Items *@
+    @if (Model.ActiveTab == "menu-items")
+    {
+        <!-- Category Filter Chips Row -->
+        <div class="d-flex flex-wrap align-items-center gap-2 py-3 border-bottom">
+            <span class="small fw-bold text-muted me-1"><i class="bi bi-tags me-1"></i>Categories:</span>
+            <button type="button" class="master-chip-filter js-category-chip @(Model.SelectedCategory == "All" || string.IsNullOrEmpty(Model.SelectedCategory) ? "active" : "")" data-category="All">
+                All <span class="chip-count">@(Model.Counts.MenuItemsCount)</span>
+            </button>
+            @if (Model.Categories != null)
+            {
+                @foreach (var cat in Model.Categories)
+                {
+                    var isCatActive = string.Equals(Model.SelectedCategory, cat.Name, StringComparison.OrdinalIgnoreCase);
+                    <button type="button" class="master-chip-filter js-category-chip @(isCatActive ? "active" : "")" data-category="@cat.Name">
+                        @cat.Name <span class="chip-count">@cat.ItemCount</span>
+                        <i class="bi bi-pencil-square ms-1 text-muted" style="font-size: 0.75rem;" title="Edit @cat.Name"></i>
+                    </button>
+                }
+            }
+        </div>
+
+        <!-- Menu Items Banded Grid -->
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle" id="menuItemsTable">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>DISH / ITEM NAME</th>
+                        <th>CATEGORY</th>
+                        <th>TYPE</th>
+                        <th>PRICE</th>
+                        <th>PREP TIME</th>
+                        <th>STATUS</th>
+                        <th class="text-end" style="width: 140px;">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.MenuItems != null && Model.MenuItems.Count > 0)
+                    {
+                        @foreach (var item in Model.MenuItems)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@item.Id</td>
+                                <td>
+                                    <div class="fw-bold text-ink">@item.Name</div>
+                                    <div class="text-muted small text-truncate" style="max-width: 320px;">@item.Description</div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-light text-dark border px-2 py-1">@item.Category</span>
+                                </td>
+                                <td>
+                                    @if (item.DietaryType == "Veg")
+                                    {
+                                        <span class="badge bg-success-subtle text-teal border border-teal-subtle px-2 py-1">
+                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem; color: #0B7A70;"></i> Veg
+                                        </span>
+                                    }
+                                    else if (item.DietaryType == "Non-Veg")
+                                    {
+                                        <span class="badge bg-danger-subtle text-chili border border-danger-subtle px-2 py-1">
+                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem; color: #C62839;"></i> Non-Veg
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-subtle text-dark border border-warning px-2 py-1">
+                                            <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem; color: #FF9F1C;"></i> Egg
+                                        </span>
+                                    }
+                                </td>
+                                <td class="fw-bold text-ink fs-6">₹@item.Price.ToString("F0")</td>
+                                <td class="text-muted small">
+                                    <i class="bi bi-clock me-1"></i> @item.PrepTimeMinutes mins
+                                </td>
+                                <td>
+                                    <span class="badge bg-teal text-white px-2 py-1">
+                                        <i class="bi bi-check-circle me-1"></i> @item.Status
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-controller="Menu" asp-action="ItemForm" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1" title="Edit Item">
+                                        <i class="bi bi-pencil-square me-1"></i>Edit
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1 js-master-delete" data-name="@item.Name" title="Delete Item">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                No menu items found for this selection.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Categories *@
+    else if (Model.ActiveTab == "categories")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>CATEGORY NAME</th>
+                        <th>MARATHI NAME</th>
+                        <th>DISPLAY ORDER</th>
+                        <th>TOTAL ITEMS</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Categories != null)
+                    {
+                        @foreach (var cat in Model.Categories)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@cat.Id</td>
+                                <td class="fw-bold text-ink">@cat.Name</td>
+                                <td class="text-muted">@cat.MarathiName</td>
+                                <td><span class="badge bg-light text-dark border">@cat.DisplayOrder</span></td>
+                                <td><span class="badge bg-teal-subtle text-teal fw-semibold">@cat.ItemCount dishes</span></td>
+                                <td><span class="badge bg-teal text-white">@cat.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Floors *@
+    else if (Model.ActiveTab == "floors")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>FLOOR / SECTION NAME</th>
+                        <th>CODE</th>
+                        <th>DESCRIPTION</th>
+                        <th>TABLES COUNT</th>
+                        <th>TOTAL SEATS</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Floors != null)
+                    {
+                        @foreach (var floor in Model.Floors)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@floor.Id</td>
+                                <td class="fw-bold text-ink">@floor.Name</td>
+                                <td><span class="badge bg-secondary-subtle text-dark">@floor.Code</span></td>
+                                <td class="text-muted small">@floor.Description</td>
+                                <td><span class="badge bg-light text-dark border">@floor.TableCount Tables</span></td>
+                                <td class="fw-semibold text-teal">@floor.SeatingCapacity Seats</td>
+                                <td><span class="badge bg-teal text-white">@floor.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Tables *@
+    else if (Model.ActiveTab == "tables")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>TABLE CODE</th>
+                        <th>FLOOR / SECTION</th>
+                        <th>CAPACITY</th>
+                        <th>TABLE SHAPE</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Tables != null)
+                    {
+                        @foreach (var table in Model.Tables)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@table.Id</td>
+                                <td class="fw-bold fs-6 text-plum">@table.TableCode</td>
+                                <td class="text-ink">@table.FloorName</td>
+                                <td><span class="badge bg-light text-dark border">@table.Capacity Persons</span></td>
+                                <td class="text-muted">@table.Shape</td>
+                                <td><span class="badge bg-teal text-white">@table.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Customers *@
+    else if (Model.ActiveTab == "customers")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>CUSTOMER NAME</th>
+                        <th>MOBILE NUMBER</th>
+                        <th>ADDRESS</th>
+                        <th>CREDIT LIMIT</th>
+                        <th>OUTSTANDING</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Customers != null)
+                    {
+                        @foreach (var c in Model.Customers)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@c.Id</td>
+                                <td class="fw-bold text-ink">@c.Name</td>
+                                <td><i class="bi bi-telephone text-muted me-1"></i> @c.Mobile</td>
+                                <td class="text-muted small">@c.Address</td>
+                                <td class="text-muted">₹@c.CreditLimit.ToString("N0")</td>
+                                <td class="fw-bold @(c.OutstandingBalance > 0 ? "text-chili" : "text-teal")">
+                                    ₹@c.OutstandingBalance.ToString("N0")
+                                </td>
+                                <td><span class="badge bg-teal text-white">@c.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Suppliers *@
+    else if (Model.ActiveTab == "suppliers")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>SUPPLIER NAME</th>
+                        <th>CONTACT PERSON</th>
+                        <th>PHONE</th>
+                        <th>GSTIN</th>
+                        <th>CATEGORY</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Suppliers != null)
+                    {
+                        @foreach (var s in Model.Suppliers)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@s.Id</td>
+                                <td class="fw-bold text-ink">@s.Name</td>
+                                <td class="text-muted">@s.ContactPerson</td>
+                                <td><i class="bi bi-telephone text-muted me-1"></i> @s.Phone</td>
+                                <td><code class="text-plum">@s.Gstin</code></td>
+                                <td><span class="badge bg-light text-dark border">@s.Category</span></td>
+                                <td><span class="badge bg-teal text-white">@s.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Designations *@
+    else if (Model.ActiveTab == "designations")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>DESIGNATION TITLE</th>
+                        <th>DEPARTMENT</th>
+                        <th>ROLE LEVEL</th>
+                        <th>CURRENT STAFF</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Designations != null)
+                    {
+                        @foreach (var d in Model.Designations)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@d.Id</td>
+                                <td class="fw-bold text-ink">@d.Title</td>
+                                <td><span class="badge bg-light text-dark border">@d.Department</span></td>
+                                <td><span class="badge bg-plum text-white">@d.Level</span></td>
+                                <td class="fw-semibold text-teal">@d.Headcount Staff</td>
+                                <td><span class="badge bg-teal text-white">@d.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Shifts *@
+    else if (Model.ActiveTab == "shifts")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>SHIFT NAME</th>
+                        <th>START TIME</th>
+                        <th>END TIME</th>
+                        <th>GRACE PERIOD</th>
+                        <th>ASSIGNED STAFF</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Shifts != null)
+                    {
+                        @foreach (var sh in Model.Shifts)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@sh.Id</td>
+                                <td class="fw-bold text-ink">@sh.Name</td>
+                                <td><i class="bi bi-sunrise text-warning me-1"></i> @sh.StartTime</td>
+                                <td><i class="bi bi-sunset text-danger me-1"></i> @sh.EndTime</td>
+                                <td class="text-muted">@sh.GracePeriodMinutes mins</td>
+                                <td><span class="badge bg-light text-dark border">@sh.AssignedStaffCount Staff</span></td>
+                                <td><span class="badge bg-teal text-white">@sh.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Tax & Units *@
+    else if (Model.ActiveTab == "tax-units")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>TAX SLAB / UNIT NAME</th>
+                        <th>TYPE</th>
+                        <th>RATE / SYMBOL</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.TaxUnits != null)
+                    {
+                        @foreach (var tu in Model.TaxUnits)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@tu.Id</td>
+                                <td class="fw-bold text-ink">@tu.Name</td>
+                                <td><span class="badge bg-light text-dark border">@tu.Type</span></td>
+                                <td class="fw-bold text-teal">@tu.RateOrSymbol</td>
+                                <td><span class="badge bg-teal text-white">@tu.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Payment Modes *@
+    else if (Model.ActiveTab == "payment-modes")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>PAYMENT MODE NAME</th>
+                        <th>CODE</th>
+                        <th>FEE %</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.PaymentModes != null)
+                    {
+                        @foreach (var pm in Model.PaymentModes)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@pm.Id</td>
+                                <td class="fw-bold text-ink">@pm.Name</td>
+                                <td><code class="text-plum">@pm.Code</code></td>
+                                <td class="text-muted">@(pm.FeePercent > 0 ? $"{pm.FeePercent}%" : "0%")</td>
+                                <td><span class="badge bg-teal text-white">@pm.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Expense Heads *@
+    else if (Model.ActiveTab == "expense-heads")
+    {
+        <div class="table-responsive mt-3">
+            <table class="master-grid-table table align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 70px;">#ID</th>
+                        <th>EXPENSE HEAD NAME</th>
+                        <th>CATEGORY</th>
+                        <th>MONTHLY BUDGET</th>
+                        <th>TAX DEDUCTIBLE</th>
+                        <th>STATUS</th>
+                        <th class="text-end">ACTIONS</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ExpenseHeads != null)
+                    {
+                        @foreach (var eh in Model.ExpenseHeads)
+                        {
+                            <tr>
+                                <td class="fw-bold text-muted">#@eh.Id</td>
+                                <td class="fw-bold text-ink">@eh.Name</td>
+                                <td><span class="badge bg-light text-dark border">@eh.Category</span></td>
+                                <td class="fw-bold text-ink">₹@eh.MonthlyBudget.ToString("N0")</td>
+                                <td>
+                                    <span class="badge bg-teal-subtle text-teal">
+                                        <i class="bi bi-check me-1"></i> Yes
+                                    </span>
+                                </td>
+                                <td><span class="badge bg-teal text-white">@eh.Status</span></td>
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1 me-1"><i class="bi bi-pencil-square me-1"></i>Edit</button>
+                                    <button class="btn btn-sm btn-outline-danger rounded-3 px-2 py-1"><i class="bi bi-trash"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @* Tab: Hotel Info *@
+    else if (Model.ActiveTab == "hotel-info" && Model.HotelInfo != null)
+    {
+        <div class="row g-4 mt-1">
+            <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                    <h6 class="fw-bold text-plum mb-3"><i class="bi bi-building me-1"></i> Restaurant Legal Identity</h6>
+                    <div class="mb-2"><span class="text-muted small">Name (English):</span> <span class="fw-bold text-ink">@Model.HotelInfo.HotelNameEn</span></div>
+                    <div class="mb-2"><span class="text-muted small">Name (मराठी):</span> <span class="fw-bold text-ink">@Model.HotelInfo.HotelNameMr</span></div>
+                    <div class="mb-2"><span class="text-muted small">GSTIN:</span> <code class="fw-bold text-plum">@Model.HotelInfo.Gstin</code></div>
+                    <div class="mb-2"><span class="text-muted small">FSSAI License:</span> <code class="fw-bold text-teal">@Model.HotelInfo.Fssai</code></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="p-3 bg-light rounded-3 border">
+                    <h6 class="fw-bold text-plum mb-3"><i class="bi bi-geo-alt me-1"></i> Contact & Billing Specs</h6>
+                    <div class="mb-2"><span class="text-muted small">Address:</span> <span class="text-ink">@Model.HotelInfo.Address</span></div>
+                    <div class="mb-2"><span class="text-muted small">Phone:</span> <span class="text-ink">@Model.HotelInfo.Phone</span></div>
+                    <div class="mb-2"><span class="text-muted small">Email:</span> <span class="text-ink">@Model.HotelInfo.Email</span></div>
+                    <div class="mb-2"><span class="text-muted small">Currency / Timezone:</span> <span class="fw-semibold">@Model.HotelInfo.Currency · @Model.HotelInfo.Timezone</span></div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="p-3 bg-light rounded-3 border d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-bold text-ink">Receipt Header & Footer</div>
+                        <div class="text-muted small">Header: "@Model.HotelInfo.ReceiptHeader" · Footer: "@Model.HotelInfo.ReceiptFooter"</div>
+                    </div>
+                    <a asp-controller="Settings" asp-action="Index" class="btn btn-sm btn-plum rounded-pill px-3">
+                        <i class="bi bi-gear me-1"></i> Edit in Full Settings
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

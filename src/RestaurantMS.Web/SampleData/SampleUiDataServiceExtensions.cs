@@ -20,10 +20,15 @@ public static class SampleUiDataServiceExtensions
             services.AddScoped<IAccountsUiData, SampleAccountsUiData>();
             services.AddScoped<IReportsUiData, SampleReportsUiData>();
             services.AddScoped<IReservationsUiData, SampleReservationsUiData>();
+            services.AddSingleton<SampleStaffStore>();
+            services.AddSingleton<SampleAdvanceStateStore>();
+            services.AddSingleton<SampleAttendanceSalaryStore>();
+            services.AddScoped<IEmployeeAdvancesUiData, SampleEmployeeAdvancesUiData>();
             services.AddScoped<IStaffUiData, SampleStaffUiData>();
             services.AddScoped<IDayClosingUiData, SampleDayClosingUiData>();
             services.AddScoped<IOnlineOrdersUiData, SampleOnlineOrdersUiData>();
             services.AddScoped<IAuditUiData, SampleAuditUiData>();
+            services.AddSingleton<IMastersUiData, SampleMastersUiData>();
         }
 
         return services;

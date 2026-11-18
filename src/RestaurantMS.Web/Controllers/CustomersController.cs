@@ -18,21 +18,9 @@ public class CustomersController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public IActionResult Index()
     {
-        var request = new DataTableRequest { Start = 0, Length = 50 };
-        var pagedCustomers = await _customersUiData.GetCustomersAsync(request, cancellationToken);
-        var customers = pagedCustomers.Items;
-
-        var viewModel = new CustomerListViewModel
-        {
-            Customers = customers,
-            TotalOutstanding = customers.Sum(c => c.OutstandingBalance),
-            TotalCreditCustomers = customers.Count(c => c.OutstandingBalance > 0),
-            TotalCreditLimit = customers.Sum(c => c.CreditLimit)
-        };
-
-        return View(viewModel);
+        return RedirectToActionPermanent("Index", "Masters", new { tab = "customers" });
     }
 
     [HttpGet]
@@ -44,7 +32,7 @@ public class CustomersController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Create(CustomerFormViewModel model)
+    public IActionResult Create(CustomerFormViewModel model, string? submitAction = null)
     {
         if (!ModelState.IsValid)
         {
@@ -52,6 +40,12 @@ public class CustomersController : Controller
         }
 
         TempData["SuccessMessage"] = $"Customer '{model.FullName}' added successfully!";
+        TempData["HighlightedRow"] = model.FullName;
+        if (string.Equals(submitAction, "saveAndNew", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction(nameof(Create));
+        }
+
         return RedirectToAction(nameof(Index));
     }
 

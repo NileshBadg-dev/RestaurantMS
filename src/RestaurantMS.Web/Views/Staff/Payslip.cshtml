@@ -1,0 +1,85 @@
+@model RestaurantMS.Web.Models.PayslipViewModel
+@{
+    ViewData["Title"] = $"Payslip — {Model.Profile.Name} ({Model.MonthYearLabel})";
+    Layout = "_Layout";
+}
+
+<div class="mx-auto" style="max-width: 780px;">
+    <div class="d-flex justify-content-between align-items-center mb-3 d-print-none">
+        <a asp-action="Index" asp-route-tab="salary" asp-route-month="@Model.Salary.Month" asp-route-year="@Model.Salary.Year" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to Salary Statement
+        </a>
+        <button type="button" class="btn btn-plum btn-sm rounded-pill px-4 shadow-sm js-print-payslip">
+            <i class="bi bi-printer me-1"></i> @Localizer["Staff_PrintPayslip"]
+        </button>
+    </div>
+
+    <div class="card border shadow-sm rounded-4 bg-white p-4 p-md-5">
+        <div class="d-flex justify-content-between align-items-start border-bottom pb-3 mb-4">
+            <div>
+                <h2 class="h4 fw-bold text-plum mb-1">@Model.HotelName</h2>
+                <div class="small text-muted">@Model.HotelAddress</div>
+            </div>
+            <div class="text-end">
+                <div class="badge bg-plum text-white px-3 py-2 mb-1">SALARY PAYSLIP</div>
+                <div class="fw-bold text-ink">@Model.MonthYearLabel</div>
+                <status-chip status="@Model.Salary.Status" label="@Model.Salary.Status"></status-chip>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4 small">
+            <div class="col-sm-6">
+                <div><span class="text-muted">Employee:</span> <strong class="text-ink">@Model.Profile.Name (@Model.Profile.EmployeeCode)</strong></div>
+                <div><span class="text-muted">Designation:</span> <strong class="text-ink">@Model.Profile.Designation</strong></div>
+                <div><span class="text-muted">Salary Type:</span> @Model.Profile.SalaryType</div>
+            </div>
+            <div class="col-sm-6 text-sm-end">
+                <div><span class="text-muted">Bank / UPI:</span> <code>@Model.Profile.BankOrUpi</code></div>
+                <div><span class="text-muted">Attendance:</span> @Model.Salary.PresentDays P / @Model.Salary.AbsentDays A / @Model.Salary.HalfDays HD</div>
+                <div><span class="text-muted">Overtime:</span> @Model.Salary.OvertimeHours.ToString("0.#") hrs</div>
+            </div>
+        </div>
+
+        <table class="table table-bordered align-middle mb-4">
+            <thead class="table-light small text-uppercase">
+                <tr>
+                    <th>Earnings / Deductions Component</th>
+                    <th class="text-end" style="width: 160px;">Amount (₹)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Basic Salary (@Model.Salary.SalaryType)</td>
+                    <td class="text-end font-monospace fw-semibold">₹@Model.Salary.BasicSalary.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td class="text-teal">Overtime Pay (@Model.Salary.OvertimeHours.ToString("0.#") hrs)</td>
+                    <td class="text-end font-monospace text-teal">+₹@Model.Salary.OvertimePay.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td class="text-chili">Absent &amp; Half-Day Deduction</td>
+                    <td class="text-end font-monospace text-chili">-₹@Model.Salary.AbsentDeduction.ToString("N2")</td>
+                </tr>
+                <tr>
+                    <td class="text-plum">Employee Advance Recovery @(string.IsNullOrEmpty(Model.Salary.RecoveryVoucherNumber) ? "" : $"({Model.Salary.RecoveryVoucherNumber})")</td>
+                    <td class="text-end font-monospace text-plum">-₹@Model.Salary.AdvanceRecovery.ToString("N2")</td>
+                </tr>
+            </tbody>
+            <tfoot class="table-light">
+                <tr>
+                    <th class="fs-5 text-ink">Net Payable Salary</th>
+                    <th class="text-end font-monospace fs-5 text-teal">₹@Model.Salary.NetPayable.ToString("N2")</th>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="d-flex justify-content-between pt-4 mt-4 border-top small text-muted">
+            <div>Employer Signature</div>
+            <div>Employee Signature</div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modules/staffModule.js" asp-append-version="true"></script>
+}

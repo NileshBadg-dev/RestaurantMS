@@ -14,4 +14,13 @@ public class HotelSettingsDto
     public string Timezone { get; set; } = "Asia/Kolkata";
     public string? ReceiptHeader { get; set; }
     public string? ReceiptFooter { get; set; }
+    public string PaperSize { get; set; } = "80mm";
+    public bool AutoPrintOnSettle { get; set; } = true;
+    public int PrintCopies { get; set; } = 1;
+    public bool ShowMarathiItemNames { get; set; } = true;
+    public bool ShowUpiQrOnReceipt { get; set; } = true;
+    public bool AutoPrintKot { get; set; } = true;
+    public string HotelUpiId { get; set; } = "grandrestaurant@okhdfc";
+    public bool UpiReferenceRequired { get; set; } = false;
+    public bool CardDetailsRequired { get; set; } = true;
 }

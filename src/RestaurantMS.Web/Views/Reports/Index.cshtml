@@ -1,60 +1,127 @@
 @model RestaurantMS.Web.Models.ReportsHubViewModel
 @{
     ViewData["Title"] = Localizer["Reports_Title"].Value;
+    var isMarathi = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("mr", StringComparison.OrdinalIgnoreCase);
 }
 
-<div class="reports-hub-page d-flex flex-column gap-3">
-    <!-- Header with Category Tabs -->
+<div class="reports-hub-page d-flex flex-column gap-3" id="reportsHubRoot" data-toggle-fav-url="@Url.Action("ToggleFavorite", "Reports")">
+    @Html.AntiForgeryToken()
+
+    <!-- Hub Header & Live Search -->
     <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
             <div>
                 <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-bar-chart-line text-plum me-2"></i> @Localizer["Reports_Title"]</h2>
-                <div class="text-muted small">Standard operational, financial, GST compliance &amp; performance analytics</div>
+                <div class="text-muted small">@Localizer["Reports_HubSubtitle"] (@Model.AllReports.Count @Localizer["Reports_AvailableCount"])</div>
             </div>
-            <div class="d-flex gap-2">
-                <a asp-action="ProfitLoss" class="btn btn-teal px-3 py-2 fw-semibold shadow-sm">
-                    <i class="bi bi-graph-up me-1"></i> Profit &amp; Loss Statement
-                </a>
+            <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="input-group input-group-sm" style="width: 280px;">
+                    <span class="input-group-text bg-white"><i class="bi bi-search text-plum"></i></span>
+                    <input type="text" id="reportsHubSearch" class="form-control" value="@Model.Search" placeholder="@Localizer["Reports_SearchPlaceholder"]" autocomplete="off" />
+                </div>
             </div>
         </div>
 
-        <div class="d-flex gap-2 border-top mt-3 pt-3 overflow-x-auto">
-            <a asp-action="Index" asp-route-category="All" class="btn btn-sm @(Model.SelectedCategory == "All" ? "btn-plum" : "btn-light border") rounded-pill px-3">All Reports</a>
-            <a asp-action="Index" asp-route-category="Sales" class="btn btn-sm @(Model.SelectedCategory == "Sales" ? "btn-plum" : "btn-light border") rounded-pill px-3">Sales</a>
-            <a asp-action="Index" asp-route-category="Financial" class="btn btn-sm @(Model.SelectedCategory == "Financial" ? "btn-plum" : "btn-light border") rounded-pill px-3">Financial &amp; GST</a>
-            <a asp-action="Index" asp-route-category="Operations" class="btn btn-sm @(Model.SelectedCategory == "Operations" ? "btn-plum" : "btn-light border") rounded-pill px-3">Operations &amp; Staff</a>
-            <a asp-action="Index" asp-route-category="Inventory" class="btn btn-sm @(Model.SelectedCategory == "Inventory" ? "btn-plum" : "btn-light border") rounded-pill px-3">Inventory</a>
+        <!-- Category Tabs (10 Categories + All + Favourites) -->
+        <div class="d-flex flex-wrap gap-1 border-top pt-3" id="reportsCategoryTabs" role="tablist">
+            <button type="button" class="btn btn-sm rounded-pill px-3 js-hub-cat-tab @(Model.SelectedCategory == "All" ? "btn-plum" : "btn-light border")" data-category="All">
+                @Localizer["Filter_All"] <span class="badge bg-white text-plum ms-1">@Model.AllReports.Count</span>
+            </button>
+            <button type="button" class="btn btn-sm rounded-pill px-3 js-hub-cat-tab @(Model.SelectedCategory == "Favourites" ? "btn-saffron" : "btn-light border")" data-category="Favourites">
+                <i class="bi bi-star-fill text-warning me-1"></i> @Localizer["Reports_Favourites"]
+                <span class="badge bg-white text-dark ms-1" id="hubFavCount">@Model.FavoriteReports.Count</span>
+            </button>
+            @foreach (var cat in Model.Categories)
+            {
+                var count = Model.AllReports.Count(r => r.Category.Equals(cat, StringComparison.OrdinalIgnoreCase));
+                if (count == 0) continue;
+                var isActive = Model.SelectedCategory.Equals(cat, StringComparison.OrdinalIgnoreCase);
+                <button type="button" class="btn btn-sm rounded-pill px-3 js-hub-cat-tab @(isActive ? "btn-plum" : "btn-light border")" data-category="@cat">
+                    @cat <span class="badge bg-white text-muted ms-1">@count</span>
+                </button>
+            }
         </div>
     </div>
 
-    <!-- Reports Cards Grid -->
-    <div class="row g-3">
-        @foreach (var r in Model.Reports)
+    <!-- Recently Used Quick Strip -->
+    @if (Model.RecentReports.Count > 0)
+    {
+        <div class="card border-0 shadow-sm rounded-3 bg-cream p-3">
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="small fw-bold text-plum text-uppercase me-1">
+                    <i class="bi bi-clock-history me-1"></i> @Localizer["Reports_RecentlyUsed"]:
+                </span>
+                @foreach (var rec in Model.RecentReports)
+                {
+                    <a asp-action="ViewReport" asp-route-code="@rec.Code" class="btn btn-sm btn-white bg-white border rounded-pill px-3 text-ink shadow-sm">
+                        <i class="bi @rec.Icon text-plum me-1"></i> @(isMarathi ? rec.TitleMr : rec.TitleEn)
+                    </a>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Report Cards Grid -->
+    <div class="row g-3" id="reportsHubGrid">
+        @foreach (var r in Model.AllReports)
         {
-            <div class="col-12 col-md-6 col-xl-4">
+            var isFav = Model.FavoriteCodes.Contains(r.Code);
+            <div class="col-12 col-md-6 col-xl-4 js-report-card-col"
+                 data-code="@r.Code"
+                 data-category="@r.Category"
+                 data-favorite="@(isFav ? "true" : "false")"
+                 data-search="@($"{r.Code} {r.TitleEn} {r.TitleMr} {r.DescriptionEn} {r.Category}".ToLowerInvariant())">
                 <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100 d-flex flex-column justify-content-between">
                     <div>
                         <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-plum-subtle text-plum font-monospace">@r.Key</span>
-                            <span class="badge bg-light text-muted border">@r.Category</span>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-plum-subtle text-plum font-monospace">@r.Code</span>
+                                <span class="badge bg-light text-muted border">@r.Category</span>
+                            </div>
+                            <button type="button"
+                                    class="btn btn-sm p-1 border-0 js-toggle-fav @(isFav ? "text-warning" : "text-muted")"
+                                    data-report-code="@r.Code"
+                                    title="@Localizer["Reports_ToggleFavorite"]"
+                                    aria-label="@Localizer["Reports_ToggleFavorite"]">
+                                <i class="bi @(isFav ? "bi-star-fill" : "bi-star") fs-5"></i>
+                            </button>
                         </div>
-                        <h5 class="fw-bold text-ink mb-1">
-                            <i class="bi @r.Icon text-plum me-2"></i>@r.Title
-                        </h5>
-                        @if (!string.IsNullOrWhiteSpace(r.MarathiTitle))
-                        {
-                            <div class="text-muted small mb-1">@r.MarathiTitle</div>
-                        }
-                        <p class="small text-muted mb-3">@r.Description</p>
+
+                        <h6 class="fw-bold text-ink mb-1">
+                            <i class="bi @r.Icon text-plum me-2"></i>@(isMarathi ? r.TitleMr : r.TitleEn)
+                        </h6>
+                        <div class="text-muted small mb-1">@(isMarathi ? r.TitleEn : r.TitleMr)</div>
+                        <p class="small text-muted mb-3">@(isMarathi ? r.DescriptionMr : r.DescriptionEn)</p>
                     </div>
 
-                    <div class="pt-3 border-top mt-auto text-end">
-                        <a asp-action="ViewReport" asp-route-code="@r.Key" class="btn btn-sm btn-plum px-3 py-1 fw-semibold">
-                            Generate Report <i class="bi bi-arrow-right ms-1"></i>
+                    <div class="pt-2 border-top d-flex justify-content-between align-items-center mt-auto">
+                        <span class="small text-muted">
+                            @if (r.SupportsChart)
+                            {
+                                <i class="bi bi-bar-chart-fill text-teal me-1"></i>@Localizer["Reports_HasChart"]
+                            }
+                            else
+                            {
+                                <i class="bi bi-table text-plum me-1"></i>@Localizer["Reports_PagedGrid"]
+                            }
+                        </span>
+                        <a asp-action="ViewReport" asp-route-code="@r.Code" class="btn btn-sm btn-plum px-3">
+                            @Localizer["Reports_OpenReport"] <i class="bi bi-arrow-right"></i>
                         </a>
                     </div>
                 </div>
             </div>
         }
     </div>
+
+    <!-- Hub Empty Search State -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-5 text-center d-none" id="reportsHubEmpty">
+        <i class="bi bi-search fs-1 text-muted d-block mb-2"></i>
+        <h6 class="fw-bold text-ink mb-1">@Localizer["Reports_NoMatchingReports"]</h6>
+        <p class="small text-muted mb-0">@Localizer["Reports_TryDifferentSearch"]</p>
+    </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/modules/reports.js" asp-append-version="true"></script>
+}

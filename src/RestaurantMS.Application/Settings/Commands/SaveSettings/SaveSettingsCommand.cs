@@ -19,7 +19,16 @@ public record SaveSettingsCommand(
     string Currency = "INR",
     string Timezone = "Asia/Kolkata",
     string? ReceiptHeader = null,
-    string? ReceiptFooter = null) : IRequest<Result<HotelSettingsDto>>, IRequirePermission, IAuditableCommand
+    string? ReceiptFooter = null,
+    string PaperSize = "80mm",
+    bool AutoPrintOnSettle = true,
+    int PrintCopies = 1,
+    bool ShowMarathiItemNames = true,
+    bool ShowUpiQrOnReceipt = true,
+    bool AutoPrintKot = true,
+    string? HotelUpiId = null,
+    bool UpiReferenceRequired = false,
+    bool CardDetailsRequired = true) : IRequest<Result<HotelSettingsDto>>, IRequirePermission, IAuditableCommand
 {
     public string RequiredPermission => Permissions.Settings.Edit;
     public string EntityName => "HotelSettings";

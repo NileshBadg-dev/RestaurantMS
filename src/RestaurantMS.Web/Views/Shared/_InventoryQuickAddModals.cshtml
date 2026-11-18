@@ -1,0 +1,154 @@
+@using RestaurantMS.Application.Common.Models.UiData
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+@{
+    var units = ViewData["QuickAddUnits"] as IReadOnlyList<MasterTaxUnitDto> ?? [];
+    var categories = ViewData["QuickAddCategories"] as IReadOnlyList<string> ?? ["Grains", "Dairy", "Vegetables", "Spices", "Oils", "Poultry & Meat", "Beverages", "Packaging"];
+}
+
+<!-- Quick Add Supplier Modal (Saves into Masters > Suppliers) -->
+<div class="modal fade" id="quickAddSupplierModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-plum text-white py-2">
+                <h6 class="modal-title fw-bold mb-0"><i class="bi bi-truck me-1"></i> @Localizer["Inventory_QuickAddSupplier"]</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger py-2 small d-none" id="qaSupplierError"></div>
+                <div class="mb-2">
+                    <label class="form-label small fw-semibold">@Localizer["Supplier_Name"] *</label>
+                    <input type="text" class="form-control form-control-sm" id="qaSupplierName" placeholder="e.g. Sahyadri Agro Foods" />
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">@Localizer["Contact_Person"]</label>
+                        <input type="text" class="form-control form-control-sm" id="qaSupplierContact" placeholder="e.g. Suresh Patil" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">@Localizer["Mobile Number"]</label>
+                        <input type="tel" class="form-control form-control-sm font-monospace" id="qaSupplierPhone" maxlength="10" placeholder="9823001122" />
+                    </div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">GSTIN</label>
+                        <input type="text" class="form-control form-control-sm font-monospace text-uppercase" id="qaSupplierGstin" placeholder="27AAAAA0000A1Z5" />
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">@Localizer["Category"]</label>
+                        <input type="text" class="form-control form-control-sm" id="qaSupplierCategory" value="Grocery & Raw Materials" />
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                <button type="button" class="btn btn-sm btn-teal" id="btnSaveQuickSupplier">
+                    <i class="bi bi-check-lg"></i> @Localizer["Btn_Save"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Unit or Tax Rate Modal (Saves into Masters > Tax & Units) -->
+<div class="modal fade" id="quickAddTaxUnitModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-plum text-white py-2">
+                <h6 class="modal-title fw-bold mb-0" id="qaTaxUnitTitle">@Localizer["Inventory_QuickAddUnit"]</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="qaTaxUnitKind" value="unit" />
+                <div class="alert alert-danger py-2 small d-none" id="qaTaxUnitError"></div>
+                <div class="mb-2">
+                    <label class="form-label small fw-semibold">@Localizer["Name"] *</label>
+                    <input type="text" class="form-control form-control-sm" id="qaTaxUnitName" placeholder="e.g. Box / GST 12%" />
+                </div>
+                <div class="mb-1">
+                    <label class="form-label small fw-semibold" id="qaTaxUnitValueLabel">@Localizer["Inventory_SymbolOrRate"] *</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" id="qaTaxUnitValue" placeholder="e.g. box or 12%" />
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                <button type="button" class="btn btn-sm btn-teal" id="btnSaveQuickTaxUnit">
+                    <i class="bi bi-check-lg"></i> @Localizer["Btn_Save"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Stock Item Modal -->
+<div class="modal fade" id="quickAddStockItemModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-plum text-white py-2">
+                <h6 class="modal-title fw-bold mb-0"><i class="bi bi-box-seam me-1"></i> @Localizer["Inventory_QuickAddItem"]</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger py-2 small d-none" id="qaStockItemError"></div>
+                <div class="mb-2">
+                    <label class="form-label small fw-semibold">@Localizer["Inventory_ItemName"] *</label>
+                    <input type="text" class="form-control form-control-sm" id="qaItemName" placeholder="e.g. Cashew Nuts (W320)" />
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">@Localizer["Category"]</label>
+                        <select class="form-select form-select-sm" id="qaItemCategory">
+                            @foreach (var cat in categories)
+                            {
+                                <option value="@cat">@cat</option>
+                            }
+                            <option value="General">General</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label small fw-semibold">@Localizer["Inventory_Unit"]</label>
+                        <select class="form-select form-select-sm js-master-unit-select" id="qaItemUnit">
+                            @if (units.Count == 0)
+                            {
+                                <option value="kg">kg</option>
+                                <option value="L">L</option>
+                                <option value="pkt">pkt</option>
+                            }
+                            else
+                            {
+                                @foreach (var u in units)
+                                {
+                                    <option value="@u.RateOrSymbol">@u.Name (@u.RateOrSymbol)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-4">
+                        <label class="form-label small fw-semibold">@Localizer["Inventory_OpeningStock"]</label>
+                        <input type="number" class="form-control form-control-sm font-monospace" id="qaItemOpening" value="0" min="0" step="0.1" />
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small fw-semibold">@Localizer["Inventory_ReorderLevel"]</label>
+                        <input type="number" class="form-control form-control-sm font-monospace" id="qaItemReorder" value="10" min="0" step="0.1" />
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label small fw-semibold">@Localizer["Inventory_LastRate"] (₹)</label>
+                        <input type="number" class="form-control form-control-sm font-monospace" id="qaItemRate" value="100" min="0" step="1" />
+                    </div>
+                </div>
+                <div class="mb-1">
+                    <label class="form-label small fw-semibold">@Localizer["Inventory_ExpiryDate"]</label>
+                    <input type="date" class="form-control form-control-sm" id="qaItemExpiry" />
+                </div>
+            </div>
+            <div class="modal-footer bg-light py-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">@Localizer["Cancel"]</button>
+                <button type="button" class="btn btn-sm btn-teal" id="btnSaveQuickStockItem">
+                    <i class="bi bi-check-lg"></i> @Localizer["Btn_Save"]
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

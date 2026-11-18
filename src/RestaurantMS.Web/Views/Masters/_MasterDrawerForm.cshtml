@@ -1,0 +1,27 @@
+@model RestaurantMS.Web.Models.MasterDrawerFormViewModel
+
+<form asp-controller="Masters"
+      asp-action="SaveMasterEntry"
+      method="post"
+      data-app-form="true"
+      data-ajax-drawer="true"
+      novalidate
+      class="d-flex flex-column h-100">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="tab" value="@Model.Tab" />
+
+    <div class="p-4 flex-grow-1 overflow-y-auto">
+        <div class="alert alert-danger py-2 px-3 small rounded-3 d-none js-form-error-summary mb-3" role="alert"></div>
+
+        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Model.SectionTitle, HelperText = Model.SectionHelperText, Icon = Model.Icon }' />
+
+        <div class="row g-3">
+            @foreach (var field in Model.Fields)
+            {
+                <partial name="_FormField" model="field" />
+            }
+        </div>
+    </div>
+
+    <partial name="_FormFooter" model='new RestaurantMS.Web.Models.FormFooterModel { IsDrawer = true, ShowSaveAndNew = true, SaveLabelKey = "Common_Save" }' />
+</form>

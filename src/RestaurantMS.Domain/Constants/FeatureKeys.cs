@@ -5,6 +5,7 @@ public static class FeatureKeys
     public const string KitchenDisplay = "KitchenDisplay";
     public const string Kitchen = "Kitchen.Enabled";
     public const string InventoryTracking = "InventoryTracking";
+    public const string Inventory = "Inventory.Enabled";
     public const string CreditUdhari = "CreditUdhari";
     public const string Credit = "Credit.Enabled";
     public const string CustomerLoyalty = "CustomerLoyalty";
@@ -30,6 +31,7 @@ public static class FeatureKeys
             KitchenDisplay,
             Kitchen,
             InventoryTracking,
+            Inventory,
             CreditUdhari,
             Credit,
             CustomerLoyalty,

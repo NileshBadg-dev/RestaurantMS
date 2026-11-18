@@ -1,68 +1,153 @@
 @model RestaurantMS.Web.Models.StaffFormViewModel
 @{
-    ViewData["Title"] = Localizer["Staff_Create_Title"].Value;
+    var isEdit = Model.Id > 0;
+    ViewData["Title"] = isEdit ? $"Edit Staff — {Model.FullName}" : Localizer["Staff_Create_Title"].Value;
+    Layout = "_Layout";
 }
 
-<div class="staff-create-page" style="max-width: 650px; margin: 0 auto;">
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <div>
-                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-person-plus text-plum me-2"></i> @Localizer["Staff_Create_Title"]</h3>
-                <div class="text-muted small">Register employee, assign shift timing &amp; roles</div>
+<div class="mx-auto" style="max-width: 920px;">
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-4">
+            <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center justify-content-center bg-plum-subtle text-plum rounded-3" style="width: 38px; height: 38px;">
+                    <i class="bi bi-person-badge fs-5"></i>
+                </div>
+                <div>
+                    <h2 class="h5 fw-bold text-ink mb-0">@ViewData["Title"]</h2>
+                    <div class="small text-muted">@Localizer["Staff_Form_Subtitle"]</div>
+                </div>
             </div>
-            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Back to Staff
+            <a asp-action="Index" asp-route-tab="list" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> @Localizer["Nav_Staff"]
             </a>
         </div>
 
-        <form asp-action="Create" method="post" id="staffForm">
+        <form asp-action="@(isEdit ? "Edit" : "Create")" method="post" data-app-form="true" novalidate>
             @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
 
-            <div class="row g-3 mb-4">
-                <div class="col-12">
-                    <label asp-for="FullName" class="form-label fw-bold small text-ink">Full Name *</label>
-                    <input asp-for="FullName" class="form-control" placeholder="e.g. Dnyaneshwar Pawar" required />
-                    <span asp-validation-for="FullName" class="text-danger small"></span>
-                </div>
+            <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 js-form-error-summary @(ViewData.ModelState.IsValid ? "d-none" : "")" role="alert">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="mb-0"></div>
+                }
+            </div>
 
-                <div class="col-12 col-md-6">
-                    <label asp-for="Role" class="form-label fw-bold small text-ink">Role / Designation *</label>
-                    <select asp-for="Role" class="form-select">
-                        <option value="Waiter">Waiter / Captain</option>
-                        <option value="Cashier">Cashier</option>
-                        <option value="Kitchen">Kitchen Chef / Cook</option>
-                        <option value="Manager">Manager</option>
-                        <option value="Accountant">Accountant</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="MobileNumber" class="form-label fw-bold small text-ink">Mobile Number *</label>
-                    <mobile-input asp-for="MobileNumber" />
-                    <span asp-validation-for="MobileNumber" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="Shift" class="form-label fw-bold small text-ink">Assigned Shift</label>
-                    <select asp-for="Shift" class="form-select">
-                        <option value="Morning">Morning Shift (10 AM - 4 PM)</option>
-                        <option value="Evening">Evening Shift (5 PM - 11:30 PM)</option>
-                        <option value="Full Day">Full Day Shift</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="MonthlySalary" class="form-label fw-bold small text-ink">Monthly Salary (₹)</label>
-                    <money-input asp-for="MonthlySalary" />
+            <!-- Section 1: Personal & Identity -->
+            <div class="mb-4">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_PersonalInfo"].Value, HelperText = Localizer["Form_Sec_PersonalInfo_Help"].Value, Icon = "bi-person-vcard" }' />
+                <div class="row g-3">
+                    <div class="col-12 col-md-4 app-form-field">
+                        <label asp-for="EmployeeCode" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_Code"]</label>
+                        <input asp-for="EmployeeCode" class="form-control font-monospace" placeholder="EMP-008 (auto)" />
+                    </div>
+                    <div class="col-12 col-md-4 app-form-field">
+                        <label asp-for="FullName" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_FullName"] <span class="text-chili">*</span></label>
+                        <input asp-for="FullName" class="form-control" placeholder="e.g. Rohan Kulkarni" required />
+                        <span asp-validation-for="FullName" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+                    <div class="col-12 col-md-4 app-form-field">
+                        <label asp-for="MobileNumber" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_Mobile"] <span class="text-chili">*</span></label>
+                        <input asp-for="MobileNumber" class="form-control" placeholder="10-digit mobile" pattern="^[6-9]\d{9}$" maxlength="10" required />
+                        <span asp-validation-for="MobileNumber" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="IdProof" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_IdProof"]</label>
+                        <input asp-for="IdProof" class="form-control" placeholder="e.g. Aadhaar XXXX-4812 or PAN" />
+                    </div>
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="PhotoUrl" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_PhotoUrl"]</label>
+                        <input asp-for="PhotoUrl" class="form-control" placeholder="/images/staff/emp.jpg (optional)" />
+                    </div>
                 </div>
             </div>
 
-            <div class="border-top pt-3 d-flex justify-content-end gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
-                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
-                    <i class="bi bi-check-circle me-1"></i> Save Staff Member
-                </button>
+            <!-- Section 2: Role & Shift -->
+            <div class="mb-4">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_RoleShift"].Value, HelperText = Localizer["Form_Sec_RoleShift_Help"].Value, Icon = "bi-clock" }' />
+                <div class="row g-3">
+                    <div class="col-12 col-md-4 app-form-field">
+                        <label asp-for="Role" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_Designation"] <span class="text-chili">*</span></label>
+                        <select asp-for="Role" class="form-select" required>
+                            <option value="Head Chef">Head Chef</option>
+                            <option value="Chef">Chef</option>
+                            <option value="Captain">Captain</option>
+                            <option value="Head Waiter">Head Waiter</option>
+                            <option value="Waiter">Waiter</option>
+                            <option value="Cashier">Cashier</option>
+                            <option value="Kitchen Assistant">Kitchen Assistant</option>
+                            <option value="Manager">Manager</option>
+                            <option value="Utility Helper">Utility Helper</option>
+                        </select>
+                        <span asp-validation-for="Role" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+                    <div class="col-12 col-md-4 app-form-field">
+                        <label asp-for="Shift" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_Shift"]</label>
+                        <select asp-for="Shift" class="form-select">
+                            <option value="Morning (07:00 AM - 03:30 PM)">Morning (07:00 AM - 03:30 PM)</option>
+                            <option value="Evening (03:30 PM - 11:30 PM)">Evening (03:30 PM - 11:30 PM)</option>
+                            <option value="Dinner (04:00 PM - 11:30 PM)">Dinner (04:00 PM - 11:30 PM)</option>
+                            <option value="All Day (10:00 AM - 10:00 PM)">All Day (10:00 AM - 10:00 PM)</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4 app-form-field">
+                        <label asp-for="JoiningDate" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Col_JoiningDate"]</label>
+                        <input asp-for="JoiningDate" type="date" class="form-control" />
+                    </div>
+                </div>
             </div>
+
+            <!-- Section 3: Compensation & Banking -->
+            <div class="mb-3">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_SalaryBank"].Value, HelperText = Localizer["Form_Sec_SalaryBank_Help"].Value, Icon = "bi-bank" }' />
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_SalaryType"]</label>
+                        <div class="app-segmented-control">
+                            <div class="seg-option">
+                                <input type="radio" name="SalaryType" id="salMonthly" value="Monthly" checked="@(Model.SalaryType != "Daily" ? "checked" : null)" />
+                                <label for="salMonthly"><i class="bi bi-calendar-month"></i> Monthly</label>
+                            </div>
+                            <div class="seg-option">
+                                <input type="radio" name="SalaryType" id="salDaily" value="Daily" checked="@(Model.SalaryType == "Daily" ? "checked" : null)" />
+                                <label for="salDaily"><i class="bi bi-calendar-day"></i> Daily Wage</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="MonthlySalary" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_BasicSalary"] <span class="text-chili">*</span></label>
+                        <div class="input-group">
+                            <input asp-for="MonthlySalary" type="number" step="1" min="0" class="form-control fw-semibold" placeholder="e.g. 22000" required />
+                            <span class="input-group-text bg-light text-muted fw-semibold">₹</span>
+                        </div>
+                        <span asp-validation-for="MonthlySalary" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="BankOrUpi" class="form-label fw-semibold small text-ink mb-1">@Localizer["Staff_Field_BankUpi"]</label>
+                        <input asp-for="BankOrUpi" class="form-control" placeholder="e.g. 9822001122@okhdfc / HDFC0001234" />
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                        <div class="p-3 rounded-3 border bg-cream-soft d-flex align-items-center justify-content-between h-100">
+                            <div>
+                                <label class="form-label fw-semibold small text-ink mb-0" for="staffActiveSwitch">@Localizer["Staff_Field_IsActive"]</label>
+                                <div class="text-muted" style="font-size: 0.72rem;">Eligible for attendance, payroll &amp; advances</div>
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="staffActiveSwitch" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <partial name="_FormFooter" model='new RestaurantMS.Web.Models.FormFooterModel { CancelUrl = Url.Action("Index", "Staff", new { tab = "list" })!, ShowSaveAndNew = !isEdit }' />
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

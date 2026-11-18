@@ -1,0 +1,110 @@
+@model RestaurantMS.Web.Models.StockLedgerViewModel
+@{
+    ViewData["Title"] = Localizer["Nav_StockLedger"].Value;
+}
+
+<div class="d-flex flex-column gap-3">
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-journal-check text-plum me-2"></i> @Localizer["Nav_StockLedger"]</h2>
+                <div class="text-muted small">@Localizer["Inventory_LedgerSubtitle"]</div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+                <span class="badge bg-teal-subtle text-teal p-2 font-monospace">@Localizer["Inventory_InQty"]: +@Model.TotalInQty.ToString("0.##")</span>
+                <span class="badge bg-danger-subtle text-chili p-2 font-monospace">@Localizer["Inventory_OutQty"]: -@Model.TotalOutQty.ToString("0.##")</span>
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> @Localizer["Nav_StockSummary"]
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <form method="get" asp-action="Ledger" class="row g-2 align-items-end mb-3">
+            <div class="col-12 col-md-3">
+                <label class="form-label small fw-semibold text-muted mb-1">@Localizer["Inventory_ItemName"]</label>
+                <select name="itemId" class="form-select form-select-sm">
+                    <option value="">@Localizer["Filter_All"]</option>
+                    @foreach (var item in Model.StockItems)
+                    {
+                        <option value="@item.Id" selected="@(Model.SelectedItemId == item.Id ? "selected" : null)">@item.Name (@item.Code)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-semibold text-muted mb-1">@Localizer["Billing_Type"]</label>
+                <select name="movementType" class="form-select form-select-sm">
+                    <option value="All" selected="@(Model.MovementType == "All" ? "selected" : null)">@Localizer["Filter_All"]</option>
+                    <option value="Opening" selected="@(Model.MovementType == "Opening" ? "selected" : null)">Opening</option>
+                    <option value="Purchase" selected="@(Model.MovementType == "Purchase" ? "selected" : null)">Purchase</option>
+                    <option value="Adjustment" selected="@(Model.MovementType == "Adjustment" ? "selected" : null)">Adjustment</option>
+                    <option value="Wastage" selected="@(Model.MovementType == "Wastage" ? "selected" : null)">Wastage</option>
+                    <option value="Consumption" selected="@(Model.MovementType == "Consumption" ? "selected" : null)">Consumption</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-semibold text-muted mb-1">@Localizer["FromDate"]</label>
+                <input type="date" name="fromDate" class="form-control form-control-sm" value="@Model.FromDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label small fw-semibold text-muted mb-1">@Localizer["ToDate"]</label>
+                <input type="date" name="toDate" class="form-control form-control-sm" value="@Model.ToDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-6 col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-plum flex-grow-1"><i class="bi bi-funnel"></i> @Localizer["Btn_Filter"]</button>
+                <a asp-action="Ledger" class="btn btn-sm btn-outline-secondary">@Localizer["Btn_Clear"]</a>
+            </div>
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th>@Localizer["Date"]</th>
+                        <th>@Localizer["Inventory_ItemName"]</th>
+                        <th>@Localizer["Billing_Type"]</th>
+                        <th>@Localizer["Inventory_RefNo"]</th>
+                        <th class="text-end">@Localizer["Inventory_InQty"]</th>
+                        <th class="text-end">@Localizer["Inventory_OutQty"]</th>
+                        <th class="text-end">@Localizer["Inventory_Balance"]</th>
+                        <th class="text-end">@Localizer["Inventory_ValueImpact"]</th>
+                        <th>@Localizer["Inventory_Reason"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.Entries.Count == 0)
+                    {
+                        <tr><td colspan="9" class="text-center text-muted py-4 small">@Localizer["Inventory_NoRecordsYet"]</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var e in Model.Entries)
+                        {
+                            var badge = e.MovementType switch
+                            {
+                                "Purchase" => "bg-teal-subtle text-teal",
+                                "Wastage" => "bg-danger-subtle text-chili",
+                                "Consumption" => "bg-saffron-subtle text-dark",
+                                "Adjustment" => "bg-plum-subtle text-plum",
+                                _ => "bg-light text-muted border"
+                            };
+                            <tr>
+                                <td class="small text-muted">@e.EntryDate.ToString("dd-MMM-yyyy")</td>
+                                <td class="fw-semibold small text-ink">@e.ItemName</td>
+                                <td><span class="badge @badge">@e.MovementType</span></td>
+                                <td class="font-monospace small text-plum">@e.ReferenceNo</td>
+                                <td class="text-end font-monospace text-teal fw-semibold">@(e.InQty > 0 ? $"+{e.InQty:0.##} {e.Unit}" : "-")</td>
+                                <td class="text-end font-monospace text-chili fw-semibold">@(e.OutQty > 0 ? $"-{e.OutQty:0.##} {e.Unit}" : "-")</td>
+                                <td class="text-end font-monospace fw-bold">@e.BalanceQty.ToString("0.##") @e.Unit</td>
+                                <td class="text-end font-monospace small">₹@e.ValueImpact.ToString("N2")</td>
+                                <td class="small text-muted">@e.Reason</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

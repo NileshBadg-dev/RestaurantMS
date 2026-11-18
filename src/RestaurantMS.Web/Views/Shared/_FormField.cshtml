@@ -1,0 +1,140 @@
+@model RestaurantMS.Web.Models.FormFieldModel
+@{
+    var fieldId = string.IsNullOrWhiteSpace(Model.Id) ? $"field_{Model.Name.Replace(".", "_")}" : Model.Id;
+    var hasAffix = !string.IsNullOrWhiteSpace(Model.UnitPrefix) || !string.IsNullOrWhiteSpace(Model.UnitSuffix);
+}
+
+<div class="@Model.ColClass app-form-field">
+    @if (Model.InputType == "toggle")
+    {
+        <div class="p-3 rounded-3 border bg-cream-soft d-flex align-items-center justify-content-between gap-3 h-100">
+            <div>
+                <label class="form-label fw-semibold small text-ink mb-0" for="@fieldId">@Model.Label</label>
+                @if (!string.IsNullOrEmpty(Model.HelperText))
+                {
+                    <div class="text-muted" style="font-size: 0.76rem;">@Model.HelperText</div>
+                }
+            </div>
+            <div class="form-check form-switch mb-0">
+                <input type="checkbox"
+                       id="@fieldId"
+                       name="@Model.Name"
+                       value="true"
+                       class="form-check-input"
+                       role="switch"
+                       checked="@(Model.Checked ? "checked" : null)" />
+                <input type="hidden" name="@Model.Name" value="false" />
+            </div>
+        </div>
+    }
+    else
+    {
+        <label class="form-label fw-semibold small text-ink mb-1" for="@fieldId">
+            @Model.Label
+            @if (Model.Required)
+            {
+                <span class="text-chili ms-1" aria-hidden="true">*</span>
+            }
+        </label>
+
+        @if (Model.InputType == "stepper")
+        {
+            <div class="input-group app-stepper-group">
+                <button type="button" class="btn btn-outline-secondary js-stepper-dec" aria-label="Decrease">
+                    <i class="bi bi-dash"></i>
+                </button>
+                <input type="number"
+                       id="@fieldId"
+                       name="@Model.Name"
+                       value="@Model.Value"
+                       min="@(Model.Min ?? "0")"
+                       max="@(Model.Max ?? "240")"
+                       step="@(Model.Step ?? "1")"
+                       class="form-control text-center fw-semibold"
+                       placeholder="@Model.Placeholder"
+                       required="@(Model.Required ? "required" : null)" />
+                @if (!string.IsNullOrWhiteSpace(Model.UnitSuffix))
+                {
+                    <span class="input-group-text bg-light text-muted small fw-semibold">@Model.UnitSuffix</span>
+                }
+                <button type="button" class="btn btn-outline-secondary js-stepper-inc" aria-label="Increase">
+                    <i class="bi bi-plus"></i>
+                </button>
+            </div>
+        }
+        else if (Model.InputType == "textarea")
+        {
+            <textarea id="@fieldId"
+                      name="@Model.Name"
+                      rows="@Model.Rows"
+                      class="form-control"
+                      placeholder="@Model.Placeholder"
+                      maxlength="@Model.MaxLength"
+                      required="@(Model.Required ? "required" : null)"
+                      readonly="@(Model.ReadOnly ? "readonly" : null)">@Model.Value</textarea>
+        }
+        else if (Model.InputType == "select")
+        {
+            <select id="@fieldId"
+                    name="@Model.Name"
+                    class="form-select"
+                    required="@(Model.Required ? "required" : null)">
+                @if (Model.Options is not null)
+                {
+                    @foreach (var opt in Model.Options)
+                    {
+                        <option value="@opt.Value" selected="@(string.Equals(Model.Value, opt.Value, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@opt.Text</option>
+                    }
+                }
+            </select>
+        }
+        else if (hasAffix)
+        {
+            <div class="input-group">
+                @if (!string.IsNullOrWhiteSpace(Model.UnitPrefix))
+                {
+                    <span class="input-group-text bg-light text-muted small fw-semibold">@Model.UnitPrefix</span>
+                }
+                <input type="@Model.InputType"
+                       id="@fieldId"
+                       name="@Model.Name"
+                       value="@Model.Value"
+                       class="form-control"
+                       placeholder="@Model.Placeholder"
+                       min="@Model.Min"
+                       max="@Model.Max"
+                       step="@Model.Step"
+                       maxlength="@Model.MaxLength"
+                       pattern="@Model.Pattern"
+                       required="@(Model.Required ? "required" : null)"
+                       readonly="@(Model.ReadOnly ? "readonly" : null)" />
+                @if (!string.IsNullOrWhiteSpace(Model.UnitSuffix))
+                {
+                    <span class="input-group-text bg-light text-muted small fw-semibold">@Model.UnitSuffix</span>
+                }
+            </div>
+        }
+        else
+        {
+            <input type="@Model.InputType"
+                   id="@fieldId"
+                   name="@Model.Name"
+                   value="@Model.Value"
+                   class="form-control"
+                   placeholder="@Model.Placeholder"
+                   min="@Model.Min"
+                   max="@Model.Max"
+                   step="@Model.Step"
+                   maxlength="@Model.MaxLength"
+                   pattern="@Model.Pattern"
+                   required="@(Model.Required ? "required" : null)"
+                   readonly="@(Model.ReadOnly ? "readonly" : null)" />
+        }
+
+        @if (!string.IsNullOrEmpty(Model.HelperText))
+        {
+            <div class="form-text small text-muted">@Model.HelperText</div>
+        }
+        <span class="invalid-feedback d-block small js-field-error" data-valmsg-for="@Model.Name"></span>
+    }
+</div>

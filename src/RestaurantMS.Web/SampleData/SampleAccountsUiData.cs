@@ -1,3 +1,4 @@
+using RestaurantMS.Application.Common.Interfaces;
 using RestaurantMS.Application.Common.Interfaces.UiData;
 using RestaurantMS.Application.Common.Models;
 using RestaurantMS.Application.Common.Models.UiData;
@@ -6,6 +7,12 @@ namespace RestaurantMS.Web.SampleData;
 
 public class SampleAccountsUiData : IAccountsUiData
 {
+    private readonly IAccountingService _accountingService;
+
+    public SampleAccountsUiData(IAccountingService accountingService)
+    {
+        _accountingService = accountingService;
+    }
     public Task<IReadOnlyList<AccountNodeDto>> GetChartOfAccountsAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<AccountNodeDto> tree =
@@ -17,7 +24,8 @@ public class SampleAccountsUiData : IAccountsUiData
                     new("1110", "Cash in Hand", "Asset", 35400m, []),
                     new("1120", "HDFC Bank Current A/c", "Asset", 168000m, []),
                     new("1130", "Accounts Receivable (Udhari Debtors)", "Asset", 42600m, []),
-                    new("1140", "Closing Inventory", "Asset", 39000m, [])
+                    new("1140", "Closing Inventory", "Asset", 39000m, []),
+                    new("1150", "Employee Advances A/c", "Asset", 15500m, [])
                 ]),
                 new("1200", "Fixed Assets", "Asset", 200000m,
                 [
@@ -55,37 +63,78 @@ public class SampleAccountsUiData : IAccountsUiData
         return Task.FromResult(tree);
     }
 
-    public Task<PagedResult<VoucherItemDto>> GetVouchersAsync(DataTableRequest request, string? voucherType = null, CancellationToken cancellationToken = default)
+    public async Task<PagedResult<VoucherItemDto>> GetVouchersAsync(DataTableRequest request, string? voucherType = null, CancellationToken cancellationToken = default)
     {
-        var all = new List<VoucherItemDto>
+        var all = new List<VoucherItemDto>();
+
+        var posted = await _accountingService.GetPostedVouchersAsync(voucherType: voucherType, cancellationToken: cancellationToken);
+        foreach (var v in posted)
         {
-            new(1, "VOU-2026-105", "16/11/2026", "Receipt", "Customer Ramesh Patil (Udhari Recovery)", 0m, 865m),
-            new(2, "VOU-2026-104", "16/11/2026", "Payment", "Modern Dairy Suppliers - Butter & Paneer", 4500m, 0m),
+            all.Add(new VoucherItemDto(
+                v.VoucherId,
+                v.VoucherNumber,
+                v.VoucherDate.ToString("dd/MM/yyyy"),
+                v.VoucherType,
+                v.Narration,
+                v.TotalDebit,
+                v.TotalCredit));
+        }
+
+        var baseline = new List<VoucherItemDto>
+        {
+            new(1, "VOU-2026-105", "16/11/2026", "Receipt", "Customer Ramesh Patil (Udhari Recovery)", 865m, 865m),
+            new(2, "VOU-2026-104", "16/11/2026", "Payment", "Modern Dairy Suppliers - Butter & Paneer", 4500m, 4500m),
             new(3, "VOU-2026-103", "15/11/2026", "Contra", "Cash Deposited to HDFC Bank", 25000m, 25000m),
             new(4, "VOU-2026-102", "15/11/2026", "Journal", "Monthly Electricity Bill Accrual", 12500m, 12500m),
-            new(5, "VOU-2026-101", "14/11/2026", "Receipt", "Dinner Sales Settlement Cash", 0m, 18500m)
+            new(5, "VOU-2026-101", "14/11/2026", "Receipt", "Dinner Sales Settlement Cash", 18500m, 18500m)
         };
 
         if (!string.IsNullOrWhiteSpace(voucherType) && !voucherType.Equals("All", StringComparison.OrdinalIgnoreCase))
         {
-            all = all.Where(v => v.Type.Equals(voucherType, StringComparison.OrdinalIgnoreCase)).ToList();
+            baseline = baseline.Where(v => v.Type.Equals(voucherType, StringComparison.OrdinalIgnoreCase)).ToList();
         }
 
+        all.AddRange(baseline);
         var paged = all.Skip(request.Start).Take(request.PageSize).ToList();
-        return Task.FromResult(new PagedResult<VoucherItemDto>(paged, all.Count, request.PageNumber, request.PageSize));
+        return new PagedResult<VoucherItemDto>(paged, all.Count, request.PageNumber, request.PageSize);
     }
 
-    public Task<IReadOnlyList<DayBookEntryDto>> GetDayBookAsync(DateTime? date = null, CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<DayBookEntryDto>> GetDayBookAsync(DateTime? date = null, CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<DayBookEntryDto> entries =
+        var entries = new List<DayBookEntryDto>();
+
+        var posted = await _accountingService.GetPostedVouchersAsync(
+            fromDate: date?.Date,
+            toDate: date?.Date,
+            cancellationToken: cancellationToken);
+
+        foreach (var v in posted)
+        {
+            foreach (var line in v.Lines)
+            {
+                entries.Add(new DayBookEntryDto(
+                    v.VoucherDate.ToString("dd MMM"),
+                    v.VoucherNumber,
+                    line.AccountName,
+                    v.VoucherType,
+                    line.Debit,
+                    line.Credit,
+                    line.LineNarration ?? v.Narration));
+            }
+        }
+
+        entries.AddRange(
         [
             new("11:30 am", "VOU-101", "Cash A/c", "Receipt", 18500m, 0m, "Lunch collection"),
-            new("02:15 pm", "VOU-102", "Shree Ganesh Grain Mart", "Payment", 0m, 6500m, "Rice supply invoice"),
+            new("11:30 am", "VOU-101", "Dine-in Sales Revenue", "Receipt", 0m, 18500m, "Lunch collection"),
+            new("02:15 pm", "VOU-102", "Shree Ganesh Grain Mart", "Payment", 6500m, 0m, "Rice supply invoice"),
+            new("02:15 pm", "VOU-102", "Cash A/c", "Payment", 0m, 6500m, "Rice supply invoice"),
             new("04:30 pm", "VOU-103", "HDFC Bank Current A/c", "Contra", 10000m, 10000m, "Bank cash deposit"),
-            new("08:15 pm", "VOU-104", "Ramesh Patil (Debtor)", "Receipt", 865m, 0m, "Udhari credit repayment"),
-            new("10:45 pm", "VOU-105", "Dine-in Sales Revenue", "Sales", 28450m, 0m, "Dinner shift settlement")
-        ];
-        return Task.FromResult(entries);
+            new("08:15 pm", "VOU-104", "Cash A/c", "Receipt", 865m, 0m, "Udhari credit repayment"),
+            new("08:15 pm", "VOU-104", "Ramesh Patil (Debtor)", "Receipt", 0m, 865m, "Udhari credit repayment")
+        ]);
+
+        return entries;
     }
 
     public Task<IReadOnlyList<DayBookEntryDto>> GetCashBookAsync(DateTime? date = null, CancellationToken cancellationToken = default)

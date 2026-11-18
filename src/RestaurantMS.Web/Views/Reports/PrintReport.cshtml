@@ -1,0 +1,114 @@
+@model RestaurantMS.Web.Models.ReportDetailViewModel
+@{
+    Layout = null;
+    var exec = Model.Execution;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>@Model.ReportTitle - @Model.HotelName</title>
+    <style>
+        @@page { size: A4 landscape; margin: 12mm; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; color: #1B1033; margin: 0; padding: 16px; font-size: 12px; }
+        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #3D1F6D; padding-bottom: 10px; margin-bottom: 12px; }
+        .hotel-name { font-size: 18px; font-weight: 800; color: #3D1F6D; }
+        .meta { font-size: 11px; color: #555; }
+        .report-title { font-size: 15px; font-weight: 700; text-align: right; }
+        .filters-box { background: #FFF8EC; border: 1px solid #E8E2D8; border-radius: 6px; padding: 8px 12px; margin-bottom: 12px; font-size: 11px; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+        .kpi-card { border: 1px solid #DDD; border-radius: 6px; padding: 8px 10px; }
+        .kpi-label { font-size: 10px; text-transform: uppercase; color: #666; }
+        .kpi-val { font-size: 15px; font-weight: 700; margin-top: 2px; color: #1B1033; }
+        table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+        th { background: #3D1F6D; color: #FFF; padding: 6px 8px; text-align: left; }
+        td { border-bottom: 1px solid #E5E7EB; padding: 6px 8px; }
+        tr.group-row td { background: #EFEBF5; font-weight: 700; color: #3D1F6D; }
+        tfoot td { background: #F3F4F6; font-weight: 700; border-top: 2px solid #3D1F6D; }
+        .footer { margin-top: 14px; font-size: 10px; color: #666; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <div class="hotel-name">@Model.HotelName</div>
+            @if (!string.IsNullOrWhiteSpace(Model.HotelAddress))
+            {
+                <div class="meta">@Model.HotelAddress</div>
+            }
+            @if (!string.IsNullOrWhiteSpace(Model.HotelGstin))
+            {
+                <div class="meta">GSTIN: @Model.HotelGstin</div>
+            }
+        </div>
+        <div>
+            <div class="report-title">@exec.Report.TitleEn (@exec.Report.Code)</div>
+            <div class="meta" style="text-align:right;">Category: @exec.Report.Category &bull; Generated: @exec.GeneratedAtUtc.AddHours(5).AddMinutes(30).ToString("dd-MMM-yyyy hh:mm tt")</div>
+        </div>
+    </div>
+
+    <div class="filters-box">
+        <strong>Filters Applied:</strong> @string.Join("  |  ", exec.ActiveFilterSummary)
+    </div>
+
+    @if (exec.Kpis.Count > 0)
+    {
+        <div class="kpi-grid">
+            @foreach (var kpi in exec.Kpis)
+            {
+                <div class="kpi-card">
+                    <div class="kpi-label">@kpi.Label</div>
+                    <div class="kpi-val">@kpi.Value</div>
+                </div>
+            }
+        </div>
+    }
+
+    <table>
+        <thead>
+            <tr>
+                @foreach (var h in exec.Headers)
+                {
+                    <th>@h</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @{
+                string? lastGroup = null;
+            }
+            @foreach (var row in exec.Rows)
+            {
+                if (!string.IsNullOrWhiteSpace(row.GroupKey) && !string.Equals(row.GroupKey, lastGroup, StringComparison.OrdinalIgnoreCase))
+                {
+                    lastGroup = row.GroupKey;
+                    <tr class="group-row"><td colspan="@exec.Headers.Count">@exec.GroupByLabel: @row.GroupKey</td></tr>
+                }
+                <tr>
+                    @foreach (var cell in row.Cells)
+                    {
+                        <td>@cell</td>
+                    }
+                </tr>
+            }
+        </tbody>
+        @if (exec.TotalsRow.Count > 0)
+        {
+            <tfoot>
+                <tr>
+                    @foreach (var cell in exec.TotalsRow)
+                    {
+                        <td>@cell</td>
+                    }
+                </tr>
+            </tfoot>
+        }
+    </table>
+
+    <div class="footer">
+        <span>Total Records: @exec.TotalRows</span>
+        <span>RestaurantMS Analytics Print Layout</span>
+    </div>
+</body>
+</html>

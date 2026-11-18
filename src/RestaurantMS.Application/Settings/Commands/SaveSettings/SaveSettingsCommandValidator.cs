@@ -40,6 +40,13 @@ public class SaveSettingsCommandValidator : AbstractValidator<SaveSettingsComman
             RuleFor(x => x.Fssai)
                 .Matches(@"^\d{14}$").WithMessage("FSSAI number must be exactly 14 digits.");
         });
+
+        When(x => !string.IsNullOrWhiteSpace(x.HotelUpiId), () =>
+        {
+            RuleFor(x => x.HotelUpiId)
+                .Must(RestaurantMS.Application.Common.Validation.IndianValidationRules.IsValidUpiId)
+                .WithMessage("Enter a valid UPI ID (e.g. hotelname@okhdfc).");
+        });
     }
 
     private static bool ValidGstin(string? gstin)

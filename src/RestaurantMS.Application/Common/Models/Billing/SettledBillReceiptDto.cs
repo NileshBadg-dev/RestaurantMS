@@ -1,0 +1,26 @@
+namespace RestaurantMS.Application.Common.Models.Billing;
+
+public record SettledBillReceiptDto(
+    string BillNumber,
+    string IdempotencyKey,
+    DateTime SettledAtUtc,
+    string OrderType,
+    string? TableCode,
+    string? ParcelToken,
+    string WaiterName,
+    string CashierName,
+    IReadOnlyList<BillLineInputDto> Items,
+    BillCalculationResult Totals,
+    string PrimaryPaymentMode,
+    IReadOnlyList<BillPaymentLineInputDto> Payments,
+    decimal CashReceivedTotal,
+    decimal ChangeToReturn,
+    long? CustomerId,
+    string CustomerName,
+    string? CustomerPhone,
+    string? CustomerAddress,
+    decimal CreditAmount,
+    decimal PreviousOutstanding,
+    decimal NewOutstanding,
+    string? VoucherNumber,
+    bool IsDuplicate = false);

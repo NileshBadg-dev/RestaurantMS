@@ -1,94 +1,148 @@
 @model RestaurantMS.Web.Models.ReportFilterBarModel
 @inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+@{
+    var presets = new (string Key, string Label)[]
+    {
+        ("Today", Localizer["Reports_Preset_Today"].Value),
+        ("Yesterday", Localizer["Reports_Preset_Yesterday"].Value),
+        ("ThisWeek", Localizer["Reports_Preset_ThisWeek"].Value),
+        ("ThisMonth", Localizer["Reports_Preset_ThisMonth"].Value),
+        ("LastMonth", Localizer["Reports_Preset_LastMonth"].Value),
+        ("ThisFY", Localizer["Reports_Preset_ThisFY"].Value),
+        ("Custom", Localizer["Reports_Preset_Custom"].Value)
+    };
+}
 
-<div class="app-card shadow-sm p-3 mb-4">
-    <form method="get" class="row g-2 align-items-end">
+<div class="card border-0 shadow-sm rounded-3 bg-white p-3 report-sticky-filter" id="reportFilterBar">
+    <form method="get" asp-controller="Reports" asp-action="ViewReport" id="reportFilterForm" class="d-flex flex-column gap-2">
+        <input type="hidden" name="code" value="@Model.ReportCode" />
+        <input type="hidden" name="datePreset" id="rptDatePresetInput" value="@Model.DatePreset" />
+        <input type="hidden" name="page" id="rptPageInput" value="1" />
+        <input type="hidden" name="pageSize" id="rptPageSizeInput" value="@Model.PageSize" />
+
+        <!-- Quick Date Chips Row -->
         @if (Model.ShowDateRange)
         {
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label small text-muted">@Localizer["From Date"]</label>
-                <input type="date" name="from" value="@Model.StartDate" class="form-control form-control-sm" />
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label small text-muted">@Localizer["To Date"]</label>
-                <input type="date" name="to" value="@Model.EndDate" class="form-control form-control-sm" />
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 pb-2 border-bottom">
+                <div class="d-flex flex-wrap align-items-center gap-1" role="group" aria-label="Quick Date Presets">
+                    <span class="small fw-semibold text-muted me-1"><i class="bi bi-calendar3"></i></span>
+                    @foreach (var p in presets)
+                    {
+                        var active = Model.DatePreset.Equals(p.Key, StringComparison.OrdinalIgnoreCase);
+                        <button type="button"
+                                class="btn btn-sm rounded-pill px-3 js-date-preset @(active ? "btn-plum" : "btn-light border")"
+                                data-preset="@p.Key">@p.Label</button>
+                    }
+                </div>
+
+                <div class="d-flex align-items-center gap-2">
+                    <input type="date" name="from" id="rptFromDate" value="@Model.StartDate" class="form-control form-control-sm" style="width: 140px;" aria-label="@Localizer["FromDate"]" />
+                    <span class="text-muted small">–</span>
+                    <input type="date" name="to" id="rptToDate" value="@Model.EndDate" class="form-control form-control-sm" style="width: 140px;" aria-label="@Localizer["ToDate"]" />
+                </div>
             </div>
         }
 
-        @if (Model.ShowShift)
-        {
-            <div class="col-12 col-sm-6 col-md-2">
-                <label class="form-label small text-muted">@Localizer["Shift"]</label>
-                <select name="shift" class="form-select form-select-sm">
-                    <option value="All">@Localizer["All Shifts"]</option>
-                    <option value="Morning">@Localizer["Morning Shift"]</option>
-                    <option value="Evening">@Localizer["Evening Shift"]</option>
-                    <option value="Night">@Localizer["Night Shift"]</option>
-                </select>
-            </div>
-        }
+        <!-- Dimension Filters Row -->
+        <div class="row g-2 align-items-end">
+            @if (Model.ShowShift)
+            {
+                <div class="col-6 col-md-2 col-xl">
+                    <label class="form-label small text-muted mb-1">@Localizer["Reports_Filter_Shift"]</label>
+                    <select name="shift" id="rptShift" class="form-select form-select-sm">
+                        <option value="All" selected="@(Model.SelectedShift == "All" ? "selected" : null)">@Localizer["Filter_All"]</option>
+                        <option value="Morning" selected="@(Model.SelectedShift == "Morning" ? "selected" : null)">Morning</option>
+                        <option value="Evening" selected="@(Model.SelectedShift == "Evening" ? "selected" : null)">Evening</option>
+                    </select>
+                </div>
+            }
 
-        @if (Model.ShowWaiter)
-        {
-            <div class="col-12 col-sm-6 col-md-2">
-                <label class="form-label small text-muted">@Localizer["Waiter / Captain"]</label>
-                <select name="waiter" class="form-select form-select-sm">
-                    <option value="All">@Localizer["All Staff"]</option>
-                    <option value="Suresh">Suresh Patil</option>
-                    <option value="Anil">Anil Deshmukh</option>
-                    <option value="Meena">Meena Jadhav</option>
-                </select>
-            </div>
-        }
+            @if (Model.ShowWaiter)
+            {
+                <div class="col-6 col-md-2 col-xl">
+                    <label class="form-label small text-muted mb-1">@Localizer["Reports_Filter_Waiter"]</label>
+                    <select name="waiter" id="rptWaiter" class="form-select form-select-sm">
+                        <option value="All" selected="@(Model.SelectedWaiter == "All" ? "selected" : null)">@Localizer["Filter_All"]</option>
+                        <option value="Suresh Patil" selected="@(Model.SelectedWaiter == "Suresh Patil" ? "selected" : null)">Suresh Patil</option>
+                        <option value="Anil Deshmukh" selected="@(Model.SelectedWaiter == "Anil Deshmukh" ? "selected" : null)">Anil Deshmukh</option>
+                        <option value="Meena Jadhav" selected="@(Model.SelectedWaiter == "Meena Jadhav" ? "selected" : null)">Meena Jadhav</option>
+                        <option value="Prakash Shinde" selected="@(Model.SelectedWaiter == "Prakash Shinde" ? "selected" : null)">Prakash Shinde</option>
+                        <option value="Sachin Kale" selected="@(Model.SelectedWaiter == "Sachin Kale" ? "selected" : null)">Sachin Kale</option>
+                    </select>
+                </div>
+            }
 
-        @if (Model.ShowTable)
-        {
-            <div class="col-12 col-sm-6 col-md-2">
-                <label class="form-label small text-muted">@Localizer["Table / Section"]</label>
-                <select name="table" class="form-select form-select-sm">
-                    <option value="All">@Localizer["All Tables"]</option>
-                    <option value="AC">AC Hall</option>
-                    <option value="Garden">Garden</option>
-                    <option value="Family">Family Hall</option>
-                </select>
-            </div>
-        }
+            @if (Model.ShowTable)
+            {
+                <div class="col-6 col-md-2 col-xl">
+                    <label class="form-label small text-muted mb-1">@Localizer["Billing_Table"]</label>
+                    <select name="table" id="rptTable" class="form-select form-select-sm">
+                        <option value="All" selected="@(Model.SelectedTable == "All" ? "selected" : null)">@Localizer["Filter_All"]</option>
+                        <option value="T1" selected="@(Model.SelectedTable == "T1" ? "selected" : null)">T1</option>
+                        <option value="T2" selected="@(Model.SelectedTable == "T2" ? "selected" : null)">T2</option>
+                        <option value="T3" selected="@(Model.SelectedTable == "T3" ? "selected" : null)">T3</option>
+                        <option value="T4" selected="@(Model.SelectedTable == "T4" ? "selected" : null)">T4</option>
+                        <option value="T5" selected="@(Model.SelectedTable == "T5" ? "selected" : null)">T5</option>
+                        <option value="T7" selected="@(Model.SelectedTable == "T7" ? "selected" : null)">T7</option>
+                        <option value="T9" selected="@(Model.SelectedTable == "T9" ? "selected" : null)">T9</option>
+                    </select>
+                </div>
+            }
 
-        @if (Model.ShowCategory)
-        {
-            <div class="col-12 col-sm-6 col-md-2">
-                <label class="form-label small text-muted">@Localizer["Menu Category"]</label>
-                <select name="category" class="form-select form-select-sm">
-                    <option value="All">@Localizer["All Categories"]</option>
-                    <option value="Main Course">Main Course</option>
-                    <option value="Biryani">Biryani & Rice</option>
-                    <option value="Breads">Breads</option>
-                    <option value="Beverages">Beverages</option>
-                </select>
-            </div>
-        }
+            @if (Model.ShowCategory)
+            {
+                <div class="col-6 col-md-2 col-xl">
+                    <label class="form-label small text-muted mb-1">@Localizer["Category"]</label>
+                    <select name="category" id="rptCategory" class="form-select form-select-sm">
+                        <option value="All" selected="@(Model.SelectedCategory == "All" ? "selected" : null)">@Localizer["Filter_All"]</option>
+                        <option value="Main Course" selected="@(Model.SelectedCategory == "Main Course" ? "selected" : null)">Main Course</option>
+                        <option value="Biryani & Rice" selected="@(Model.SelectedCategory == "Biryani & Rice" ? "selected" : null)">Biryani &amp; Rice</option>
+                        <option value="Starters" selected="@(Model.SelectedCategory == "Starters" ? "selected" : null)">Starters</option>
+                        <option value="Breads" selected="@(Model.SelectedCategory == "Breads" ? "selected" : null)">Breads</option>
+                        <option value="Beverages" selected="@(Model.SelectedCategory == "Beverages" ? "selected" : null)">Beverages</option>
+                        <option value="Desserts" selected="@(Model.SelectedCategory == "Desserts" ? "selected" : null)">Desserts</option>
+                        <option value="Dairy" selected="@(Model.SelectedCategory == "Dairy" ? "selected" : null)">Dairy</option>
+                        <option value="Grains" selected="@(Model.SelectedCategory == "Grains" ? "selected" : null)">Grains</option>
+                    </select>
+                </div>
+            }
 
-        @if (Model.ShowPaymentMode)
-        {
-            <div class="col-12 col-sm-6 col-md-2">
-                <label class="form-label small text-muted">@Localizer["Payment Mode"]</label>
-                <select name="paymentMode" class="form-select form-select-sm">
-                    <option value="All">@Localizer["All Modes"]</option>
-                    <option value="Cash">Cash</option>
-                    <option value="UPI">UPI</option>
-                    <option value="Card">Card</option>
-                    <option value="Udhari">Udhari (Credit)</option>
-                </select>
-            </div>
-        }
+            @if (Model.ShowPaymentMode)
+            {
+                <div class="col-6 col-md-2 col-xl">
+                    <label class="form-label small text-muted mb-1">@Localizer["Billing_PaymentMode"]</label>
+                    <select name="paymentMode" id="rptPaymentMode" class="form-select form-select-sm">
+                        <option value="All" selected="@(Model.SelectedPaymentMode == "All" ? "selected" : null)">@Localizer["Filter_All"]</option>
+                        <option value="Cash" selected="@(Model.SelectedPaymentMode == "Cash" ? "selected" : null)">Cash</option>
+                        <option value="UPI" selected="@(Model.SelectedPaymentMode == "UPI" ? "selected" : null)">UPI</option>
+                        <option value="Card" selected="@(Model.SelectedPaymentMode == "Card" ? "selected" : null)">Card</option>
+                        <option value="Split" selected="@(Model.SelectedPaymentMode == "Split" ? "selected" : null)">Split</option>
+                        <option value="Udhari" selected="@(Model.SelectedPaymentMode == "Udhari" ? "selected" : null)">Udhari</option>
+                    </select>
+                </div>
+            }
 
-        <div class="col-12 col-sm-6 col-md-auto d-flex gap-2">
-            <button type="submit" class="btn btn-sm btn-plum">
-                <i class="bi bi-funnel me-1"></i> @Localizer["Filter"]
-            </button>
-            <a href="?" class="btn btn-sm btn-outline-secondary">
-                @Localizer["Reset"]
-            </a>
+            @if (Model.ShowOrderType)
+            {
+                <div class="col-6 col-md-2 col-xl">
+                    <label class="form-label small text-muted mb-1">@Localizer["Reports_Filter_OrderType"]</label>
+                    <select name="orderType" id="rptOrderType" class="form-select form-select-sm">
+                        <option value="All" selected="@(Model.SelectedOrderType == "All" ? "selected" : null)">@Localizer["Filter_All"]</option>
+                        <option value="Dine-in" selected="@(Model.SelectedOrderType == "Dine-in" ? "selected" : null)">@Localizer["OrderType_DineIn"]</option>
+                        <option value="Parcel" selected="@(Model.SelectedOrderType == "Parcel" ? "selected" : null)">@Localizer["OrderType_Parcel"]</option>
+                        <option value="Delivery" selected="@(Model.SelectedOrderType == "Delivery" ? "selected" : null)">@Localizer["OrderType_Delivery"]</option>
+                    </select>
+                </div>
+            }
+
+            <div class="col-12 col-md-4 col-xl-auto d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-plum px-3" id="btnApplyReportFilter">
+                    <i class="bi bi-funnel-fill"></i> @Localizer["Reports_Apply"]
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary px-3" id="btnResetReportFilter">
+                    <i class="bi bi-arrow-counterclockwise"></i> @Localizer["Reports_Reset"]
+                </button>
+            </div>
         </div>
     </form>
 </div>

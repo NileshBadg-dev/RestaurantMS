@@ -1,85 +1,83 @@
-@model RestaurantMS.Web.Models.StaffListViewModel
+@model RestaurantMS.Web.Models.StaffHubViewModel
 @{
     ViewData["Title"] = Localizer["Staff_Title"].Value;
+    Layout = "_Layout";
 }
 
-<div class="staff-page d-flex flex-column gap-3">
-    <!-- Header with KPI Badges -->
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-person-badge text-plum me-2"></i> @Localizer["Staff_Title"]</h2>
-                <div class="d-flex align-items-center gap-3 text-muted small">
-                    <span><strong class="text-ink">@Model.TotalStaff</strong> Total Employees</span>
-                    <span>&bull;</span>
-                    <span class="text-teal"><strong class="badge bg-teal-subtle text-teal">@Model.PresentToday Present on Shift</strong></span>
-                    <span class="text-muted"><strong class="badge bg-secondary-subtle text-muted">@Model.OnLeaveToday Off Duty / Leave</strong></span>
-                </div>
-            </div>
+<div class="d-flex flex-column gap-3" id="staffHubRoot" data-save-attendance-url="@Url.Action("SaveAttendance", "Staff")">
+    @Html.AntiForgeryToken()
 
-            <div class="d-flex flex-wrap gap-2">
-                <a asp-action="Attendance" class="btn btn-outline-teal px-3 py-2 fw-semibold">
-                    <i class="bi bi-calendar-check me-1"></i> Attendance
-                </a>
-                <a asp-action="Advances" class="btn btn-outline-saffron px-3 py-2 fw-semibold">
-                    <i class="bi bi-cash-coin me-1"></i> Advances
-                </a>
-                <a asp-action="SalaryReport" class="btn btn-outline-plum px-3 py-2 fw-semibold">
-                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Salary Report
-                </a>
-                <a asp-action="EmployeeReport" class="btn btn-outline-secondary px-3 py-2 fw-semibold">
-                    <i class="bi bi-graph-up-arrow me-1"></i> Performance
-                </a>
-                <a asp-action="Create" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
-                    <i class="bi bi-person-plus me-1"></i> Add Staff
-                </a>
-            </div>
+    @if (TempData["SuccessMessage"] is string okMsg)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-3 shadow-sm py-2 px-3 small" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@okMsg
+            <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] is string errMsg)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm py-2 px-3 small" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@errMsg
+            <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Top KPI Row (Shared _KpiCard) -->
+    <div class="row g-3">
+        <div class="col-6 col-xl-3">
+            <partial name="_KpiCard" model='new RestaurantMS.Web.Models.KpiCardModel { Title = Localizer["Staff_Kpi_Total"].Value, Value = Model.TotalStaff.ToString(), Subtitle = $"{Model.ActiveStaff} active profiles", Icon = "bi-people-fill", Theme = "plum" }' />
+        </div>
+        <div class="col-6 col-xl-3">
+            <partial name="_KpiCard" model='new RestaurantMS.Web.Models.KpiCardModel { Title = Localizer["Staff_Kpi_PresentToday"].Value, Value = $"{Model.PresentToday} / {Model.ActiveStaff}", Subtitle = Model.SelectedDate.ToString("dd MMM yyyy"), Icon = "bi-calendar2-check", Theme = "teal" }' />
+        </div>
+        <div class="col-6 col-xl-3">
+            <partial name="_KpiCard" model='new RestaurantMS.Web.Models.KpiCardModel { Title = Localizer["Staff_Kpi_MonthlyPayroll"].Value, Value = $"₹{Model.MonthlyPayrollEstimate:N0}", Subtitle = new DateTime(Model.SelectedYear, Model.SelectedMonth, 1).ToString("MMM yyyy"), Icon = "bi-wallet2", Theme = "saffron" }' />
+        </div>
+        <div class="col-6 col-xl-3">
+            <partial name="_KpiCard" model='new RestaurantMS.Web.Models.KpiCardModel { Title = Localizer["Staff_Kpi_AdvRecovery"].Value, Value = $"₹{Model.TotalAdvanceRecovery:N0}", Subtitle = Model.AutoRecoverAdvance ? "Auto-recovery ON" : "Auto-recovery OFF", Icon = "bi-cash-coin", Theme = "ink" }' />
         </div>
     </div>
 
-    <!-- Staff Table Grid -->
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light small text-muted text-uppercase">
-                    <tr>
-                        <th class="text-center">Code</th>
-                        <th class="text-start">Employee Name</th>
-                        <th class="text-center">Role</th>
-                        <th class="text-start">Mobile</th>
-                        <th class="text-center">Shift</th>
-                        <th class="text-center">Attendance</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var s in Model.StaffMembers)
-                    {
-                        <tr>
-                            <td class="text-center font-monospace text-muted">@s.EmployeeCode</td>
-                            <td class="text-start fw-bold text-ink">
-                                <a asp-action="Details" asp-route-id="@s.Id" class="text-decoration-none text-ink hover-underline">
-                                    @s.Name
-                                </a>
-                            </td>
-                            <td class="text-center"><span class="badge bg-plum-subtle text-plum">@s.Role</span></td>
-                            <td class="text-start font-monospace small"><i class="bi bi-telephone text-muted me-1"></i>@s.Mobile</td>
-                            <td class="text-center">@s.Shift</td>
-                            <td class="text-center">
-                                <partial name="_StatusChip" model="@(s.IsOnDuty ? "Active" : "OffDuty")" />
-                            </td>
-                            <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-plum py-1 px-2 me-1" title="View Profile">
-                                    <i class="bi bi-person-lines-fill"></i> Details
-                                </a>
-                                <a asp-action="Attendance" class="btn btn-sm btn-outline-teal py-1 px-2" title="Mark Attendance">
-                                    <i class="bi bi-calendar-check"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+    <!-- Combined Staff Module Horizontal Tabs -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="masters-tabs-bar">
+            <a asp-action="Index" asp-route-tab="list" class="master-tab-btn @(Model.ActiveTab == "list" ? "active" : "")">
+                <i class="bi bi-person-badge"></i>
+                <span>@Localizer["Nav_Staff"]</span>
+                <span class="badge">@Model.TotalStaff</span>
+            </a>
+            <a asp-action="Index" asp-route-tab="attendance" asp-route-date="@Model.SelectedDate.ToString("yyyy-MM-dd")" class="master-tab-btn @(Model.ActiveTab == "attendance" ? "active" : "")" permission="Staff.Attendance">
+                <i class="bi bi-calendar2-check"></i>
+                <span>@Localizer["Nav_StaffAttendance"]</span>
+                <span class="badge">@Model.PresentToday/@Model.ActiveStaff</span>
+            </a>
+            <a asp-action="Index" asp-route-tab="salary" asp-route-month="@Model.SelectedMonth" asp-route-year="@Model.SelectedYear" class="master-tab-btn @(Model.ActiveTab == "salary" ? "active" : "")" permission="Staff.Salary">
+                <i class="bi bi-file-earmark-spreadsheet"></i>
+                <span>@Localizer["Nav_SalaryReport"]</span>
+                <span class="badge">@(Model.IsMonthLocked ? "Locked" : "Open")</span>
+            </a>
         </div>
+
+        <a asp-controller="EmployeeAdvances" asp-action="Index" class="btn btn-outline-plum btn-sm rounded-pill px-3 fw-semibold" permission="EmployeeAdvances.View">
+            <i class="bi bi-cash-coin me-1"></i> @Localizer["Nav_StaffAdvances"] <i class="bi bi-arrow-right ms-1"></i>
+        </a>
     </div>
+
+    <!-- Active Tab View -->
+    @if (Model.ActiveTab == "attendance")
+    {
+        <partial name="_AttendanceTab" model="Model" />
+    }
+    else if (Model.ActiveTab == "salary")
+    {
+        <partial name="_SalaryTab" model="Model" />
+    }
+    else
+    {
+        <partial name="_StaffListTab" model="Model" />
+    }
 </div>
+
+@section Scripts {
+    <script src="~/js/modules/staffModule.js" asp-append-version="true"></script>
+}

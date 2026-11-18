@@ -82,4 +82,22 @@ public class SampleKitchenUiData : IKitchenUiData
             ReadyTickets.RemoveAll(t => t.TicketId.Equals(ticketId, StringComparison.OrdinalIgnoreCase));
         }
     }
+
+    public static KitchenTicketDto? FindTicket(string kotOrTicketId)
+    {
+        if (string.IsNullOrWhiteSpace(kotOrTicketId))
+        {
+            return null;
+        }
+
+        lock (_lock)
+        {
+            return NewTickets
+                .Concat(PreparingTickets)
+                .Concat(ReadyTickets)
+                .FirstOrDefault(t =>
+                    t.TicketId.Equals(kotOrTicketId, StringComparison.OrdinalIgnoreCase) ||
+                    t.KotNumber.Equals(kotOrTicketId, StringComparison.OrdinalIgnoreCase));
+        }
+    }
 }

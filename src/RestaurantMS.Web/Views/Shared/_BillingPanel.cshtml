@@ -1,824 +1,470 @@
+@using System.Text.Json
+@using RestaurantMS.Application.Common.Models.UiData
 @model RestaurantMS.Web.Models.BillingPanelModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+@{
+    var tables = ViewBag.AvailableTables as IReadOnlyList<TableItemDto> ?? [];
+    var isDineIn = !Model.Order.OrderType.Equals("Parcel", StringComparison.OrdinalIgnoreCase)
+                   && !Model.Order.OrderType.Equals("Delivery", StringComparison.OrdinalIgnoreCase);
 
-<div class="billing-panel-container row g-3">
-    <!-- Left Column: Items Grid -->
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm rounded-3 bg-white h-100 d-flex flex-column">
-            <!-- Order Type & Table Selector Header -->
-            <div class="p-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2 bg-cream rounded-top">
-                <div class="order-type-tabs btn-group" role="group">
-                    <input type="radio" class="btn-check" name="orderTypeRadio" id="typeDineIn" value="Dine-in" checked onchange="changeOrderType('Dine-in')" />
-                    <label class="btn btn-outline-plum px-3 py-2 fw-semibold" for="typeDineIn">
-                        <i class="bi bi-shop me-1"></i> Dine-in
-                    </label>
+    var billingConfig = new
+    {
+        settleUrl = Model.SettleActionUrl,
+        calculateUrl = Model.CalculateActionUrl,
+        previewDraftUrl = Model.PrintActionUrl,
+        searchCustomersUrl = Url.Action("SearchCustomers", "Billing") ?? "/Billing/SearchCustomers",
+        quickAddCustomerUrl = Url.Action("QuickAddCustomer", "Billing") ?? "/Billing/QuickAddCustomer",
+        upiQrUrl = Url.Action("UpiQrSvg", "Receipt") ?? "/Receipt/UpiQrSvg",
+        hotelName = Model.HotelName,
+        hotelUpiId = Model.HotelUpiId,
+        upiReferenceRequired = Model.UpiReferenceRequired,
+        cardDetailsRequired = Model.CardDetailsRequired,
+        autoPrintOnSettle = Model.AutoPrintOnSettle,
+        paperSize = Model.PaperSize,
+        canOverrideCreditLimit = Model.CanOverrideCreditLimit,
+        gstPercent = Model.Order.GstPercent,
+        orderType = Model.Order.OrderType,
+        tableCode = Model.Order.TableCode,
+        messages = new
+        {
+            cashUnderpaid = Localizer["Billing_Err_CashUnderpaid"].Value,
+            upiRefRequired = Localizer["Billing_Err_UpiRefRequired"].Value,
+            upiConfirmRequired = Localizer["Billing_Err_UpiConfirmRequired"].Value,
+            cardLast4Required = Localizer["Billing_Err_CardLast4Required"].Value,
+            cardApprovalRequired = Localizer["Billing_Err_CardApprovalRequired"].Value,
+            splitMismatch = Localizer["Billing_Err_SplitMismatch"].Value,
+            udhariCustomerRequired = Localizer["Billing_Err_UdhariCustomerRequired"].Value,
+            creditLimitExceeded = Localizer["Billing_Err_CreditLimitExceeded"].Value,
+            creditDisabled = Localizer["Billing_Err_CreditDisabled"].Value,
+            overrideReasonRequired = Localizer["Billing_Err_OverrideReasonRequired"].Value,
+            emptyItems = Localizer["Billing_Err_EmptyItems"].Value,
+            balanceDue = Localizer["Billing_BalanceDue"].Value,
+            changeToReturn = Localizer["Billing_ChangeToReturn"].Value
+        }
+    };
 
-                    <input type="radio" class="btn-check" name="orderTypeRadio" id="typeParcel" value="Parcel" onchange="changeOrderType('Parcel')" />
-                    <label class="btn btn-outline-plum px-3 py-2 fw-semibold" for="typeParcel">
-                        <i class="bi bi-bag me-1"></i> Parcel
-                    </label>
+    var initialItems = Model.Order.Items.Select(i => new
+    {
+        itemName = i.ItemName,
+        marathiName = (string?)null,
+        quantity = i.Quantity,
+        rate = i.Rate,
+        notes = i.Notes
+    });
 
-                    <input type="radio" class="btn-check" name="orderTypeRadio" id="typeDelivery" value="Delivery" onchange="changeOrderType('Delivery')" />
-                    <label class="btn btn-outline-plum px-3 py-2 fw-semibold" for="typeDelivery">
-                        <i class="bi bi-bicycle me-1"></i> Delivery
-                    </label>
-                </div>
+    var catalogPayload = Model.MenuCatalog.Select((m, idx) => new
+    {
+        id = m.Id,
+        shortCode = $"M{m.Id:D2}",
+        name = m.Name,
+        marathiName = m.MarathiName,
+        category = m.CategoryName,
+        price = m.Price,
+        isVeg = m.IsVegetarian,
+        imageUrl = m.ImageUrl
+    });
 
-                <div class="d-flex align-items-center gap-2">
-                    <div class="input-group input-group-sm" id="tableSelectWrapper" style="width: 140px;">
-                        <span class="input-group-text bg-plum text-white fw-bold">Table</span>
-                        <select class="form-select fw-bold text-plum" id="billingTableSelect" onchange="switchBillingTable(this.value)">
-                            @for (int t = 1; t <= 12; t++)
-                            {
-                                var tCode = $"T{t}";
-                                <!option value="@tCode" @(Model.Order.TableCode == tCode ? "selected" : "")>@tCode</!option>
-                            }
-                        </select>
-                    </div>
-                    <div class="small text-muted text-nowrap d-none d-sm-block">Waiter: Sachin</div>
-                </div>
-            </div>
+    var customersPayload = Model.Customers.Select(c => new
+    {
+        id = c.Id,
+        name = c.Name,
+        mobile = c.Mobile,
+        address = c.Address ?? "",
+        creditAllowed = c.CreditAllowed,
+        creditLimit = c.CreditLimit,
+        outstandingBalance = c.OutstandingBalance
+    });
 
-            <!-- Items Table -->
-            <div class="table-responsive flex-grow-1 p-3" style="min-height: 260px;">
-                <table class="table table-hover align-middle billing-items-table" id="billingItemsTable">
-                    <thead class="table-light text-muted small text-uppercase">
-                        <tr>
-                            <th style="width: 40px;">#</th>
-                            <th>Item Name</th>
-                            <th class="text-center" style="width: 140px;">Qty</th>
-                            <th class="text-end" style="width: 100px;">Rate</th>
-                            <th class="text-end" style="width: 110px;">Total</th>
-                            <th style="width: 40px;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="billingItemsBody">
-                        @if (Model.Order.Items != null && Model.Order.Items.Count > 0)
-                        {
-                            for (int i = 0; i < Model.Order.Items.Count; i++)
-                            {
-                                var item = Model.Order.Items[i];
-                                <tr data-rate="@item.Rate" data-name="@item.ItemName">
-                                    <td class="text-muted small row-num">@(i + 1)</td>
-                                    <td>
-                                        <div class="fw-semibold text-ink">@item.ItemName</div>
-                                        @if (!string.IsNullOrWhiteSpace(item.Notes))
+    var jsonOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+}
+
+<div class="billing-panel-root" id="billingPanelRoot">
+    @Html.AntiForgeryToken()
+
+    <script type="application/json" id="billingConfigJson">@Html.Raw(JsonSerializer.Serialize(billingConfig, jsonOptions))</script>
+    <script type="application/json" id="billingInitialItemsJson">@Html.Raw(JsonSerializer.Serialize(initialItems, jsonOptions))</script>
+    <script type="application/json" id="billingMenuCatalogJson">@Html.Raw(JsonSerializer.Serialize(catalogPayload, jsonOptions))</script>
+    <script type="application/json" id="billingCustomersJson">@Html.Raw(JsonSerializer.Serialize(customersPayload, jsonOptions))</script>
+
+    <div class="row g-3">
+        <!-- LEFT COLUMN: Order Details, Items, Quick Add, Discount & Packing -->
+        <div class="col-12 col-xl-7">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                <div class="card-header bg-white border-bottom py-3 px-3">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <!-- Order Type Segmented Switch -->
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Order Type">
+                            <input type="radio" class="btn-check" name="billingOrderType" id="orderTypeDineIn" value="Dine-in" @(isDineIn ? "checked" : "") autocomplete="off" />
+                            <label class="btn btn-outline-plum px-3" for="orderTypeDineIn">
+                                <i class="bi bi-shop"></i> @Localizer["OrderType_DineIn"]
+                            </label>
+
+                            <input type="radio" class="btn-check" name="billingOrderType" id="orderTypeParcel" value="Parcel" @(Model.Order.OrderType.Equals("Parcel", StringComparison.OrdinalIgnoreCase) ? "checked" : "") autocomplete="off" />
+                            <label class="btn btn-outline-plum px-3" for="orderTypeParcel">
+                                <i class="bi bi-bag"></i> @Localizer["OrderType_Parcel"]
+                            </label>
+
+                            <input type="radio" class="btn-check" name="billingOrderType" id="orderTypeDelivery" value="Delivery" @(Model.Order.OrderType.Equals("Delivery", StringComparison.OrdinalIgnoreCase) ? "checked" : "") autocomplete="off" />
+                            <label class="btn btn-outline-plum px-3" for="orderTypeDelivery">
+                                <i class="bi bi-bicycle"></i> @Localizer["OrderType_Delivery"]
+                            </label>
+                        </div>
+
+                        <!-- Table Selector (Hidden for Parcel / Delivery) -->
+                        <div class="d-flex align-items-center gap-2 @(isDineIn ? "" : "d-none")" id="billingTableSelectorWrap">
+                            <label for="billingTableSelect" class="small fw-semibold text-muted mb-0">@Localizer["Billing_Table"]:</label>
+                            <select id="billingTableSelect" class="form-select form-select-sm" style="width: 150px;">
+                                @if (tables.Count == 0)
+                                {
+                                    <option value="@Model.Order.TableCode" selected>@Model.Order.TableCode</option>
+                                }
+                                else
+                                {
+                                    @foreach (var t in tables)
+                                    {
+                                        if (t.TableCode.Equals(Model.Order.TableCode, StringComparison.OrdinalIgnoreCase))
                                         {
-                                            <small class="text-muted"><i class="bi bi-chat-left-text me-1"></i>@item.Notes</small>
+                                            <option value="@t.TableCode" selected>@t.TableCode (@t.Section)</option>
                                         }
-                                    </td>
-                                    <td>
-                                        <div class="input-group input-group-sm quantity-input-group justify-content-center">
-                                            <button class="btn btn-outline-secondary btn-qty-minus py-0 px-2" type="button" onclick="updateItemQty(this, -1)">-</button>
-                                            <input type="number" class="form-control text-center input-qty py-0 px-1" style="max-width: 48px;" value="@item.Quantity" min="1" max="99" onchange="recalcBillingRow(this)" />
-                                            <button class="btn btn-outline-secondary btn-qty-plus py-0 px-2" type="button" onclick="updateItemQty(this, 1)">+</button>
-                                        </div>
-                                    </td>
-                                    <td class="text-end font-monospace">₹@item.Rate.ToString("N2")</td>
-                                    <td class="text-end fw-bold font-monospace text-ink item-total">₹@item.Amount.ToString("N2")</td>
-                                    <td class="text-center">
-                                        <button type="button" class="btn btn-link text-chili p-0" onclick="removeBillingRow(this)" title="Remove item">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        }
-                    </tbody>
-                </table>
+                                        else
+                                        {
+                                            <option value="@t.TableCode">@t.TableCode (@t.Section)</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </div>
 
-                <div id="emptyBillingItemsMsg" class="text-center py-5 @(Model.Order.Items != null && Model.Order.Items.Count > 0 ? "d-none" : "")">
-                    <i class="bi bi-cart3 fs-1 text-muted opacity-50"></i>
-                    <p class="text-muted small mt-2 mb-0">No dishes on this ticket yet.<br />Use short code (101-113) or click Browse to add dishes.</p>
-                </div>
-            </div>
-
-            <!-- Quick Add Item Bar -->
-            <div class="p-3 border-top bg-light d-flex gap-2">
-                <input type="text" id="quickItemInput" class="form-control" placeholder="Type short code (101=Paneer, 102=Biryani) or dish name + Enter..." onkeydown="handleQuickItemKeyDown(event)" />
-                <button type="button" class="btn btn-plum" data-bs-toggle="modal" data-bs-target="#browseDishesModal">
-                    <i class="bi bi-search me-1"></i> Browse Dishes
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Right Column: Customer & Settlement -->
-    <div class="col-lg-5">
-        <form method="post" action="@Model.SettleActionUrl" id="settlementForm">
-            @Html.AntiForgeryToken()
-
-            <!-- Hidden Inputs to deliver complete form data -->
-            <input type="hidden" name="orderType" id="hiddenOrderType" value="Dine-in" />
-            <input type="hidden" name="tableCode" id="hiddenTableCode" value="@(Model.Order.TableCode ?? "T1")" />
-            <input type="hidden" name="customerName" id="hiddenCustomerName" value="Walk-in Customer" />
-            <input type="hidden" name="customerPhone" id="hiddenCustomerPhone" value="" />
-            <input type="hidden" name="customerAddress" id="hiddenCustomerAddress" value="" />
-            <input type="hidden" name="grandTotal" id="hiddenGrandTotal" value="@Model.Order.TotalAmount" />
-
-            <!-- Customer Picker & Search Box -->
-            <div class="card border-0 shadow-sm rounded-3 bg-white mb-3 p-3 position-relative" id="billingCustomerCard">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="form-label fw-bold text-ink mb-0">
-                        <i class="bi bi-person-circle me-1 text-plum"></i> Customer <span class="badge bg-danger-subtle text-chili ms-1" id="udhariMandatoryBadge" style="display: none;">Mandatory for Udhari</span>
-                    </label>
-                    <button type="button" class="btn btn-link btn-sm text-plum p-0 text-decoration-none fw-bold" data-bs-toggle="modal" data-bs-target="#quickAddCustomerModal">
-                        <i class="bi bi-person-plus-fill me-1 text-saffron"></i>+ Quick Add Customer
-                    </button>
-                </div>
-
-                <!-- Live Search Customer Input -->
-                <div class="input-group input-group-sm mb-2">
-                    <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" id="billingCustomerSearch" class="form-control border-start-0 bg-light" placeholder="Search customer by name or 10-digit mobile..." oninput="searchBillingCustomer(this.value)" autocomplete="off" />
-                    <button class="btn btn-outline-secondary" type="button" onclick="clearCustomerSearch()" title="Clear customer"><i class="bi bi-x-lg"></i></button>
-                </div>
-
-                <!-- Customer Search Results Dropdown -->
-                <div id="billingCustomerResults" class="list-group shadow position-absolute start-0 end-0 mx-3 z-3 bg-white border rounded-3" style="display: none; max-height: 220px; overflow-y: auto; top: 80px;">
-                    <!-- Injected by JS -->
-                </div>
-
-                <!-- Selected Customer Card Details -->
-                <div class="customer-selected-card border rounded-3 p-2 bg-cream d-flex justify-content-between align-items-center" id="selectedCustomerDisplay">
-                    <div class="overflow-hidden pe-2">
-                        <div class="fw-bold text-ink text-truncate" id="selectedCustomerName">Walk-in Customer</div>
-                        <div class="small text-muted font-monospace" id="selectedCustomerPhone">No mobile linked</div>
-                        <div class="small text-muted text-truncate" id="selectedCustomerAddress" style="max-width: 260px; font-size: 0.75rem;">No address linked</div>
-                    </div>
-                    <div class="text-end flex-shrink-0">
-                        <span class="badge bg-saffron text-dark" id="customerCreditBadge">Outstanding: ₹0</span>
-                        <div class="small text-muted" id="customerLimitDisplay">Limit: ₹10,000</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bill Summary & Tax Calculation Box -->
-            <div class="card border-0 shadow-sm rounded-3 bg-white mb-3 p-3">
-                <div class="bill-summary-rows">
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">Subtotal</span>
-                        <span class="fw-semibold font-monospace" id="summarySubtotal">₹@Model.Order.Subtotal.ToString("N2")</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">CGST (2.5%)</span>
-                        <span class="font-monospace" id="summaryCgst">₹@((Model.Order.GstAmount / 2).ToString("N2"))</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">SGST (2.5%)</span>
-                        <span class="font-monospace" id="summarySgst">₹@((Model.Order.GstAmount / 2).ToString("N2"))</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom align-items-center">
-                        <span class="text-muted">Discount (₹)</span>
-                        <div class="d-flex align-items-center gap-1">
-                            <input type="number" name="discountAmount" id="discountInput" class="form-control form-control-sm text-end" style="width: 90px;" value="0" min="0" oninput="recalculateTotals()" />
+                        <!-- Parcel Token Badge (Shown for Parcel / Delivery) -->
+                        <div class="badge bg-saffron-subtle text-dark px-3 py-2 @(isDineIn ? "d-none" : "")" id="billingParcelBadge">
+                            <i class="bi bi-ticket-perforated me-1"></i> @Localizer["Billing_NoTableRequired"]
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between py-1 border-bottom">
-                        <span class="text-muted">Round Off</span>
-                        <span class="font-monospace text-muted" id="summaryRoundOff">₹0.00</span>
-                    </div>
-                    <div class="d-flex justify-content-between pt-2 fs-5 fw-bold text-ink">
-                        <span>Grand Total</span>
-                        <span class="font-monospace text-plum" id="summaryGrandTotal">₹@Model.Order.TotalAmount.ToString("N2")</span>
-                    </div>
                 </div>
-            </div>
 
-            <!-- Payment Modes -->
-            <div class="card border-0 shadow-sm rounded-3 bg-white mb-3 p-3">
-                <label class="form-label fw-bold text-ink mb-2"><i class="bi bi-wallet2 me-1 text-teal"></i> Payment Mode</label>
-                <div class="payment-chips-grid d-flex flex-wrap gap-2 mb-3">
-                    <input type="radio" class="btn-check" name="paymentMode" id="payCash" value="Cash" checked onchange="togglePaymentInputs()" />
-                    <label class="btn btn-outline-teal flex-fill py-2 fw-semibold" for="payCash">
-                        <i class="bi bi-cash-stack me-1"></i> Cash
-                    </label>
+                <div class="card-body p-3 d-flex flex-column gap-3">
+                    <!-- Quick Add by Short Code or Browse Dishes -->
+                    <div class="d-flex flex-wrap gap-2 align-items-center bg-cream p-2 rounded border">
+                        <div class="input-group input-group-sm flex-grow-1" style="min-width: 210px;">
+                            <span class="input-group-text bg-white"><i class="bi bi-upc-scan text-plum"></i></span>
+                            <input type="text"
+                                   id="billingShortCodeInput"
+                                   class="form-control"
+                                   placeholder="@Localizer["Billing_ShortCodePlaceholder"]"
+                                   autocomplete="off" />
+                            <button type="button" class="btn btn-plum" id="btnAddByShortCode">
+                                <i class="bi bi-plus-lg"></i> @Localizer["Btn_Add"]
+                            </button>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-plum" data-bs-toggle="modal" data-bs-target="#billingCatalogModal">
+                            <i class="bi bi-grid-3x3-gap"></i> @Localizer["Billing_BrowseMenu"]
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPreviewDraftBill">
+                            <i class="bi bi-eye"></i> @Localizer["Billing_PreviewBill"]
+                        </button>
+                    </div>
 
-                    <input type="radio" class="btn-check" name="paymentMode" id="payUpi" value="UPI" onchange="togglePaymentInputs()" />
-                    <label class="btn btn-outline-teal flex-fill py-2 fw-semibold" for="payUpi">
-                        <i class="bi bi-qr-code-scan me-1"></i> UPI
-                    </label>
+                    <!-- Order Items Table -->
+                    <div class="table-responsive border rounded">
+                        <table class="table table-sm table-hover align-middle mb-0" id="billingItemsTable">
+                            <thead class="table-light small text-muted text-uppercase">
+                                <tr>
+                                    <th>@Localizer["Billing_Item"]</th>
+                                    <th class="text-center" style="width: 115px;">@Localizer["Billing_Qty"]</th>
+                                    <th class="text-end" style="width: 90px;">@Localizer["Billing_Rate"]</th>
+                                    <th class="text-end" style="width: 100px;">@Localizer["Billing_Amount"]</th>
+                                    <th class="text-center" style="width: 44px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="billingItemsBody">
+                                <!-- Rendered by billing.js -->
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <input type="radio" class="btn-check" name="paymentMode" id="payCard" value="Card" onchange="togglePaymentInputs()" />
-                    <label class="btn btn-outline-teal flex-fill py-2 fw-semibold" for="payCard">
-                        <i class="bi bi-credit-card me-1"></i> Card
-                    </label>
+                    <!-- Discount, Packing Charge & GST Controls -->
+                    <div class="row g-2 bg-light p-2 rounded border">
+                        <div class="col-6 col-md-4">
+                            <label for="billingDiscountInput" class="form-label small fw-semibold text-muted mb-1">
+                                <i class="bi bi-tag me-1"></i> @Localizer["Billing_Discount"] (₹)
+                            </label>
+                            <input type="number" id="billingDiscountInput" class="form-control form-control-sm font-monospace" value="0" min="0" step="1" />
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <label for="billingPackingInput" class="form-label small fw-semibold text-muted mb-1">
+                                <i class="bi bi-box-seam me-1"></i> @Localizer["Billing_PackingCharge"] (₹)
+                            </label>
+                            <input type="number" id="billingPackingInput" class="form-control form-control-sm font-monospace" value="0" min="0" step="5" />
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label for="billingGstSelect" class="form-label small fw-semibold text-muted mb-1">
+                                <i class="bi bi-percent me-1"></i> @Localizer["Billing_GstRate"]
+                            </label>
+                            <select id="billingGstSelect" class="form-select form-select-sm font-monospace">
+                                <option value="0">0% (Exempt)</option>
+                                <option value="5" selected>5% (2.5% + 2.5%)</option>
+                                <option value="12">12% (6% + 6%)</option>
+                                <option value="18">18% (9% + 9%)</option>
+                            </select>
+                        </div>
+                    </div>
 
-                    <input type="radio" class="btn-check" name="paymentMode" id="paySplit" value="Split" onchange="togglePaymentInputs()" />
-                    <label class="btn btn-outline-teal flex-fill py-2 fw-semibold" for="paySplit">
-                        <i class="bi bi-pie-chart me-1"></i> Split
-                    </label>
-
-                    @if (Model.EnableCreditPayment)
+                    <!-- Customer Picker (Always available, highlighted when Udhari selected) -->
+                    @if (Model.ShowCustomerPicker)
                     {
-                        <input type="radio" class="btn-check" name="paymentMode" id="payUdhari" value="Credit" onchange="togglePaymentInputs()" />
-                        <label class="btn btn-outline-chili flex-fill py-2 fw-semibold" for="payUdhari">
-                            <i class="bi bi-journal-bookmark me-1"></i> Udhari (Credit)
-                        </label>
+                        <div id="billingCustomerSection">
+                            <partial name="_CustomerPicker" model='new RestaurantMS.Web.Models.CustomerPickerModel { FieldName = "CustomerId" }' />
+                        </div>
                     }
                 </div>
+            </div>
+        </div>
 
-                <!-- Udhari / Split Details Section -->
-                <div id="creditDetailsSection" class="border rounded-3 p-3 bg-light" style="display: none;">
-                    <div class="alert alert-warning p-2 small mb-2">
-                        <i class="bi bi-exclamation-triangle-fill me-1"></i> Credit bill will be posted to customer ledger. Customer must have full name, 10-digit mobile, and address.
-                    </div>
-                    <div class="row g-2 mb-2">
-                        <div class="col-6">
-                            <label class="form-label small fw-semibold">Paid Now (Cash/UPI)</label>
-                            <input type="number" name="paidAmount" id="paidAmountInput" class="form-control form-control-sm" value="0" min="0" oninput="recalculateCreditSplit()" />
+        <!-- RIGHT COLUMN: Totals Card + 5 Payment Modes + Settle Action -->
+        <div class="col-12 col-xl-5">
+            <div class="card border-0 shadow-sm rounded-3 bg-white h-100">
+                <div class="card-body p-3 d-flex flex-column gap-3">
+                    <!-- Live Totals Panel -->
+                    <div class="p-3 rounded-3 bg-cream border">
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span>@Localizer["Billing_Subtotal"]</span>
+                            <span class="font-monospace" id="summarySubtotal">₹0.00</span>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-semibold">Udhari Amount</label>
-                            <input type="number" name="creditAmount" id="creditAmountInput" class="form-control form-control-sm fw-bold text-chili" value="@Model.Order.TotalAmount" readonly />
+                        <div class="d-flex justify-content-between small text-chili mb-1 d-none" id="summaryDiscountRow">
+                            <span>@Localizer["Billing_Discount"]</span>
+                            <span class="font-monospace" id="summaryDiscount">- ₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mb-1 d-none" id="summaryPackingRow">
+                            <span>@Localizer["Billing_PackingCharge"]</span>
+                            <span class="font-monospace" id="summaryPacking">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mb-1">
+                            <span id="summaryTaxLabel">GST (CGST + SGST)</span>
+                            <span class="font-monospace" id="summaryTax">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted mb-2 d-none" id="summaryRoundOffRow">
+                            <span>@Localizer["Billing_RoundOff"]</span>
+                            <span class="font-monospace" id="summaryRoundOff">₹0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                            <span class="fw-bold text-ink fs-6">@Localizer["Billing_PayableTotal"]</span>
+                            <span class="fw-bold text-plum font-monospace fs-3" id="summaryGrandTotal">₹0.00</span>
                         </div>
                     </div>
+
+                    <!-- Payment Mode Selector Chips -->
                     <div>
-                        <label class="form-label small fw-semibold">Due Date / Reference Note</label>
-                        <input type="text" name="creditNote" class="form-control form-control-sm" placeholder="e.g. Next month 5th or Bill memo" />
+                        <label class="form-label small fw-bold text-uppercase text-muted mb-2">
+                            <i class="bi bi-wallet2 me-1"></i> @Localizer["Billing_PaymentMode"]
+                        </label>
+                        <div class="row g-2" id="paymentModeGroup" role="radiogroup" aria-label="Payment Mode">
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="paymentMode" id="payModeCash" value="Cash" checked autocomplete="off" />
+                                <label class="btn btn-outline-teal w-100 payment-mode-chip" for="payModeCash">
+                                    <i class="bi bi-cash-stack"></i> @Localizer["PayMode_Cash"]
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="paymentMode" id="payModeUpi" value="UPI" autocomplete="off" />
+                                <label class="btn btn-outline-plum w-100 payment-mode-chip" for="payModeUpi">
+                                    <i class="bi bi-qr-code-scan"></i> @Localizer["PayMode_UPI"]
+                                </label>
+                            </div>
+                            <div class="col-4">
+                                <input type="radio" class="btn-check" name="paymentMode" id="payModeCard" value="Card" autocomplete="off" />
+                                <label class="btn btn-outline-plum w-100 payment-mode-chip" for="payModeCard">
+                                    <i class="bi bi-credit-card"></i> @Localizer["PayMode_Card"]
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" name="paymentMode" id="payModeSplit" value="Split" autocomplete="off" />
+                                <label class="btn btn-outline-saffron w-100 payment-mode-chip" for="payModeSplit">
+                                    <i class="bi bi-pie-chart"></i> @Localizer["PayMode_Split"]
+                                </label>
+                            </div>
+                            @if (Model.EnableCreditPayment)
+                            {
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="paymentMode" id="payModeUdhari" value="Udhari" autocomplete="off" />
+                                    <label class="btn btn-outline-chili w-100 payment-mode-chip" for="payModeUdhari">
+                                        <i class="bi bi-journal-bookmark"></i> @Localizer["PayMode_Udhari"]
+                                    </label>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- MODE 1: CASH PANEL -->
+                    <div class="billing-mode-panel" id="panelCash" data-mode-panel="Cash">
+                        <label for="cashReceivedInput" class="form-label small fw-semibold text-ink mb-1">
+                            @Localizer["Billing_AmountReceived"] (₹)
+                        </label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text bg-white fw-bold">₹</span>
+                            <input type="number" id="cashReceivedInput" class="form-control font-monospace fw-bold fs-5" min="0" step="1" value="0" />
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <button type="button" class="btn btn-sm btn-outline-teal cash-quick-btn" data-cash-action="exact">@Localizer["Billing_Exact"]</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary cash-quick-btn" data-cash-add="100">+100</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary cash-quick-btn" data-cash-add="500">+500</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary cash-quick-btn" data-cash-add="2000">+2000</button>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded bg-white border" id="cashStatusBox">
+                            <span class="small fw-semibold" id="cashStatusLabel">@Localizer["Billing_ChangeToReturn"]</span>
+                            <strong class="font-monospace fs-5 text-teal" id="cashStatusAmount">₹0.00</strong>
+                        </div>
+                    </div>
+
+                    <!-- MODE 2: UPI PANEL -->
+                    <div class="billing-mode-panel d-none" id="panelUpi" data-mode-panel="UPI">
+                        <div class="d-flex gap-3 align-items-center mb-2">
+                            <div class="bg-white border rounded p-2 text-center" style="min-width: 120px;">
+                                <img id="upiQrImg" src="" alt="UPI QR" style="width: 108px; height: 108px;" />
+                                <div class="small text-muted font-monospace mt-1" id="upiIdDisplay">@Model.HotelUpiId</div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="small text-muted mb-1">@Localizer["Billing_UpiPayExact"]:</div>
+                                <div class="fs-5 fw-bold text-plum font-monospace mb-2" id="upiAmountDisplay">₹0.00</div>
+                                <label for="upiRefInput" class="form-label small fw-semibold mb-1">
+                                    @Localizer["Billing_UpiRefLabel"]
+                                    @if (Model.UpiReferenceRequired)
+                                    {
+                                        <span class="text-danger">*</span>
+                                    }
+                                </label>
+                                <input type="text" id="upiRefInput" class="form-control form-control-sm font-monospace mb-2" placeholder="e.g. 432198765432" />
+                                <button type="button" class="btn btn-sm btn-outline-teal w-100" id="btnUpiPaymentReceived">
+                                    <i class="bi bi-check2-circle"></i> @Localizer["Billing_UpiPaymentReceived"]
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODE 3: CARD PANEL -->
+                    <div class="billing-mode-panel d-none" id="panelCard" data-mode-panel="Card">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label for="cardLast4Input" class="form-label small fw-semibold mb-1">
+                                    @Localizer["Billing_CardLast4"]
+                                    @if (Model.CardDetailsRequired)
+                                    {
+                                        <span class="text-danger">*</span>
+                                    }
+                                </label>
+                                <input type="text" id="cardLast4Input" class="form-control form-control-sm font-monospace" maxlength="4" inputmode="numeric" placeholder="1234" />
+                            </div>
+                            <div class="col-6">
+                                <label for="cardApprovalInput" class="form-label small fw-semibold mb-1">
+                                    @Localizer["Billing_CardApprovalCode"]
+                                    @if (Model.CardDetailsRequired)
+                                    {
+                                        <span class="text-danger">*</span>
+                                    }
+                                </label>
+                                <input type="text" id="cardApprovalInput" class="form-control form-control-sm font-monospace" maxlength="20" placeholder="e.g. AUTH9821" />
+                            </div>
+                            <div class="col-12">
+                                <label for="cardBankInput" class="form-label small fw-semibold mb-1">
+                                    @Localizer["Billing_CardBankMachine"]
+                                </label>
+                                <input type="text" id="cardBankInput" class="form-control form-control-sm" placeholder="e.g. HDFC POS / Pine Labs" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- MODE 4: SPLIT PANEL -->
+                    <div class="billing-mode-panel d-none" id="panelSplit" data-mode-panel="Split">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="small fw-semibold text-ink">@Localizer["Billing_SplitRowsTitle"]</span>
+                            <button type="button" class="btn btn-sm btn-outline-plum py-0 px-2" id="btnAddSplitRow">
+                                <i class="bi bi-plus-circle"></i> @Localizer["Billing_AddRow"]
+                            </button>
+                        </div>
+                        <div id="splitRowsContainer" class="d-flex flex-column gap-2 mb-2">
+                            <!-- Split rows rendered by billing.js -->
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center p-2 rounded bg-white border small">
+                            <span>@Localizer["Billing_Paid"]: <strong class="font-monospace" id="splitPaidTotal">₹0.00</strong></span>
+                            <span id="splitRemainingWrap">@Localizer["Billing_Remaining"]: <strong class="font-monospace text-chili" id="splitRemainingTotal">₹0.00</strong></span>
+                        </div>
+                    </div>
+
+                    <!-- MODE 5: UDHARI (CREDIT) PANEL -->
+                    <div class="billing-mode-panel d-none" id="panelUdhari" data-mode-panel="Udhari">
+                        <div class="alert alert-light border small py-2 px-2 mb-2" id="udhariCustomerHint">
+                            <i class="bi bi-info-circle text-plum me-1"></i> @Localizer["Billing_UdhariSelectCustomerHint"]
+                        </div>
+                        <div class="row g-2 mb-2">
+                            <div class="col-6">
+                                <label for="udhariCreditAmountInput" class="form-label small fw-semibold mb-1">
+                                    @Localizer["Billing_CreditAmount"] (₹)
+                                </label>
+                                <input type="number" id="udhariCreditAmountInput" class="form-control form-control-sm font-monospace fw-bold" min="0" step="1" value="0" />
+                            </div>
+                            <div class="col-6">
+                                <label for="udhariBalanceModeSelect" class="form-label small fw-semibold mb-1">
+                                    @Localizer["Billing_BalancePayMode"]
+                                </label>
+                                <select id="udhariBalanceModeSelect" class="form-select form-select-sm">
+                                    <option value="Cash">Cash</option>
+                                    <option value="UPI">UPI</option>
+                                    <option value="Card">Card</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="small text-muted mb-2 d-none" id="udhariPartPaySummary">
+                            @Localizer["Billing_RemainingPayNow"]: <strong class="font-monospace text-teal" id="udhariPartPayAmount">₹0.00</strong>
+                        </div>
+
+                        <!-- Manager Override for Over-Limit Credit -->
+                        <div class="border border-danger rounded p-2 bg-white d-none" id="udhariOverrideBox">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="udhariManagerOverrideCheck" />
+                                <label class="form-check-label small fw-semibold text-chili" for="udhariManagerOverrideCheck">
+                                    <i class="bi bi-shield-exclamation me-1"></i> @Localizer["Billing_ManagerOverride"]
+                                </label>
+                            </div>
+                            <input type="text" id="udhariOverrideReasonInput" class="form-control form-control-sm d-none" placeholder="@Localizer["Billing_ManagerOverrideReasonPlaceholder"]" />
+                        </div>
+
+                        <div class="mt-2">
+                            <input type="text" id="udhariNoteInput" class="form-control form-control-sm" placeholder="@Localizer["Billing_CreditNotePlaceholder"]" />
+                        </div>
+                    </div>
+
+                    <!-- Live Inline Validation Message -->
+                    <div class="alert alert-danger py-2 px-3 small mb-0 d-none" id="billingValidationAlert" role="alert">
+                        <i class="bi bi-exclamation-circle-fill me-1"></i>
+                        <span id="billingValidationText"></span>
+                    </div>
+
+                    <!-- Settle & Print CTA -->
+                    <div class="mt-auto d-flex flex-column gap-2">
+                        <button type="button" class="btn btn-teal btn-lg w-100 fw-bold py-2" id="btnSettleBill" disabled>
+                            <i class="bi bi-check2-circle"></i>
+                            <span id="btnSettleBillText">@Localizer["Billing_SettleAndPrint"]</span>
+                        </button>
                     </div>
                 </div>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="d-flex flex-wrap gap-2">
-                <button type="button" class="btn btn-outline-secondary px-3 py-2 fw-semibold" onclick="handleHoldBill()">
-                    <i class="bi bi-pause-circle me-1"></i> Hold
-                </button>
-                <button type="button" class="btn btn-outline-plum px-3 py-2 fw-semibold" onclick="openThermalBillPreview()" title="Preview bill in 80 mm / 50 mm thermal roll">
-                    <i class="bi bi-printer me-1 text-saffron"></i> Preview (80/50mm)
-                </button>
-                <button type="button" class="btn btn-teal text-white flex-grow-1 py-3 fw-bold fs-5 shadow-sm" onclick="settleBillWithReceipt()">
-                    <i class="bi bi-check-circle me-2"></i> Settle &amp; Print <span class="badge bg-white text-teal ms-2 fs-6">F10</span>
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
-</div>
 
-<!-- Modal: Browse Dishes Modal -->
-<div class="modal fade" id="browseDishesModal" tabindex="-1" aria-labelledby="browseDishesModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-plum text-white py-2 px-3">
-                <h5 class="modal-title h6 mb-0 fw-bold" id="browseDishesModalLabel"><i class="bi bi-egg-fried me-2 text-saffron"></i>Browse Menu Dishes</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-3">
-                <div class="row g-2" id="browseDishesGrid">
-                    <!-- Dishes loaded dynamically via JS -->
+    <!-- Browse Menu Catalog Modal -->
+    <div class="modal fade" id="billingCatalogModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-plum text-white py-2">
+                    <h6 class="modal-title fw-bold mb-0"><i class="bi bi-grid-3x3-gap me-1"></i> @Localizer["Billing_BrowseMenu"]</h6>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <input type="text" id="catalogSearchInput" class="form-control form-control-sm mb-3" placeholder="@Localizer["Billing_SearchDishesPlaceholder"]" />
+                    <div class="row g-2" id="billingCatalogGrid">
+                        <!-- Rendered by billing.js -->
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Modal: Inline Quick Add Customer Modal with Mandatory Address -->
-<div class="modal fade" id="quickAddCustomerModal" tabindex="-1" aria-labelledby="quickAddCustomerModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow">
-            <div class="modal-header bg-plum text-white py-2 px-3">
-                <h5 class="modal-title h6 mb-0 fw-bold" id="quickAddCustomerModalLabel"><i class="bi bi-person-plus-fill me-2 text-saffron"></i>Quick Add Customer</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-3">
-                <div class="mb-2">
-                    <label class="form-label small fw-bold text-ink mb-1">Customer Full Name <span class="text-danger">*</span></label>
-                    <input type="text" id="quickCustName" class="form-control" placeholder="e.g. Ramesh Patil" required />
-                </div>
-                <div class="mb-2">
-                    <label class="form-label small fw-bold text-ink mb-1">Mobile Number (10 digits) <span class="text-danger">*</span></label>
-                    <input type="tel" id="quickCustPhone" class="form-control font-monospace" placeholder="e.g. 9822112233" maxlength="10" required />
-                    <small class="text-muted" style="font-size: 0.72rem;">Required for sending WhatsApp receipts &amp; Udhari</small>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label small fw-bold text-ink mb-1">Physical Address <span class="text-danger">*</span></label>
-                    <textarea id="quickCustAddress" class="form-control" rows="2" placeholder="e.g. 14 Shivaji Nagar, Pune - 411005" required></textarea>
-                    <small class="text-muted" style="font-size: 0.72rem;">Mandatory legal address for credit/udhari accounts</small>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label small fw-bold text-ink mb-1">Udhari Credit Limit (₹)</label>
-                    <input type="number" id="quickCustLimit" class="form-control font-monospace" value="10000" min="0" step="500" />
-                </div>
-            </div>
-            <div class="modal-footer py-2 px-3 bg-light">
-                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-plum btn-sm fw-bold px-3" onclick="saveAndSelectQuickCustomer()">
-                    <i class="bi bi-check-lg me-1"></i> Save &amp; Select
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Thermal Print Preview & WhatsApp Modal -->
-<partial name="_ThermalBillModal" />
-
-<script>
-// Menu Catalog with Short Codes
-const menuCatalog = [
-    { code: "101", name: "Paneer Butter Masala", price: 280, cat: "Main Course" },
-    { code: "102", name: "Chicken Biryani", price: 320, cat: "Biryani" },
-    { code: "103", name: "Veg Biryani", price: 220, cat: "Biryani" },
-    { code: "104", name: "Egg Biryani", price: 240, cat: "Biryani" },
-    { code: "105", name: "Butter Naan", price: 45, cat: "Breads" },
-    { code: "106", name: "Tandoori Roti", price: 25, cat: "Breads" },
-    { code: "107", name: "Masala Dosa", price: 90, cat: "South Indian" },
-    { code: "108", name: "Idli Sambar", price: 60, cat: "South Indian" },
-    { code: "109", name: "Sweet Lassi", price: 80, cat: "Beverages" },
-    { code: "110", name: "Dal Tadka", price: 180, cat: "Main Course" },
-    { code: "111", name: "Jeera Rice", price: 140, cat: "Rice" },
-    { code: "112", name: "Egg Curry", price: 210, cat: "Main Course" },
-    { code: "113", name: "Chicken Tikka", price: 290, cat: "Starters" }
-];
-
-// Customer Directory for Search & Autocomplete
-let localCustomers = [
-    { id: 1, name: "Ramesh Patil", phone: "9876543210", address: "14 Shivaji Nagar, Pune - 411005", outstanding: 0, limit: 10000 },
-    { id: 2, name: "Sunita Shinde", phone: "9765432109", address: "25 Kothrud, Pune - 411038", outstanding: 0, limit: 5000 },
-    { id: 3, name: "Amit Deshmukh", phone: "9823456789", address: "8 FC Road, Deccan, Pune - 411004", outstanding: 0, limit: 8000 },
-    { id: 4, name: "Vijay Shrestha", phone: "9922334455", address: "102 Viman Nagar, Pune - 411014", outstanding: 0, limit: 5000 },
-    { id: 5, name: "Ganesh Joshi", phone: "9811223344", address: "55 Deccan Gymkhana, Pune - 411004", outstanding: 0, limit: 0 }
-];
-
-let currentSelectedCustomer = {
-    name: "Walk-in Customer",
-    phone: "",
-    address: "",
-    outstanding: 0,
-    limit: 10000
-};
-
-function changeOrderType(type) {
-    document.getElementById('hiddenOrderType').value = type;
-    const tableWrapper = document.getElementById('tableSelectWrapper');
-    if (type === 'Dine-in') {
-        tableWrapper.style.display = 'flex';
-    } else {
-        tableWrapper.style.display = 'none';
-        document.getElementById('hiddenTableCode').value = type;
-    }
-}
-
-function switchBillingTable(tableCode) {
-    document.getElementById('hiddenTableCode').value = tableCode;
-    window.location.href = '/Billing?table=' + encodeURIComponent(tableCode);
-}
-
-function handleQuickItemKeyDown(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        const query = e.target.value.trim().toLowerCase();
-        if (!query) return;
-
-        const match = menuCatalog.find(m => m.code === query || m.name.toLowerCase().includes(query));
-        if (match) {
-            addItemToBillingTable(match.name, match.price);
-            e.target.value = '';
-        } else {
-            if (window.Swal) {
-                Swal.fire({ icon: 'info', text: 'Item not found. Try codes 101 to 113 or click Browse Dishes.' });
-            } else {
-                alert('Item not found. Try codes 101 to 113.');
-            }
-        }
-    }
-}
-
-function addItemToBillingTable(name, rate) {
-    const tbody = document.getElementById('billingItemsBody');
-    const existingRow = tbody.querySelector(`tr[data-name="${name}"]`);
-
-    if (existingRow) {
-        const qtyInput = existingRow.querySelector('.input-qty');
-        qtyInput.value = parseInt(qtyInput.value) + 1;
-        recalcBillingRow(qtyInput);
-    } else {
-        const rowCount = tbody.querySelectorAll('tr').length + 1;
-        const tr = document.createElement('tr');
-        tr.setAttribute('data-rate', rate);
-        tr.setAttribute('data-name', name);
-        tr.innerHTML = `
-            <td class="text-muted small row-num">${rowCount}</td>
-            <td>
-                <div class="fw-semibold text-ink">${name}</div>
-            </td>
-            <td>
-                <div class="input-group input-group-sm quantity-input-group justify-content-center">
-                    <button class="btn btn-outline-secondary btn-qty-minus py-0 px-2" type="button" onclick="updateItemQty(this, -1)">-</button>
-                    <input type="number" class="form-control text-center input-qty py-0 px-1" style="max-width: 48px;" value="1" min="1" max="99" onchange="recalcBillingRow(this)" />
-                    <button class="btn btn-outline-secondary btn-qty-plus py-0 px-2" type="button" onclick="updateItemQty(this, 1)">+</button>
-                </div>
-            </td>
-            <td class="text-end font-monospace">₹${rate.toFixed(2)}</td>
-            <td class="text-end fw-bold font-monospace text-ink item-total">₹${rate.toFixed(2)}</td>
-            <td class="text-center">
-                <button type="button" class="btn btn-link text-chili p-0" onclick="removeBillingRow(this)" title="Remove item">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </td>
-        `;
-        tbody.appendChild(tr);
-        recalculateTotals();
-    }
-
-    document.getElementById('emptyBillingItemsMsg').classList.add('d-none');
-}
-
-function updateItemQty(btn, change) {
-    const input = btn.closest('.quantity-input-group').querySelector('.input-qty');
-    const cur = parseInt(input.value) || 1;
-    input.value = Math.max(1, cur + change);
-    recalcBillingRow(input);
-}
-
-function recalcBillingRow(input) {
-    const row = input.closest('tr');
-    const rate = parseFloat(row.getAttribute('data-rate')) || 0;
-    const qty = parseInt(input.value) || 1;
-    const total = rate * qty;
-    row.querySelector('.item-total').textContent = '₹' + total.toFixed(2);
-    recalculateTotals();
-}
-
-function removeBillingRow(btn) {
-    btn.closest('tr').remove();
-    const rows = document.querySelectorAll('#billingItemsBody tr');
-    rows.forEach((r, idx) => {
-        r.querySelector('.row-num').textContent = (idx + 1);
-    });
-
-    if (rows.length === 0) {
-        document.getElementById('emptyBillingItemsMsg').classList.remove('d-none');
-    }
-    recalculateTotals();
-}
-
-function recalculateTotals() {
-    let subtotal = 0;
-    document.querySelectorAll('#billingItemsBody tr').forEach(row => {
-        const rate = parseFloat(row.getAttribute('data-rate')) || 0;
-        const qty = parseInt(row.querySelector('.input-qty').value) || 1;
-        subtotal += (rate * qty);
-    });
-
-    const cgst = subtotal * 0.025;
-    const sgst = subtotal * 0.025;
-    const discount = parseFloat(document.getElementById('discountInput').value) || 0;
-    const rawTotal = subtotal + cgst + sgst - discount;
-    const grandTotal = Math.max(0, Math.round(rawTotal));
-    const roundOff = grandTotal - rawTotal;
-
-    document.getElementById('summarySubtotal').textContent = '₹' + subtotal.toFixed(2);
-    document.getElementById('summaryCgst').textContent = '₹' + cgst.toFixed(2);
-    document.getElementById('summarySgst').textContent = '₹' + sgst.toFixed(2);
-    document.getElementById('summaryRoundOff').textContent = '₹' + roundOff.toFixed(2);
-    document.getElementById('summaryGrandTotal').textContent = '₹' + grandTotal.toFixed(2);
-    document.getElementById('hiddenGrandTotal').value = grandTotal;
-
-    recalculateCreditSplit();
-}
-
-function searchBillingCustomer(query) {
-    const dropdown = document.getElementById('billingCustomerResults');
-    if (!query || query.trim().length === 0) {
-        dropdown.style.display = 'none';
-        return;
-    }
-
-    const q = query.toLowerCase().trim();
-    const matches = localCustomers.filter(c => c.name.toLowerCase().includes(q) || c.phone.includes(q));
-
-    if (matches.length === 0) {
-        dropdown.innerHTML = `<div class="p-2 text-muted small text-center">No customer found. <button type="button" class="btn btn-link btn-sm p-0 fw-bold text-plum" onclick="openQuickAddFromSearch('${query}')">+ Add as New</button></div>`;
-        dropdown.style.display = 'block';
-        return;
-    }
-
-    dropdown.innerHTML = matches.map(c => `
-        <a href="javascript:void(0)" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-2 px-3" onclick="selectBillingCustomer(${c.id})">
-            <div>
-                <div class="fw-bold text-ink">${c.name}</div>
-                <small class="text-muted font-monospace"><i class="bi bi-telephone me-1"></i>${c.phone}</small>
-                <div class="small text-muted text-truncate" style="max-width: 250px;">${c.address || 'No address'}</div>
-            </div>
-            <div class="text-end">
-                <span class="badge ${c.outstanding > 0 ? 'bg-danger-subtle text-danger' : 'bg-success-subtle text-success'}">Bal: ₹${c.outstanding}</span>
-                <div class="small text-muted font-monospace">Limit: ₹${c.limit}</div>
-            </div>
-        </a>
-    `).join('');
-    dropdown.style.display = 'block';
-}
-
-function selectBillingCustomer(id) {
-    const customer = localCustomers.find(c => c.id === id);
-    if (!customer) return;
-
-    currentSelectedCustomer = customer;
-    document.getElementById('selectedCustomerName').textContent = customer.name;
-    document.getElementById('selectedCustomerPhone').textContent = customer.phone;
-    document.getElementById('selectedCustomerAddress').textContent = customer.address || 'No address';
-    document.getElementById('customerCreditBadge').textContent = 'Outstanding: ₹' + customer.outstanding.toLocaleString();
-    document.getElementById('customerLimitDisplay').textContent = 'Limit: ₹' + customer.limit.toLocaleString();
-    document.getElementById('billingCustomerSearch').value = customer.name + ' (' + customer.phone + ')';
-    document.getElementById('billingCustomerResults').style.display = 'none';
-
-    document.getElementById('hiddenCustomerName').value = customer.name;
-    document.getElementById('hiddenCustomerPhone').value = customer.phone;
-    document.getElementById('hiddenCustomerAddress').value = customer.address || '';
-
-    document.getElementById('billingCustomerCard').classList.remove('border', 'border-danger');
-}
-
-function clearCustomerSearch() {
-    currentSelectedCustomer = { name: "Walk-in Customer", phone: "", address: "", outstanding: 0, limit: 10000 };
-    document.getElementById('selectedCustomerName').textContent = "Walk-in Customer";
-    document.getElementById('selectedCustomerPhone').textContent = "No mobile linked";
-    document.getElementById('selectedCustomerAddress').textContent = "No address linked";
-    document.getElementById('customerCreditBadge').textContent = 'Outstanding: ₹0';
-    document.getElementById('customerLimitDisplay').textContent = 'Limit: ₹10,000';
-    document.getElementById('billingCustomerSearch').value = '';
-    document.getElementById('billingCustomerResults').style.display = 'none';
-
-    document.getElementById('hiddenCustomerName').value = "Walk-in Customer";
-    document.getElementById('hiddenCustomerPhone').value = "";
-    document.getElementById('hiddenCustomerAddress').value = "";
-}
-
-function openQuickAddFromSearch(query) {
-    document.getElementById('billingCustomerResults').style.display = 'none';
-    if (/^\d+$/.test(query)) {
-        document.getElementById('quickCustPhone').value = query;
-        document.getElementById('quickCustName').value = '';
-    } else {
-        document.getElementById('quickCustName').value = query;
-        document.getElementById('quickCustPhone').value = '';
-    }
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('quickAddCustomerModal')).show();
-}
-
-function saveAndSelectQuickCustomer() {
-    const name = document.getElementById('quickCustName').value.trim();
-    const phone = document.getElementById('quickCustPhone').value.trim();
-    const address = document.getElementById('quickCustAddress').value.trim();
-    const limit = parseFloat(document.getElementById('quickCustLimit').value) || 10000;
-
-    if (!name) {
-        if (window.Swal) Swal.fire({ icon: 'warning', text: 'Customer name is required.' });
-        else alert('Customer name is required.');
-        return;
-    }
-
-    if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
-        if (window.Swal) Swal.fire({ icon: 'warning', text: 'Please enter a valid 10-digit Indian mobile number.' });
-        else alert('Please enter a valid 10-digit mobile number.');
-        return;
-    }
-
-    if (!address || address.length < 4) {
-        if (window.Swal) Swal.fire({ icon: 'warning', text: 'Customer physical address is required for credit/udhari accounts.' });
-        else alert('Customer physical address is required.');
-        return;
-    }
-
-    const newCust = { id: Date.now(), name: name, phone: phone, address: address, outstanding: 0, limit: limit };
-    localCustomers.push(newCust);
-    selectBillingCustomer(newCust.id);
-
-    bootstrap.Modal.getInstance(document.getElementById('quickAddCustomerModal')).hide();
-    document.getElementById('quickCustName').value = '';
-    document.getElementById('quickCustPhone').value = '';
-    document.getElementById('quickCustAddress').value = '';
-
-    if (window.Swal) {
-        Swal.fire({ icon: 'success', title: 'Customer Linked!', text: `${name} (${phone}) selected with address.`, timer: 2000, showConfirmButton: false });
-    }
-}
-
-function togglePaymentInputs() {
-    const isCredit = document.getElementById('payUdhari') && document.getElementById('payUdhari').checked;
-    const creditSection = document.getElementById('creditDetailsSection');
-    const customerCard = document.getElementById('billingCustomerCard');
-    const mandatoryBadge = document.getElementById('udhariMandatoryBadge');
-
-    if (creditSection) {
-        creditSection.style.display = isCredit ? 'block' : 'none';
-    }
-    if (mandatoryBadge) {
-        mandatoryBadge.style.display = isCredit ? 'inline-block' : 'none';
-    }
-
-    if (isCredit) {
-        customerCard.classList.add('border', 'border-warning', 'bg-warning-subtle');
-        if (currentSelectedCustomer.name === 'Walk-in Customer') {
-            document.getElementById('billingCustomerSearch').focus();
-        }
-    } else {
-        customerCard.classList.remove('border', 'border-warning', 'bg-warning-subtle');
-    }
-    recalculateCreditSplit();
-}
-
-function recalculateCreditSplit() {
-    const grandTotal = parseFloat(document.getElementById('hiddenGrandTotal').value) || 0;
-    const paidInput = document.getElementById('paidAmountInput');
-    const creditInput = document.getElementById('creditAmountInput');
-    if (paidInput && creditInput) {
-        const paid = parseFloat(paidInput.value) || 0;
-        creditInput.value = Math.max(0, grandTotal - paid).toFixed(2);
-    }
-}
-
-function handleHoldBill() {
-    const grandTotal = document.getElementById('summaryGrandTotal').textContent;
-    if (window.Swal) {
-        Swal.fire({
-            icon: 'info',
-            title: 'Bill Held',
-            text: `Active ticket with total ${grandTotal} has been put on hold. You can resume it anytime.`
-        });
-    } else {
-        alert(`Bill held with total ${grandTotal}.`);
-    }
-}
-
-function settleBillWithReceipt() {
-    const isCredit = document.getElementById('payUdhari') && document.getElementById('payUdhari').checked;
-    const itemsCount = document.querySelectorAll('#billingItemsBody tr').length;
-
-    if (itemsCount === 0) {
-        if (window.Swal) {
-            Swal.fire({ icon: 'warning', title: 'Empty Bill', text: 'Please add at least one item to settle this bill.' });
-        } else {
-            alert('Please add at least one item to settle this bill.');
-        }
-        return;
-    }
-
-    // MANDATORY UDHARI VALIDATION
-    if (isCredit) {
-        if (!currentSelectedCustomer.name || currentSelectedCustomer.name === 'Walk-in Customer') {
-            document.getElementById('billingCustomerCard').classList.add('border', 'border-danger');
-            if (window.Swal) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Customer Mandatory for Udhari',
-                    text: 'When selecting Udhari (Credit), customer selection is strictly mandatory. Please search an existing customer or click "+ Quick Add Customer".'
-                });
-            } else {
-                alert('Customer selection is mandatory for Udhari.');
-            }
-            document.getElementById('billingCustomerSearch').focus();
-            return;
-        }
-
-        if (!currentSelectedCustomer.phone || currentSelectedCustomer.phone.length < 10) {
-            document.getElementById('billingCustomerCard').classList.add('border', 'border-danger');
-            if (window.Swal) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Valid Mobile Number Mandatory',
-                    text: 'Selected customer must have a valid 10-digit mobile number for Udhari billing.'
-                });
-            } else {
-                alert('Valid 10-digit mobile number is mandatory for Udhari.');
-            }
-            return;
-        }
-
-        if (!currentSelectedCustomer.address || currentSelectedCustomer.address.trim().length < 4) {
-            document.getElementById('billingCustomerCard').classList.add('border', 'border-danger');
-            if (window.Swal) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Customer Address Mandatory',
-                    text: 'Customer physical address is mandatory for Udhari (Credit) accounts.'
-                });
-            } else {
-                alert('Customer physical address is mandatory for Udhari.');
-            }
-            return;
-        }
-    }
-
-    // Populate thermal preview
-    populateThermalBillData();
-
-    // Confirm and submit
-    if (window.Swal) {
-        const payMode = isCredit ? 'UDHARI (Credit)' : document.querySelector('input[name="paymentMode"]:checked')?.value || 'Cash';
-        const total = document.getElementById('summaryGrandTotal').textContent;
-
-        Swal.fire({
-            title: `Settle Bill for ${total}?`,
-            text: `Payment Mode: ${payMode} | Customer: ${currentSelectedCustomer.name}`,
-            icon: 'question',
-            showCancelButton: true,
-            confirmButtonColor: '#0B7A70',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="bi bi-printer me-1"></i> Yes, Settle & Submit',
-            cancelButtonText: 'Cancel'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                document.getElementById('settlementForm').submit();
-            }
-        });
-    } else {
-        if (confirm('Settle bill and submit?')) {
-            document.getElementById('settlementForm').submit();
-        }
-    }
-}
-
-function openThermalBillPreview() {
-    populateThermalBillData();
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('thermalBillModal')).show();
-}
-
-function populateThermalBillData() {
-    const grandTotal = document.getElementById('summaryGrandTotal')?.textContent || '₹0.00';
-    const subtotal = document.getElementById('summarySubtotal')?.textContent || '₹0.00';
-    const cgst = document.getElementById('summaryCgst')?.textContent || '₹0.00';
-    const sgst = document.getElementById('summarySgst')?.textContent || '₹0.00';
-    const discount = document.getElementById('discountInput')?.value || '0';
-
-    document.getElementById('printGrandTotal').textContent = grandTotal;
-    document.getElementById('printSubtotal').textContent = subtotal;
-    document.getElementById('printCgst').textContent = cgst;
-    document.getElementById('printSgst').textContent = sgst;
-    document.getElementById('printDiscount').textContent = '- ₹' + parseFloat(discount).toFixed(2);
-
-    const isCredit = document.getElementById('payUdhari') && document.getElementById('payUdhari').checked;
-    const isUpi = document.getElementById('payUpi') && document.getElementById('payUpi').checked;
-    const isCard = document.getElementById('payCard') && document.getElementById('payCard').checked;
-    const isSplit = document.getElementById('paySplit') && document.getElementById('paySplit').checked;
-    const payMode = isCredit ? 'UDHARI (Credit)' : isSplit ? 'Split (Cash + UPI)' : isUpi ? 'UPI Online' : isCard ? 'Credit/Debit Card' : 'Cash';
-
-    document.getElementById('printPayMode').textContent = payMode;
-    document.getElementById('printCustomerName').textContent = currentSelectedCustomer.name || 'Walk-in Customer';
-    document.getElementById('printCustomerMobile').textContent = currentSelectedCustomer.phone || '-';
-
-    // Populate Items
-    const printTbody = document.getElementById('printItemsTbody');
-    if (printTbody) {
-        printTbody.innerHTML = '';
-        document.querySelectorAll('#billingItemsBody tr').forEach(row => {
-            const name = row.getAttribute('data-name') || 'Dish';
-            const rate = parseFloat(row.getAttribute('data-rate')) || 0;
-            const qty = parseInt(row.querySelector('.input-qty').value) || 1;
-            const amt = rate * qty;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td class="text-start py-1">${name}</td>
-                <td class="text-center py-1">${qty}</td>
-                <td class="text-end py-1">${rate.toFixed(2)}</td>
-                <td class="text-end py-1">${amt.toFixed(2)}</td>
-            `;
-            printTbody.appendChild(tr);
-        });
-    }
-
-    const udhariRow = document.getElementById('printUdhariBalanceRow');
-    if (isCredit) {
-        if (udhariRow) udhariRow.style.display = 'block';
-        document.getElementById('printPrevOutstanding').textContent = '₹' + currentSelectedCustomer.outstanding.toFixed(2);
-        const billVal = parseFloat(grandTotal.replace(/[^0-9.]/g, '')) || 0;
-        document.getElementById('printTotalUdhari').textContent = '₹' + (currentSelectedCustomer.outstanding + billVal).toFixed(2);
-        document.getElementById('printPayStatus').textContent = 'CREDIT (DUE)';
-        document.getElementById('printPayStatus').className = 'fw-bold text-danger';
-    } else {
-        if (udhariRow) udhariRow.style.display = 'none';
-        document.getElementById('printPayStatus').textContent = 'PAID';
-        document.getElementById('printPayStatus').className = 'fw-bold text-success';
-    }
-}
-
-// Render Browse Dishes Grid
-document.addEventListener('DOMContentLoaded', function() {
-    const grid = document.getElementById('browseDishesGrid');
-    if (grid) {
-        grid.innerHTML = menuCatalog.map(m => `
-            <div class="col-6 col-md-4">
-                <div class="card h-100 p-2 border border-light-subtle shadow-sm cursor-pointer hover-shadow" onclick="addItemToBillingTable('${m.name}', ${m.price})" style="cursor: pointer;">
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <span class="badge bg-secondary-subtle text-dark font-monospace">${m.code}</span>
-                        <span class="badge bg-plum-subtle text-plum small">${m.cat}</span>
-                    </div>
-                    <div class="fw-bold text-ink small text-truncate">${m.name}</div>
-                    <div class="fw-bold text-teal font-monospace mt-1">₹${m.price}</div>
-                </div>
-            </div>
-        `).join('');
-    }
-});
-
-// Close search dropdown on outside click
-document.addEventListener('click', function(e) {
-    const results = document.getElementById('billingCustomerResults');
-    const search = document.getElementById('billingCustomerSearch');
-    if (results && !results.contains(e.target) && e.target !== search) {
-        results.style.display = 'none';
-    }
-});
-</script>

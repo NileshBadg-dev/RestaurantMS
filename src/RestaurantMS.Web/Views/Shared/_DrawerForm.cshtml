@@ -1,0 +1,23 @@
+@model RestaurantMS.Web.Models.DrawerFormModel
+
+<div class="offcanvas offcanvas-end app-drawer-form" tabindex="-1" id="@Model.DrawerId" aria-labelledby="@(Model.DrawerId)Label" style="width: @Model.Width; max-width: 96vw;">
+    <div class="offcanvas-header bg-plum text-white py-3 px-4">
+        <div class="d-flex align-items-center gap-2 overflow-hidden">
+            <div class="rounded-3 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background: rgba(255,255,255,0.16);">
+                <i class="bi @Model.Icon text-saffron fs-5 js-drawer-icon"></i>
+            </div>
+            <div class="overflow-hidden">
+                <h5 class="offcanvas-title fw-bold mb-0 text-truncate js-drawer-title" id="@(Model.DrawerId)Label">@Model.Title</h5>
+                <div class="small text-white-50 text-truncate js-drawer-subtitle">@Model.Subtitle</div>
+            </div>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+
+    <div class="offcanvas-body p-0 d-flex flex-column bg-cream js-drawer-body">
+        <div class="p-4 text-center text-muted small">
+            <div class="spinner-border spinner-border-sm text-plum me-2" role="status"></div>
+            Loading form...
+        </div>
+    </div>
+</div>

@@ -43,6 +43,15 @@ public class SettingsController : Controller
             Timezone = s.Timezone,
             ReceiptHeader = s.ReceiptHeader,
             ReceiptFooter = s.ReceiptFooter,
+            PaperSize = s.PaperSize,
+            AutoPrintOnSettle = s.AutoPrintOnSettle,
+            PrintCopies = s.PrintCopies,
+            ShowMarathiItemNames = s.ShowMarathiItemNames,
+            ShowUpiQrOnReceipt = s.ShowUpiQrOnReceipt,
+            AutoPrintKot = s.AutoPrintKot,
+            HotelUpiId = s.HotelUpiId,
+            UpiReferenceRequired = s.UpiReferenceRequired,
+            CardDetailsRequired = s.CardDetailsRequired,
             ActiveTab = tab
         };
 
@@ -86,7 +95,16 @@ public class SettingsController : Controller
             model.Currency,
             model.Timezone,
             model.ReceiptHeader,
-            model.ReceiptFooter);
+            model.ReceiptFooter,
+            model.PaperSize,
+            model.AutoPrintOnSettle,
+            model.PrintCopies,
+            model.ShowMarathiItemNames,
+            model.ShowUpiQrOnReceipt,
+            model.AutoPrintKot,
+            model.HotelUpiId,
+            model.UpiReferenceRequired,
+            model.CardDetailsRequired);
 
         var result = await _mediator.Send(command);
         if (!result.IsSuccess)

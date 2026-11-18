@@ -3,103 +3,139 @@
     ViewData["Title"] = Localizer["Accounts_CreateVoucher_Title"].Value;
 }
 
-<div class="create-voucher-page" style="max-width: 900px; margin: 0 auto;">
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
+<div class="mx-auto" style="max-width: 960px;">
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
         <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
             <div>
-                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-journal-plus text-plum me-2"></i> @Localizer["Accounts_CreateVoucher_Title"]</h3>
-                <div class="text-muted small">Record double-entry transaction voucher with debits and credits</div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-journal-plus text-plum me-2"></i>@Localizer["Accounts_CreateVoucher_Title"]</h2>
+                <div class="text-muted small">Post balanced double-entry accounting &amp; expense vouchers</div>
             </div>
-            <a asp-action="Vouchers" class="btn btn-outline-secondary btn-sm">
+            <a asp-action="Vouchers" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
                 <i class="bi bi-arrow-left me-1"></i> Back to Vouchers
             </a>
         </div>
 
-        <form asp-action="CreateVoucher" method="post" id="voucherForm">
+        <form asp-action="CreateVoucher" method="post" id="voucherForm" data-app-form="true" novalidate>
             @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="TotalDebit" id="TotalDebitHidden" />
+            <input type="hidden" asp-for="TotalCredit" id="TotalCreditHidden" />
 
-            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty]?.Errors.Count > 0)
-            {
-                <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3" role="alert">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                    @ViewData.ModelState[string.Empty]!.Errors[0].ErrorMessage
-                </div>
-            }
-
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-4">
-                    <label asp-for="VoucherType" class="form-label fw-bold small text-ink">Voucher Type *</label>
-                    <select asp-for="VoucherType" class="form-select">
-                        <option value="Journal">Journal Voucher (General)</option>
-                        <option value="Payment">Payment Voucher (Cash/Bank Out)</option>
-                        <option value="Receipt">Receipt Voucher (Cash/Bank In)</option>
-                        <option value="Contra">Contra Voucher (Cash to Bank / Bank to Cash)</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label asp-for="VoucherNumber" class="form-label fw-bold small text-ink">Voucher Number</label>
-                    <input asp-for="VoucherNumber" class="form-control font-monospace" readonly />
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label asp-for="Date" class="form-label fw-bold small text-ink">Date</label>
-                    <input asp-for="Date" type="date" class="form-control" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
-                </div>
+            <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 js-form-error-summary @(ViewData.ModelState.IsValid ? "d-none" : "")" role="alert">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="mb-0"></div>
+                }
             </div>
 
-            <!-- Double-entry Lines Table -->
-            <div class="table-responsive mb-3 border rounded-3 p-2 bg-light">
-                <table class="table table-sm align-middle mb-0" id="voucherLinesTable">
-                    <thead class="small text-muted text-uppercase">
-                        <tr>
-                            <th>Ledger Account</th>
-                            <th style="width: 140px;" class="text-end">Debit (₹)</th>
-                            <th style="width: 140px;" class="text-end">Credit (₹)</th>
-                            <th>Narration</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (int i = 0; i < Model.Lines.Count; i++)
-                        {
-                            <tr>
-                                <td>
-                                    <input type="text" name="Lines[@i].AccountName" class="form-control form-control-sm" value="@Model.Lines[i].AccountName" />
-                                </td>
-                                <td>
-                                    <input type="number" name="Lines[@i].Debit" class="form-control form-control-sm text-end" value="@Model.Lines[i].Debit" onchange="recalculateVoucherTotals()" />
-                                </td>
-                                <td>
-                                    <input type="number" name="Lines[@i].Credit" class="form-control form-control-sm text-end" value="@Model.Lines[i].Credit" onchange="recalculateVoucherTotals()" />
-                                </td>
-                                <td>
-                                    <input type="text" name="Lines[@i].Narration" class="form-control form-control-sm" value="@Model.Lines[i].Narration" />
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                    <tfoot class="table-light fw-bold font-monospace">
-                        <tr>
-                            <td class="text-end">Totals:</td>
-                            <td class="text-end text-chili" id="totalDebitCell">₹@Model.TotalDebit.ToString("N2")</td>
-                            <td class="text-end text-teal" id="totalCreditCell">₹@Model.TotalCredit.ToString("N2")</td>
-                            <td><span class="badge bg-teal text-white" id="balanceStatusBadge">Balanced</span></td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
-
+            <!-- Section 1: Voucher Header -->
             <div class="mb-4">
-                <label asp-for="Narration" class="form-label fw-bold small text-ink">Overall Narration</label>
-                <textarea asp-for="Narration" class="form-control" rows="2" placeholder="Describe the transaction purpose"></textarea>
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_VoucherHeader"].Value, HelperText = Localizer["Form_Sec_VoucherHeader_Help"].Value, Icon = "bi-receipt" }' />
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-semibold small text-ink mb-1">Voucher Type <span class="text-chili">*</span></label>
+                        <div class="app-segmented-control">
+                            <div class="seg-option">
+                                <input type="radio" name="VoucherType" id="vchPayment" value="Payment" checked="@(Model.VoucherType == "Payment" ? "checked" : null)" />
+                                <label for="vchPayment"><i class="bi bi-arrow-up-right text-chili"></i> Payment / Expense</label>
+                            </div>
+                            <div class="seg-option">
+                                <input type="radio" name="VoucherType" id="vchReceipt" value="Receipt" checked="@(Model.VoucherType == "Receipt" ? "checked" : null)" />
+                                <label for="vchReceipt"><i class="bi bi-arrow-down-left text-teal"></i> Receipt</label>
+                            </div>
+                            <div class="seg-option">
+                                <input type="radio" name="VoucherType" id="vchJournal" value="Journal" checked="@(Model.VoucherType == "Journal" || string.IsNullOrEmpty(Model.VoucherType) ? "checked" : null)" />
+                                <label for="vchJournal"><i class="bi bi-journal-text text-plum"></i> Journal</label>
+                            </div>
+                            <div class="seg-option">
+                                <input type="radio" name="VoucherType" id="vchContra" value="Contra" checked="@(Model.VoucherType == "Contra" ? "checked" : null)" />
+                                <label for="vchContra"><i class="bi bi-arrow-left-right"></i> Contra</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="VoucherNumber" class="form-label fw-semibold small text-ink mb-1">Voucher Number</label>
+                        <input asp-for="VoucherNumber" class="form-control font-monospace bg-light" readonly />
+                    </div>
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="Date" class="form-label fw-semibold small text-ink mb-1">Voucher Date <span class="text-chili">*</span></label>
+                        <input asp-for="Date" type="date" class="form-control" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" required />
+                    </div>
+                </div>
             </div>
 
-            <div class="border-top pt-3 d-flex justify-content-end gap-2">
-                <a asp-action="Vouchers" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
-                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
-                    <i class="bi bi-check-circle me-1"></i> Post Voucher
-                </button>
+            <!-- Section 2: Double-Entry Ledger Lines -->
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="flex-grow-1">
+                        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_VoucherLines"].Value, HelperText = Localizer["Form_Sec_VoucherLines_Help"].Value, Icon = "bi-list-columns" }' />
+                    </div>
+                    <button type="button" id="addVoucherLineBtn" class="btn btn-sm btn-outline-plum rounded-pill px-3 ms-3 mb-3">
+                        <i class="bi bi-plus-lg me-1"></i> Add Line
+                    </button>
+                </div>
+
+                <div class="table-responsive border rounded-3 p-2 bg-cream-soft">
+                    <table class="table table-sm align-middle mb-0" id="voucherLinesTable">
+                        <thead class="small text-muted text-uppercase">
+                            <tr>
+                                <th>Ledger Account</th>
+                                <th style="width: 150px;">Debit</th>
+                                <th style="width: 150px;">Credit</th>
+                                <th>Line Memo</th>
+                                <th style="width: 40px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Lines.Count; i++)
+                            {
+                                <tr>
+                                    <td><input type="text" name="Lines[@i].AccountName" class="form-control form-control-sm" value="@Model.Lines[i].AccountName" required /></td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" name="Lines[@i].Debit" class="form-control text-end js-vch-dr" step="0.01" min="0" value="@Model.Lines[i].Debit" />
+                                            <span class="input-group-text">₹</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="input-group input-group-sm">
+                                            <input type="number" name="Lines[@i].Credit" class="form-control text-end js-vch-cr" step="0.01" min="0" value="@Model.Lines[i].Credit" />
+                                            <span class="input-group-text">₹</span>
+                                        </div>
+                                    </td>
+                                    <td><input type="text" name="Lines[@i].Narration" class="form-control form-control-sm" value="@Model.Lines[i].Narration" /></td>
+                                    <td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger js-del-line"><i class="bi bi-trash"></i></button></td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light fw-bold font-monospace">
+                            <tr>
+                                <td class="text-end">Totals:</td>
+                                <td class="text-end text-chili" id="totalDebitCell">₹@Model.TotalDebit.ToString("N2")</td>
+                                <td class="text-end text-teal" id="totalCreditCell">₹@Model.TotalCredit.ToString("N2")</td>
+                                <td colspan="2"><span class="badge bg-teal text-white" id="balanceStatusBadge">Balanced</span></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
             </div>
+
+            <!-- Section 3: Narration -->
+            <div class="mb-3">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_Narration"].Value, HelperText = Localizer["Form_Sec_Narration_Help"].Value, Icon = "bi-chat-left-text" }' />
+                <div class="app-form-field">
+                    <label asp-for="Narration" class="form-label fw-semibold small text-ink mb-1">Overall Narration <span class="text-chili">*</span></label>
+                    <textarea asp-for="Narration" class="form-control" rows="2" placeholder="Describe the accounting or expense purpose" required></textarea>
+                    <span asp-validation-for="Narration" class="invalid-feedback d-block small js-field-error"></span>
+                </div>
+            </div>
+
+            <partial name="_FormFooter" model='new RestaurantMS.Web.Models.FormFooterModel { CancelUrl = Url.Action("Vouchers", "Accounts")!, SaveLabelKey = "Form_PostVoucher", ShowSaveAndNew = true }' />
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/modules/transactionForms.js" asp-append-version="true"></script>
+}
