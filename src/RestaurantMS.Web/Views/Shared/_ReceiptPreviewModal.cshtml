@@ -1,0 +1,91 @@
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+
+<!-- Popup-Free Iframe Receipt / Parcel Token / KOT Print Preview Modal -->
+<div class="modal fade" id="receiptPreviewModal" tabindex="-1" aria-labelledby="receiptPreviewModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-3">
+            <div class="modal-header bg-plum text-white py-2 px-3">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-printer-fill"></i>
+                    <h6 class="modal-title fw-bold mb-0" id="receiptPreviewModalTitle">@Localizer["Receipt_PreviewTitle"]</h6>
+                    <span class="badge bg-saffron text-dark d-none" id="receiptPreviewBadge"></span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="Paper Size">
+                        <button type="button" class="btn btn-outline-light receipt-paper-btn" data-paper="58mm">58mm</button>
+                        <button type="button" class="btn btn-outline-light receipt-paper-btn active" data-paper="80mm">80mm</button>
+                        <button type="button" class="btn btn-outline-light receipt-paper-btn" data-paper="A4">A4</button>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <div class="modal-body p-3">
+                <!-- Tabs when Parcel Token slip is also available -->
+                <div class="d-none mb-2 d-flex justify-content-between align-items-center" id="receiptSlipSwitcher">
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-plum active" id="btnShowTaxReceipt">
+                            <i class="bi bi-receipt me-1"></i> @Localizer["Receipt_TaxInvoice"]
+                        </button>
+                        <button type="button" class="btn btn-outline-plum" id="btnShowParcelToken">
+                            <i class="bi bi-bag-check me-1"></i> @Localizer["Receipt_ParcelTokenSlip"]
+                        </button>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-teal" id="btnPrintBothSlips">
+                        <i class="bi bi-printer me-1"></i> @Localizer["Receipt_PrintParcelToken"]
+                    </button>
+                </div>
+
+                <!-- Print failure fallback banner -->
+                <div class="alert alert-warning py-2 px-3 small d-none mb-2" id="receiptPrintFallbackAlert" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                    <span id="receiptPrintFallbackMessage">@Localizer["Receipt_PrintUnavailable"]</span>
+                </div>
+
+                <!-- Iframe Preview Container -->
+                <div class="receipt-preview-stage">
+                    <iframe id="receiptPreviewIframe"
+                            class="receipt-preview-iframe paper-80mm"
+                            title="Printable Receipt Preview"></iframe>
+                </div>
+            </div>
+
+            <div class="modal-footer bg-light py-2 px-3 d-flex flex-wrap justify-content-between gap-2">
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-sm btn-teal" id="btnReceiptPrintAgain">
+                        <i class="bi bi-printer-fill"></i> @Localizer["Receipt_PrintAgain"]
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-plum" id="btnReceiptDownloadPdf">
+                        <i class="bi bi-file-earmark-pdf"></i> @Localizer["Receipt_DownloadPdf"]
+                    </button>
+                    <div class="btn-group btn-group-sm" id="receiptShareGroup">
+                        <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-share"></i> @Localizer["Receipt_Share"]
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="#" id="btnReceiptShareWhatsApp">
+                                    <i class="bi bi-whatsapp text-success me-2"></i> WhatsApp
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" id="btnReceiptShareSms">
+                                    <i class="bi bi-chat-dots text-primary me-2"></i> SMS
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-sm btn-saffron" id="btnReceiptNewOrder">
+                        <i class="bi bi-plus-circle"></i> @Localizer["Receipt_NewOrder"]
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">
+                        @Localizer["Btn_Close"]
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

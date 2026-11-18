@@ -41,6 +41,17 @@ public class SaveSettingsCommandHandler : IRequestHandler<SaveSettingsCommand, R
         await _settingRepository.SetSettingAsync("Timezone", request.Timezone?.Trim() ?? "Asia/Kolkata", "General", cancellationToken);
         await _settingRepository.SetSettingAsync("ReceiptHeader", request.ReceiptHeader?.Trim() ?? string.Empty, "Printing", cancellationToken);
         await _settingRepository.SetSettingAsync("ReceiptFooter", request.ReceiptFooter?.Trim() ?? string.Empty, "Printing", cancellationToken);
+        var paperSize = string.IsNullOrWhiteSpace(request.PaperSize) ? "80mm" : request.PaperSize.Trim();
+        var copies = Math.Clamp(request.PrintCopies, 1, 5);
+        await _settingRepository.SetSettingAsync("Printing.PaperSize", paperSize, "Printing", cancellationToken);
+        await _settingRepository.SetSettingAsync("Printing.AutoPrintOnSettle", request.AutoPrintOnSettle ? "true" : "false", "Printing", cancellationToken);
+        await _settingRepository.SetSettingAsync("Printing.Copies", copies.ToString(), "Printing", cancellationToken);
+        await _settingRepository.SetSettingAsync("Printing.ShowMarathiItemNames", request.ShowMarathiItemNames ? "true" : "false", "Printing", cancellationToken);
+        await _settingRepository.SetSettingAsync("Printing.ShowUpiQrOnReceipt", request.ShowUpiQrOnReceipt ? "true" : "false", "Printing", cancellationToken);
+        await _settingRepository.SetSettingAsync("Kitchen.AutoPrintKot", request.AutoPrintKot ? "true" : "false", "Kitchen", cancellationToken);
+        await _settingRepository.SetSettingAsync("Payments.UpiId", request.HotelUpiId?.Trim() ?? string.Empty, "Payments", cancellationToken);
+        await _settingRepository.SetSettingAsync("Payments.UpiReferenceRequired", request.UpiReferenceRequired ? "true" : "false", "Payments", cancellationToken);
+        await _settingRepository.SetSettingAsync("Payments.CardDetailsRequired", request.CardDetailsRequired ? "true" : "false", "Payments", cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _settingService.InvalidateCache();
@@ -58,7 +69,16 @@ public class SaveSettingsCommandHandler : IRequestHandler<SaveSettingsCommand, R
             Currency = request.Currency ?? "INR",
             Timezone = request.Timezone ?? "Asia/Kolkata",
             ReceiptHeader = request.ReceiptHeader,
-            ReceiptFooter = request.ReceiptFooter
+            ReceiptFooter = request.ReceiptFooter,
+            PaperSize = paperSize,
+            AutoPrintOnSettle = request.AutoPrintOnSettle,
+            PrintCopies = copies,
+            ShowMarathiItemNames = request.ShowMarathiItemNames,
+            ShowUpiQrOnReceipt = request.ShowUpiQrOnReceipt,
+            AutoPrintKot = request.AutoPrintKot,
+            HotelUpiId = request.HotelUpiId?.Trim() ?? string.Empty,
+            UpiReferenceRequired = request.UpiReferenceRequired,
+            CardDetailsRequired = request.CardDetailsRequired
         };
 
         return Result.Success(dto);

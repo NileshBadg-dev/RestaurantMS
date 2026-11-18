@@ -1,91 +1,205 @@
+@using System.Text.Json
 @model RestaurantMS.Web.Models.ReportDetailViewModel
 @{
     ViewData["Title"] = Model.ReportTitle;
+    var exec = Model.Execution;
+    var f = exec.AppliedFilter;
+    var isMarathi = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("mr", StringComparison.OrdinalIgnoreCase);
+
+    var jsonOpts = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+    var initialPayloadJson = JsonSerializer.Serialize(exec, jsonOpts);
 }
 
-<div class="view-report-page d-flex flex-column gap-3">
-    <!-- Header with Back Button and Export Options -->
+<div class="view-report-page d-flex flex-column gap-3"
+     id="reportViewerRoot"
+     data-report-code="@Model.ReportCode"
+     data-data-url="@Url.Action("Data", "Reports")"
+     data-export-url="@Url.Action("ExportExcel", "Reports")"
+     data-print-url="@Url.Action("PrintReport", "Reports")"
+     data-toggle-fav-url="@Url.Action("ToggleFavorite", "Reports")"
+     data-no-data-msg="@Localizer["Reports_NoDataForFilters"].Value">
+    @Html.AntiForgeryToken()
+
+    <script type="application/json" id="reportInitialDataJson">@Html.Raw(initialPayloadJson)</script>
+
+    <!-- Report Header Bar -->
     <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
-            <div>
-                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-file-earmark-text text-plum me-2"></i> @Model.ReportTitle</h2>
-                <div class="text-muted small">Generated for period @Model.FromDate.ToString("dd MMM yyyy") to @Model.ToDate.ToString("dd MMM yyyy")</div>
+            <div class="d-flex align-items-start gap-2">
+                <button type="button"
+                        class="btn btn-sm p-1 border-0 js-toggle-fav @(Model.IsFavorite ? "text-warning" : "text-muted")"
+                        data-report-code="@Model.ReportCode"
+                        title="@Localizer["Reports_ToggleFavorite"]">
+                    <i class="bi @(Model.IsFavorite ? "bi-star-fill" : "bi-star") fs-4"></i>
+                </button>
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <h2 class="h4 fw-bold text-ink mb-0">@(isMarathi ? exec.Report.TitleMr : exec.Report.TitleEn)</h2>
+                        <span class="badge bg-plum-subtle text-plum font-monospace">@exec.Report.Code</span>
+                        <span class="badge bg-light text-muted border">@exec.Report.Category</span>
+                    </div>
+                    <div class="text-muted small mt-1" id="reportActiveFiltersBar">
+                        @string.Join("  •  ", exec.ActiveFilterSummary)
+                    </div>
+                </div>
             </div>
 
-            <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-outline-teal" onclick="alert('Exporting to Excel...')"><i class="bi bi-file-earmark-excel me-1"></i> Excel</button>
-                <button type="button" class="btn btn-sm btn-outline-chili" onclick="alert('Exporting to PDF...')"><i class="bi bi-file-earmark-pdf me-1"></i> PDF</button>
-                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.print()"><i class="bi bi-printer me-1"></i> Print</button>
-                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">All Reports</a>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                @if (Model.CanExport)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-teal" id="btnExportReportExcel">
+                        <i class="bi bi-file-earmark-excel"></i> @Localizer["Reports_ExportExcel"]
+                    </button>
+                }
+                @if (Model.CanPrint)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-chili" id="btnExportReportPdf">
+                        <i class="bi bi-file-earmark-pdf"></i> PDF
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-plum" id="btnPrintReport">
+                        <i class="bi bi-printer"></i> @Localizer["Btn_Print"]
+                    </button>
+                }
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> @Localizer["Reports_AllReports"]
+                </a>
             </div>
         </div>
     </div>
 
-    <!-- Filter Bar Partial -->
+    <!-- Sticky Unified Filter Bar -->
     <partial name="_ReportFilterBar" model='new ReportFilterBarModel {
-        StartDate = Model.FromDate.ToString("yyyy-MM-dd"),
-        EndDate = Model.ToDate.ToString("yyyy-MM-dd"),
-        ShowDateRange = true,
-        ShowShift = true,
-        ShowWaiter = true,
-        ShowTable = true,
-        ShowCategory = true,
-        ShowPaymentMode = true
+        ReportCode = Model.ReportCode,
+        DatePreset = f.DatePreset,
+        StartDate = f.FromDate?.ToString("yyyy-MM-dd"),
+        EndDate = f.ToDate?.ToString("yyyy-MM-dd"),
+        SelectedShift = f.Shift,
+        SelectedWaiter = f.Waiter,
+        SelectedTable = f.Table,
+        SelectedCategory = f.Category,
+        SelectedPaymentMode = f.PaymentMode,
+        SelectedOrderType = f.OrderType,
+        Search = f.Search,
+        PageSize = f.PageSize
     }' />
 
-    <!-- Report Table Grid -->
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 font-monospace">
-                <thead class="table-light small text-muted text-uppercase font-sans">
-                    <tr>
-                        @foreach (var col in Model.Result.Headers)
-                        {
-                            <th>@col</th>
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var row in Model.Result.Rows)
-                    {
-                        <tr>
-                            @foreach (var cell in row)
-                            {
-                                <td>@cell</td>
-                            }
-                        </tr>
-                    }
-                </tbody>
-                @if (Model.Result.Totals != null && Model.Result.Totals.Count > 0)
-                {
-                    <tfoot class="table-light fw-bold font-monospace">
-                        <tr>
-                            @foreach (var col in Model.Result.Headers)
-                            {
-                                <td>@(Model.Result.Totals.TryGetValue(col, out var tot) ? tot : "")</td>
-                            }
-                        </tr>
-                    </tfoot>
-                }
-            </table>
+    <!-- Loading Skeleton State -->
+    <div class="d-none" id="reportLoadingSkeleton" aria-busy="true">
+        <div class="row g-3 mb-3">
+            @for (var i = 0; i < 4; i++)
+            {
+                <div class="col-6 col-lg-3">
+                    <div class="card border-0 shadow-sm rounded-3 p-3 bg-white">
+                        <div class="placeholder-glow">
+                            <span class="placeholder col-6 mb-2"></span>
+                            <span class="placeholder col-9 placeholder-lg mb-2"></span>
+                            <span class="placeholder col-5"></span>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="card border-0 shadow-sm rounded-3 p-4 bg-white">
+            <div class="placeholder-glow d-flex flex-column gap-2">
+                <span class="placeholder col-12 placeholder-lg"></span>
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-11"></span>
+                <span class="placeholder col-12"></span>
+                <span class="placeholder col-10"></span>
+            </div>
         </div>
     </div>
 
-    @if (Model.Result.Totals != null && Model.Result.Totals.Count > 0)
-    {
-        <div class="card border-0 shadow-sm rounded-3 bg-cream p-3">
-            <h6 class="fw-bold text-plum mb-2"><i class="bi bi-calculator me-1"></i> Key Metrics &amp; Totals</h6>
-            <div class="row g-2">
-                @foreach (var kvp in Model.Result.Totals)
-                {
-                    <div class="col-6 col-md-3">
-                        <div class="p-2 bg-white rounded border">
-                            <div class="text-muted small">@kvp.Key</div>
-                            <div class="fw-bold font-monospace text-ink">@kvp.Value</div>
-                        </div>
-                    </div>
-                }
+    <!-- Error State -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-5 text-center d-none" id="reportErrorState">
+        <i class="bi bi-exclamation-octagon-fill text-chili fs-1 d-block mb-2"></i>
+        <h5 class="fw-bold text-ink mb-1">@Localizer["Reports_ErrorTitle"]</h5>
+        <p class="small text-muted mb-3" id="reportErrorText">@Localizer["Reports_ErrorFallback"]</p>
+        <div>
+            <button type="button" class="btn btn-sm btn-plum px-3" id="btnRetryReport">
+                <i class="bi bi-arrow-clockwise"></i> @Localizer["Reports_Retry"]
+            </button>
+        </div>
+    </div>
+
+    <!-- Empty State -->
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-5 text-center d-none" id="reportEmptyState">
+        <i class="bi bi-inbox fs-1 text-muted d-block mb-2"></i>
+        <h5 class="fw-bold text-ink mb-1">@Localizer["Reports_NoDataForFilters"]</h5>
+        <p class="small text-muted mb-3">@Localizer["Reports_NoDataHint"]</p>
+        <div>
+            <button type="button" class="btn btn-sm btn-outline-plum px-3" id="btnEmptyResetFilters">
+                <i class="bi bi-arrow-counterclockwise"></i> @Localizer["Reports_Reset"]
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Data Stage (KPIs + Chart + Grouped Grid + Paging) -->
+    <div id="reportContentStage" class="d-flex flex-column gap-3">
+        <!-- KPI Summary Cards -->
+        <div class="row g-3" id="reportKpiRow"></div>
+
+        <!-- Optional Chart Card -->
+        <div class="card border-0 shadow-sm rounded-3 bg-white p-3 d-none" id="reportChartCard">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="fw-bold text-ink mb-0" id="reportChartTitle"></h6>
+                <span class="badge bg-light text-muted border small">@Localizer["Reports_InteractiveChart"]</span>
+            </div>
+            <div style="height: 260px; position: relative;">
+                <canvas id="reportChartCanvas"></canvas>
             </div>
         </div>
-    }
+
+        <!-- Grouped Report Grid with Totals & Server-Side Paging -->
+        <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                <div class="small text-muted">
+                    <i class="bi bi-hand-index-thumb text-plum me-1"></i> @Localizer["Reports_DrillDownHint"]
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <label for="rptPageSizeSelect" class="small text-muted mb-0">@Localizer["Reports_RowsPerPage"]:</label>
+                    <select id="rptPageSizeSelect" class="form-select form-select-sm" style="width: 80px;">
+                        <option value="10" selected="@(f.PageSize == 10 ? "selected" : null)">10</option>
+                        <option value="25" selected="@(f.PageSize == 25 ? "selected" : null)">25</option>
+                        <option value="50" selected="@(f.PageSize == 50 ? "selected" : null)">50</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="reportDataTable">
+                    <thead class="table-light small text-muted text-uppercase" id="reportTableHead"></thead>
+                    <tbody id="reportTableBody"></tbody>
+                    <tfoot class="table-light fw-bold font-monospace" id="reportTableFoot"></tfoot>
+                </table>
+            </div>
+
+            <!-- Server-side Pagination Bar -->
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pt-3 mt-2 border-top small" id="reportPaginationBar">
+                <span class="text-muted" id="reportPaginationInfo"></span>
+                <nav aria-label="Report pagination">
+                    <ul class="pagination pagination-sm mb-0" id="reportPaginationLinks"></ul>
+                </nav>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Drill-Down Details Right-Side Drawer -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="reportDrillDownDrawer" aria-labelledby="reportDrillDownTitle" style="width: 440px;">
+    <div class="offcanvas-header bg-plum text-white py-3">
+        <div>
+            <div class="small opacity-75 text-uppercase" id="reportDrillDownTypeBadge">DETAILS</div>
+            <h5 class="offcanvas-title fw-bold mb-0" id="reportDrillDownTitle">Record Details</h5>
+        </div>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-3 d-flex flex-column gap-3">
+        <div class="list-group list-group-flush border rounded-3" id="reportDrillDownList"></div>
+        <div class="d-flex flex-wrap gap-2 mt-auto pt-3 border-top" id="reportDrillDownActions"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modules/reports.js" asp-append-version="true"></script>
+}

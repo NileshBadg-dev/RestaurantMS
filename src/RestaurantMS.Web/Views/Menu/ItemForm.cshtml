@@ -1,121 +1,389 @@
 @model RestaurantMS.Web.Models.MenuItemFormViewModel
 @{
     ViewData["Title"] = Localizer["Menu_ItemForm_Title"].Value;
+    var availableTags = new[] { "Bestseller", "Chef Special", "Spicy", "Jain", "Gluten-Free", "New" };
 }
 
-<div class="item-form-page" style="max-width: 850px; margin: 0 auto;">
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <div>
-                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-egg-fried text-plum me-2"></i> @Localizer["Menu_ItemForm_Title"]</h3>
-                <div class="text-muted small">Dish pricing, dietary classifications, kitchen station &amp; food images</div>
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h2 class="h4 fw-bold text-ink mb-0"><i class="bi bi-egg-fried text-plum me-2"></i>@Localizer["Menu_ItemForm_Title"]</h2>
+            <div class="small text-muted">@Localizer["Menu_ItemForm_Subtitle"]</div>
+        </div>
+        <a asp-controller="Masters" asp-action="Index" asp-route-tab="menu-items" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> @Localizer["Form_BackToMenu"]
+        </a>
+    </div>
+
+    <div class="row g-4 align-items-start">
+        <!-- Left Column: Structured 5-Section Form -->
+        <div class="col-12 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+                <form asp-action="ItemForm" method="post" id="itemForm" enctype="multipart/form-data" data-app-form="true" novalidate>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="IsVegetarian" id="IsVegetarianHidden" />
+
+                    <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 js-form-error-summary @(ViewData.ModelState.IsValid ? "d-none" : "")" role="alert">
+                        @if (!ViewData.ModelState.IsValid)
+                        {
+                            <div asp-validation-summary="All" class="mb-0"></div>
+                        }
+                    </div>
+
+                    <!-- Section 1: Basic Info -->
+                    <div class="mb-4">
+                        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_BasicInfo"].Value, HelperText = Localizer["Form_Sec_BasicInfo_Help"].Value, Icon = "bi-info-circle" }' />
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-7 app-form-field">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label asp-for="CategoryId" class="form-label fw-semibold small text-ink mb-0">@Localizer["Menu_Field_Category"] <span class="text-chili">*</span></label>
+                                    <button type="button" class="btn btn-link btn-sm p-0 text-teal fw-semibold text-decoration-none" data-bs-toggle="modal" data-bs-target="#quickAddCategoryModal">
+                                        <i class="bi bi-plus-circle me-1"></i>@Localizer["Menu_QuickAddCategory"]
+                                    </button>
+                                </div>
+                                <select asp-for="CategoryId" id="CategoryId" class="form-select" required>
+                                    <option value="Starters">Starters</option>
+                                    <option value="Main Course">Main Course</option>
+                                    <option value="Biryani &amp; Rice">Biryani &amp; Rice</option>
+                                    <option value="Beverages">Beverages</option>
+                                    <option value="Desserts">Desserts</option>
+                                </select>
+                                <span asp-validation-for="CategoryId" class="invalid-feedback d-block small js-field-error"></span>
+                            </div>
+
+                            <div class="col-12 col-md-5 app-form-field">
+                                <label asp-for="ItemCode" class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_ShortCode"] <span class="text-chili">*</span></label>
+                                <input asp-for="ItemCode" id="ItemCode" class="form-control font-monospace" placeholder="e.g. 101 or PBM" required />
+                                <span asp-validation-for="ItemCode" class="invalid-feedback d-block small js-field-error"></span>
+                            </div>
+
+                            <!-- Veg / Non-Veg / Egg Segmented Control -->
+                            <div class="col-12 app-form-field">
+                                <label class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_Dietary"] <span class="text-chili">*</span></label>
+                                <div class="app-segmented-control">
+                                    <div class="seg-option">
+                                        <input type="radio" name="DietaryType" id="dietVeg" value="Veg" checked="@(Model.DietaryType == "Veg" ? "checked" : null)" />
+                                        <label for="dietVeg" class="seg-veg"><span class="food-type-icon veg"></span> Veg</label>
+                                    </div>
+                                    <div class="seg-option">
+                                        <input type="radio" name="DietaryType" id="dietNonVeg" value="NonVeg" checked="@(Model.DietaryType == "NonVeg" ? "checked" : null)" />
+                                        <label for="dietNonVeg" class="seg-nonveg"><span class="food-type-icon nonveg"></span> Non-Veg</label>
+                                    </div>
+                                    <div class="seg-option">
+                                        <input type="radio" name="DietaryType" id="dietEgg" value="Egg" checked="@(Model.DietaryType == "Egg" ? "checked" : null)" />
+                                        <label for="dietEgg" class="seg-egg"><span class="food-type-icon egg"></span> Egg</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- English & Marathi Names Side by Side -->
+                            <div class="col-12 col-md-6 app-form-field">
+                                <label asp-for="NameEn" class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_NameEn"] <span class="text-chili">*</span></label>
+                                <input asp-for="NameEn" id="NameEn" class="form-control" placeholder="e.g. Paneer Butter Masala" required />
+                                <span asp-validation-for="NameEn" class="invalid-feedback d-block small js-field-error"></span>
+                            </div>
+
+                            <div class="col-12 col-md-6 app-form-field">
+                                <label asp-for="NameMr" class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_NameMr"] <span class="text-chili">*</span></label>
+                                <input asp-for="NameMr" id="NameMr" class="form-control" placeholder="उदा. पनीर बटर मसाला" required />
+                                <span asp-validation-for="NameMr" class="invalid-feedback d-block small js-field-error"></span>
+                            </div>
+
+                            <div class="col-12 app-form-field">
+                                <label asp-for="Description" class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_Description"]</label>
+                                <textarea asp-for="Description" id="Description" class="form-control" rows="2" placeholder="e.g. Soft cottage cheese cubes simmered in velvety tomato cashew gravy"></textarea>
+                            </div>
+
+                            <!-- Tag Chips -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-ink mb-2 d-block">@Localizer["Menu_Field_Tags"]</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach (var tag in availableTags)
+                                    {
+                                        var tid = "tag_" + tag.Replace(" ", "").Replace("-", "");
+                                        var isChecked = Model.Tags.Contains(tag, StringComparer.OrdinalIgnoreCase);
+                                        <div class="app-tag-chip position-relative">
+                                            <input type="checkbox" name="Tags" value="@tag" id="@tid" checked="@(isChecked ? "checked" : null)" />
+                                            <label for="@tid"><i class="bi bi-tag-fill small"></i> @tag</label>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Pricing & Tax -->
+                    <div class="mb-4">
+                        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_PricingTax"].Value, HelperText = Localizer["Form_Sec_PricingTax_Help"].Value, Icon = "bi-currency-rupee" }' />
+
+                        <div class="row g-3 align-items-stretch">
+                            <div class="col-12 col-md-4 app-form-field">
+                                <label asp-for="Price" class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_Price"] <span class="text-chili">*</span></label>
+                                <div class="input-group">
+                                    <input asp-for="Price" id="Price" type="number" step="0.50" min="1" class="form-control fw-bold" placeholder="280" required />
+                                    <span class="input-group-text bg-light text-muted fw-semibold">₹</span>
+                                </div>
+                                <span asp-validation-for="Price" class="invalid-feedback d-block small js-field-error"></span>
+                            </div>
+
+                            <div class="col-12 col-md-4 app-form-field">
+                                <label asp-for="TaxRate" class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_TaxRate"]</label>
+                                <select asp-for="TaxRate" id="TaxRate" class="form-select font-monospace">
+                                    <option value="0">0% (Exempt)</option>
+                                    <option value="5">5% (2.5% CGST + 2.5% SGST)</option>
+                                    <option value="12">12% (6% CGST + 6% SGST)</option>
+                                    <option value="18">18% (9% CGST + 9% SGST)</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-md-4 d-flex align-items-end">
+                                <div class="p-2 px-3 rounded-3 border bg-cream-soft d-flex align-items-center justify-content-between w-100">
+                                    <label class="form-check-label small fw-semibold text-ink mb-0" for="IsTaxInclusive">@Localizer["Menu_Field_TaxInclusive"]</label>
+                                    <div class="form-check form-switch mb-0">
+                                        <input asp-for="IsTaxInclusive" id="IsTaxInclusive" class="form-check-input" type="checkbox" role="switch" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Final Price Calculation Preview -->
+                            <div class="col-12">
+                                <div class="p-3 rounded-3 bg-cream border d-flex flex-wrap justify-content-between align-items-center gap-3">
+                                    <div class="d-flex flex-wrap gap-4 small">
+                                        <div><span class="text-muted">Base:</span> <strong class="font-monospace text-ink" id="calcBasePrice">₹0.00</strong></div>
+                                        <div><span class="text-muted">CGST:</span> <strong class="font-monospace text-ink" id="calcCgst">₹0.00</strong></div>
+                                        <div><span class="text-muted">SGST:</span> <strong class="font-monospace text-ink" id="calcSgst">₹0.00</strong></div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="small fw-semibold text-muted">@Localizer["Menu_LiveFinalPrice"]:</span>
+                                        <span class="h5 fw-bold text-teal font-monospace mb-0" id="calcFinalPrice">₹0.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Kitchen & Availability -->
+                    <div class="mb-4">
+                        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_KitchenAvail"].Value, HelperText = Localizer["Form_Sec_KitchenAvail_Help"].Value, Icon = "bi-fire" }' />
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-4 app-form-field">
+                                <label asp-for="KitchenStation" class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_Station"]</label>
+                                <select asp-for="KitchenStation" class="form-select">
+                                    <option value="Main">Main Curry Kitchen</option>
+                                    <option value="Tandoor">Tandoor &amp; Breads</option>
+                                    <option value="Chinese">Chinese Wok</option>
+                                    <option value="Bar">Beverages &amp; Dessert</option>
+                                </select>
+                            </div>
+
+                            <!-- Prep Time Stepper with min suffix -->
+                            <partial name="_FormField" model='new RestaurantMS.Web.Models.FormFieldModel { Name = "PrepTimeMinutes", Id = "PrepTimeMinutes", Label = Localizer["Menu_Field_PrepTime"].Value, InputType = "stepper", Value = Model.PrepTimeMinutes.ToString(), Min = "1", Max = "180", Step = "1", UnitSuffix = "min", ColClass = "col-12 col-md-4" }' />
+
+                            <!-- Availability Switch -->
+                            <div class="col-12 col-md-4">
+                                <div class="p-3 rounded-3 border bg-cream-soft d-flex align-items-center justify-content-between h-100">
+                                    <div>
+                                        <label class="form-label fw-semibold small text-ink mb-0" for="IsAvailable">@Localizer["Menu_Field_Available"]</label>
+                                        <div class="text-muted" style="font-size: 0.72rem;">Show in active POS</div>
+                                    </div>
+                                    <div class="form-check form-switch mb-0">
+                                        <input asp-for="IsAvailable" id="IsAvailable" class="form-check-input" type="checkbox" role="switch" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Type Segmented Control -->
+                            <div class="col-12">
+                                <label class="form-label fw-semibold small text-ink mb-1">@Localizer["Menu_Field_OrderType"]</label>
+                                <div class="app-segmented-control">
+                                    <div class="seg-option">
+                                        <input type="radio" name="OrderTypeScope" id="otAll" value="All" checked="@(Model.OrderTypeScope == "All" ? "checked" : null)" />
+                                        <label for="otAll"><i class="bi bi-grid"></i> All Channels</label>
+                                    </div>
+                                    <div class="seg-option">
+                                        <input type="radio" name="OrderTypeScope" id="otDineIn" value="DineIn" checked="@(Model.OrderTypeScope == "DineIn" ? "checked" : null)" />
+                                        <label for="otDineIn"><i class="bi bi-cup-straw"></i> Dine-in Only</label>
+                                    </div>
+                                    <div class="seg-option">
+                                        <input type="radio" name="OrderTypeScope" id="otParcel" value="Parcel" checked="@(Model.OrderTypeScope == "Parcel" ? "checked" : null)" />
+                                        <label for="otParcel"><i class="bi bi-box-seam"></i> Parcel / Delivery</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Images -->
+                    <div class="mb-4">
+                        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_Images"].Value, HelperText = Localizer["Form_Sec_Images_Help"].Value, Icon = "bi-images" }' />
+                        <partial name="_ImageUploader" model='new RestaurantMS.Web.Models.ImageUploaderModel { Name = "ItemImages", Label = Localizer["Menu_Field_Photos"].Value, HelpText = "Drag & drop JPG, PNG or WEBP. Click star to set main thumbnail.", MaxImages = 3, MaxSizeMb = 2, ExistingImageUrls = Model.ImageUrls }' />
+                    </div>
+
+                    <!-- Section 5: Variants & Add-ons -->
+                    <div class="mb-3">
+                        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_Variants"].Value, HelperText = Localizer["Form_Sec_Variants_Help"].Value, Icon = "bi-layers" }' />
+
+                        <div class="row g-3">
+                            <div class="col-12 col-md-6">
+                                <div class="border rounded-3 p-3 bg-cream-soft h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold small text-ink">Portion Variants (Half / Full)</span>
+                                        <button type="button" id="addVariantRowBtn" class="btn btn-sm btn-outline-plum rounded-pill py-0 px-2">
+                                            <i class="bi bi-plus"></i> Add Row
+                                        </button>
+                                    </div>
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead class="small text-muted">
+                                            <tr>
+                                                <th>Variant</th>
+                                                <th style="width: 110px;">Price</th>
+                                                <th class="text-center" style="width: 45px;">Def</th>
+                                                <th style="width: 38px;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="variantsTableBody">
+                                            @for (var i = 0; i < Model.Variants.Count; i++)
+                                            {
+                                                <tr>
+                                                    <td><input type="text" name="Variants[@i].Name" value="@Model.Variants[i].Name" class="form-control form-control-sm js-var-name" /></td>
+                                                    <td>
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="number" name="Variants[@i].Price" value="@Model.Variants[i].Price" class="form-control text-end js-var-price" step="1" min="0" />
+                                                            <span class="input-group-text">₹</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-center"><input type="radio" name="DefaultVariantIndex" value="@i" class="form-check-input" checked="@(Model.Variants[i].IsDefault ? "checked" : null)" /></td>
+                                                    <td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger js-del-row"><i class="bi bi-trash"></i></button></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-6">
+                                <div class="border rounded-3 p-3 bg-cream-soft h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-bold small text-ink">Extra Add-ons &amp; Toppings</span>
+                                        <button type="button" id="addAddonRowBtn" class="btn btn-sm btn-outline-plum rounded-pill py-0 px-2">
+                                            <i class="bi bi-plus"></i> Add Row
+                                        </button>
+                                    </div>
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead class="small text-muted">
+                                            <tr>
+                                                <th>Topping</th>
+                                                <th style="width: 110px;">Price</th>
+                                                <th style="width: 38px;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="addonsTableBody">
+                                            @for (var i = 0; i < Model.Addons.Count; i++)
+                                            {
+                                                <tr>
+                                                    <td><input type="text" name="Addons[@i].Name" value="@Model.Addons[i].Name" class="form-control form-control-sm" /></td>
+                                                    <td>
+                                                        <div class="input-group input-group-sm">
+                                                            <input type="number" name="Addons[@i].Price" value="@Model.Addons[i].Price" class="form-control text-end" step="1" min="0" />
+                                                            <span class="input-group-text">₹</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="text-end"><button type="button" class="btn btn-sm btn-outline-danger js-del-row"><i class="bi bi-trash"></i></button></td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sticky Shared Footer -->
+                    <partial name="_FormFooter" model='new RestaurantMS.Web.Models.FormFooterModel { CancelUrl = Url.Action("Index", "Masters", new { tab = "menu-items" })!, SaveLabelKey = "Menu_SaveDish", ShowSaveAndNew = true }' />
+                </form>
             </div>
-            <a asp-action="Items" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Back to Dishes
-            </a>
         </div>
 
-        <form asp-action="ItemForm" method="post" id="itemForm" enctype="multipart/form-data">
-            @Html.AntiForgeryToken()
-            <input type="hidden" asp-for="Id" />
-
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-4">
-                    <label asp-for="ItemCode" class="form-label fw-bold small text-ink">Dish / SKU Code *</label>
-                    <input asp-for="ItemCode" class="form-control font-monospace" placeholder="e.g. ST-01" required />
-                    <span asp-validation-for="ItemCode" class="text-danger small"></span>
+        <!-- Right Column: Live Order-Entry Preview Card -->
+        <div class="col-12 col-xl-4">
+            <div class="menu-live-preview-card card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+                <div class="px-3 py-2 bg-plum text-white d-flex justify-content-between align-items-center small">
+                    <span class="fw-semibold"><i class="bi bi-eye me-1 text-saffron"></i>@Localizer["Menu_LivePosPreview"]</span>
+                    <span class="badge bg-saffron text-dark font-monospace" id="prevCode">101</span>
                 </div>
 
-                <div class="col-12 col-md-8">
-                    <label asp-for="NameEn" class="form-label fw-bold small text-ink">Dish Name (English) *</label>
-                    <input asp-for="NameEn" class="form-control" placeholder="e.g. Paneer Butter Masala" required />
-                    <span asp-validation-for="NameEn" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="NameMr" class="form-label fw-bold small text-ink">Dish Name (मराठी) *</label>
-                    <input asp-for="NameMr" class="form-control" placeholder="उदा. पनीर बटर मसाला" required />
-                    <span asp-validation-for="NameMr" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="CategoryId" class="form-label fw-bold small text-ink">Category *</label>
-                    <select asp-for="CategoryId" class="form-select">
-                        <option value="cat1">Main Course</option>
-                        <option value="cat2">Starters</option>
-                        <option value="cat3">Breads &amp; Roti</option>
-                        <option value="cat4">Desserts &amp; Beverages</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label asp-for="Price" class="form-label fw-bold small text-ink">Selling Price (₹) *</label>
-                    <money-input asp-for="Price" />
-                    <span asp-validation-for="Price" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label asp-for="TaxRate" class="form-label fw-bold small text-ink">GST Tax Rate (%)</label>
-                    <select asp-for="TaxRate" class="form-select font-monospace">
-                        <option value="0.0">0% (Nil)</option>
-                        <option value="5.0" selected>5% (2.5% CGST + 2.5% SGST)</option>
-                        <option value="12.0">12% (6% CGST + 6% SGST)</option>
-                        <option value="18.0">18% (9% CGST + 9% SGST)</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-4">
-                    <label asp-for="KitchenStation" class="form-label fw-bold small text-ink">Target Kitchen Station</label>
-                    <select asp-for="KitchenStation" class="form-select">
-                        <option value="Main">Main Curry Kitchen</option>
-                        <option value="Tandoor">Tandoor &amp; Breads</option>
-                        <option value="Chinese">Chinese Wok</option>
-                        <option value="Bar">Beverages &amp; Dessert</option>
-                    </select>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <div class="p-3 border rounded-3 bg-light">
-                        <label class="form-label fw-bold small text-ink d-block">Dietary Classification</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" asp-for="IsVegetarian" value="true" id="vegRadio" checked />
-                            <label class="form-check-label text-success fw-bold" for="vegRadio"><i class="bi bi-circle-fill me-1"></i> Vegetarian</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" asp-for="IsVegetarian" value="false" id="nonVegRadio" />
-                            <label class="form-check-label text-danger fw-bold" for="nonVegRadio"><i class="bi bi-triangle-fill me-1"></i> Non-Vegetarian</label>
-                        </div>
+                <div class="position-relative bg-cream d-flex align-items-center justify-content-center" style="height: 175px;">
+                    <img id="prevDishImage" src="" alt="Dish preview" class="w-100 h-100 object-fit-cover d-none" />
+                    <div id="prevDishImagePlaceholder" class="text-center text-muted">
+                        <i class="bi bi-egg-fried fs-1 text-saffron d-block"></i>
+                        <span class="small">Upload image to preview thumbnail</span>
                     </div>
+                    <span class="badge bg-teal text-white position-absolute top-0 end-0 m-2" id="prevAvailBadge">Available</span>
+                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-2 small">
+                        <i class="bi bi-clock me-1"></i><span id="prevPrep">15 min</span>
+                    </span>
                 </div>
 
-                <div class="col-12 col-md-6">
-                    <div class="p-3 border rounded-3 bg-light">
-                        <label class="form-label fw-bold small text-ink d-block">Status</label>
-                        <div class="form-check form-switch mt-2">
-                            <input asp-for="IsAvailable" class="form-check-input" type="checkbox" id="availCheck" checked />
-                            <label class="form-check-label fw-semibold text-ink" for="availCheck">Available for Ordering Today</label>
+                <div class="p-3">
+                    <div class="d-flex align-items-start justify-content-between gap-2 mb-1">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="food-type-icon veg" id="prevDietIcon"></span>
+                            <div>
+                                <div class="fw-bold text-ink" id="prevNameEn">Paneer Butter Masala</div>
+                                <div class="small text-muted" id="prevNameMr">पनीर बटर मसाला</div>
+                            </div>
                         </div>
+                        <div class="h5 fw-bold text-plum font-monospace mb-0" id="prevPrice">₹294</div>
                     </div>
-                </div>
 
-                <!-- Shared Image Uploader Partial -->
-                <div class="col-12">
-                    <partial name="_ImageUploader" model='new ImageUploaderModel {
-                        Name = "ItemImages",
-                        Label = "Dish Photographs (Up to 3 images, 2 MB max)",
-                        HelpText = "JPG, PNG or WEBP. File signature is verified.",
-                        MaxImages = 3,
-                        MaxSizeMb = 2
-                    }' />
+                    <div class="mb-2">
+                        <span class="badge bg-light text-dark border small" id="prevCategory">Main Course</span>
+                    </div>
+
+                    <p class="small text-muted mb-2" id="prevDesc">Rich creamy tomato gravy with soft cottage cheese cubes.</p>
+
+                    <div class="d-flex flex-wrap gap-1 mb-2" id="prevTags"></div>
+                    <div class="d-flex flex-wrap gap-1 mb-3" id="prevVariants"></div>
+
+                    <button type="button" class="btn btn-teal text-white btn-sm w-100 rounded-pill fw-semibold" disabled>
+                        <i class="bi bi-plus-lg me-1"></i> Add to Order (POS Preview)
+                    </button>
                 </div>
             </div>
-
-            <div class="border-top pt-3 d-flex justify-content-end gap-2">
-                <a asp-action="Items" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
-                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
-                    <i class="bi bi-check-circle me-1"></i> Save Dish
-                </button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
+
+<!-- Quick Add Category Modal -->
+<div class="modal fade" id="quickAddCategoryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header bg-plum text-white py-2 px-3">
+                <h6 class="modal-title fw-bold"><i class="bi bi-tags me-1 text-saffron"></i>@Localizer["Menu_QuickAddCategory"]</h6>
+                <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3 d-flex flex-column gap-2">
+                <div>
+                    <label class="form-label small fw-semibold text-ink mb-1">Category Name (English) <span class="text-chili">*</span></label>
+                    <input type="text" id="quickCatNameEn" class="form-control form-control-sm" placeholder="e.g. Chinese Starters" />
+                </div>
+                <div>
+                    <label class="form-label small fw-semibold text-ink mb-1">Category Name (मराठी)</label>
+                    <input type="text" id="quickCatNameMr" class="form-control form-control-sm" placeholder="उदा. चायनीज स्टार्टर्स" />
+                </div>
+            </div>
+            <div class="modal-footer py-2 px-3">
+                <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" id="quickAddCategorySaveBtn" data-url="@Url.Action("QuickAddCategory", "Menu")" class="btn btn-sm btn-teal text-white rounded-pill px-3 fw-semibold">Add &amp; Select</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/modules/menuItemForm.js" asp-append-version="true"></script>
+}

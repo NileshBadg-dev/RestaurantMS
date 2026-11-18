@@ -292,6 +292,23 @@
         </div>
     </div>
 
+    <!-- Global Right-Side Drawer for Short Forms -->
+    <partial name="_DrawerForm" model='new RestaurantMS.Web.Models.DrawerFormModel { DrawerId = "appGlobalDrawer" }' />
+
+    <!-- Global Popup-Free Iframe Receipt & KOT Print Preview Modal -->
+    <partial name="_ReceiptPreviewModal" />
+
+    <!-- Global Success Toast & Row Highlight Hook -->
+    <div id="appToastHook"
+         class="d-none"
+         data-toast-success="@(TempData["SuccessMessage"]?.ToString() ?? "")"
+         data-toast-error="@(TempData["ErrorMessage"]?.ToString() ?? "")"
+         data-highlight-row="@(TempData["HighlightedRow"]?.ToString() ?? "")"></div>
+    <div id="kotAutoPrintHook"
+         class="d-none"
+         data-kot-number="@(TempData["AutoPrintKotNumber"]?.ToString() ?? "")"
+         data-kot-autoprint="@(TempData["AutoPrintKotEnabled"]?.ToString() ?? "false")"></div>
+
     <!-- SweetAlert2 Confirmation Dialog Bridge -->
     <partial name="_ConfirmModal" />
 
@@ -305,6 +322,8 @@
 
     <!-- App Modules -->
     <script src="~/js/modules/appGrid.js" asp-append-version="true"></script>
+    <script src="~/js/modules/appForm.js" asp-append-version="true"></script>
+    <script src="~/js/modules/receiptPreview.js" asp-append-version="true"></script>
     <script src="~/js/modules/shortcuts.js" asp-append-version="true"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
 

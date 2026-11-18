@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestaurantMS.Application.Common.Interfaces;
 using RestaurantMS.Application.Common.Interfaces.UiData;
 using RestaurantMS.Application.Common.Models;
 using RestaurantMS.Application.Common.Models.UiData;
@@ -17,13 +18,20 @@ public class OrdersController : Controller
     private readonly IMenuUiData _menuUiData;
     private readonly ITablesUiData _tablesUiData;
     private readonly IAuditUiData _auditUiData;
+    private readonly ISettingService _settingService;
 
-    public OrdersController(IOrdersUiData ordersUiData, IMenuUiData menuUiData, ITablesUiData tablesUiData, IAuditUiData auditUiData)
+    public OrdersController(
+        IOrdersUiData ordersUiData,
+        IMenuUiData menuUiData,
+        ITablesUiData tablesUiData,
+        IAuditUiData auditUiData,
+        ISettingService settingService)
     {
         _ordersUiData = ordersUiData;
         _menuUiData = menuUiData;
         _tablesUiData = tablesUiData;
         _auditUiData = auditUiData;
+        _settingService = settingService;
     }
 
     [HttpGet]
@@ -118,7 +126,11 @@ public class OrdersController : Controller
         var actor = User.Identity?.Name ?? "Cashier";
         await _auditUiData.LogAsync(actor, "Cashier", "KOT Generated", "Orders", $"Order #{orderId} placed for {targetTable} with {items.Count} items (₹{billAmount})", "127.0.0.1", "Info", cancellationToken);
 
-        TempData["SuccessMessage"] = $"KOT #{orderId.Replace("ORD-", "KOT-")} generated for Table {targetTable}! Sent to kitchen successfully.";
+        var kotNumber = orderId.Replace("ORD-", "KOT-");
+        var autoPrintKot = await _settingService.GetSettingAsync("Kitchen.AutoPrintKot", "true", cancellationToken);
+        TempData["AutoPrintKotNumber"] = kotNumber;
+        TempData["AutoPrintKotEnabled"] = autoPrintKot;
+        TempData["SuccessMessage"] = $"KOT #{kotNumber} generated for Table {targetTable}! Sent to kitchen successfully.";
         return RedirectToAction(nameof(Index));
     }
 }

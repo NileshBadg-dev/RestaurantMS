@@ -115,4 +115,16 @@ public class LocalFileStorageTests
         await act.Should().ThrowAsync<InvalidOperationException>()
             .WithMessage("*signature*");
     }
+
+    [Fact]
+    public void IsValidDocumentSignature_ValidPdfAndCorruptedPdf_ValidatesMagicBytes()
+    {
+        var validPdf = new byte[] { 0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x37 }; // %PDF-1.7
+        using var validStream = new MemoryStream(validPdf);
+        LocalFileStorage.IsValidDocumentSignature(validStream, ".pdf").Should().BeTrue();
+
+        var fakePdf = "NOT_A_PDF"u8.ToArray();
+        using var fakeStream = new MemoryStream(fakePdf);
+        LocalFileStorage.IsValidDocumentSignature(fakeStream, ".pdf").Should().BeFalse();
+    }
 }

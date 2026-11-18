@@ -82,8 +82,8 @@
                                 </ul>
                             </div>
 
-                            <div class="card-footer bg-light border-top p-2">
-                                <form asp-action="UpdateStatus" method="post">
+                            <div class="card-footer bg-light border-top p-2 d-flex gap-2">
+                                <form asp-action="UpdateStatus" method="post" class="flex-grow-1">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="ticketId" value="@ticket.TicketId" />
                                     <input type="hidden" name="newStatus" value="Preparing" />
@@ -91,6 +91,9 @@
                                         <i class="bi bi-play-fill me-1"></i> Start Cooking
                                     </button>
                                 </form>
+                                <button type="button" class="btn btn-sm btn-outline-plum py-2" data-print-kot="@ticket.TicketId" title="Print KOT">
+                                    <i class="bi bi-printer"></i>
+                                </button>
                             </div>
                         </div>
                     }
@@ -160,6 +163,9 @@
                                         <i class="bi bi-check2-circle me-1"></i> Mark Ready
                                     </button>
                                 </form>
+                                <button type="button" class="btn btn-sm btn-outline-plum py-2" data-print-kot="@ticket.TicketId" title="Print KOT">
+                                    <i class="bi bi-printer"></i>
+                                </button>
                             </div>
                         </div>
                     }
@@ -224,6 +230,9 @@
                                         <i class="bi bi-hand-thumbs-up me-1"></i> Served / Packed
                                     </button>
                                 </form>
+                                <button type="button" class="btn btn-sm btn-outline-plum py-2" data-print-kot="@ticket.TicketId" title="Print KOT">
+                                    <i class="bi bi-printer"></i>
+                                </button>
                                 <form asp-action="UpdateStatus" method="post">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="ticketId" value="@ticket.TicketId" />

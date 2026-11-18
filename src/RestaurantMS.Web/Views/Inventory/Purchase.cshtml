@@ -1,130 +1,345 @@
+@using System.Text.Json
 @model RestaurantMS.Web.Models.PurchaseEntryViewModel
 @{
     ViewData["Title"] = Localizer["Inventory_Purchase_Title"].Value;
+    ViewData["QuickAddUnits"] = Model.Units;
+    var todayStr = DateTime.UtcNow.AddHours(5).AddMinutes(30).ToString("yyyy-MM-dd");
+    var stockCatalogJson = JsonSerializer.Serialize(
+        Model.StockItems.Select(i => new { id = i.Id, name = i.Name, unit = i.Unit, rate = i.LastPurchaseRate }),
+        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+    var unitsJson = JsonSerializer.Serialize(
+        Model.Units.Select(u => new { name = u.Name, symbol = u.RateOrSymbol }),
+        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
+    var taxesJson = JsonSerializer.Serialize(
+        Model.TaxRates.Select(t => new { name = t.Name, rate = t.RateOrSymbol.Replace("%", "").Trim() }),
+        new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase });
 }
 
-<div class="purchase-entry-page" style="max-width: 950px; margin: 0 auto;">
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
+<div class="d-flex flex-column gap-4 mx-auto" style="max-width: 1120px;" id="inventoryModuleRoot" data-quick-add-url="@Url.Action("QuickAddMaster", "Inventory")">
+    <script type="application/json" id="invStockItemsJson">@Html.Raw(stockCatalogJson)</script>
+    <script type="application/json" id="invUnitsJson">@Html.Raw(unitsJson)</script>
+    <script type="application/json" id="invTaxRatesJson">@Html.Raw(taxesJson)</script>
+
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 border-bottom pb-3 gap-2">
             <div>
-                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-cart-plus text-plum me-2"></i> @Localizer["Inventory_Purchase_Title"]</h3>
-                <div class="text-muted small">Record raw material &amp; ingredient purchase from vendor</div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-cart-plus text-plum me-2"></i> @Localizer["Inventory_Purchase_Title"]</h2>
+                <div class="text-muted small">@Localizer["Inventory_PurchaseSubtitle"]</div>
             </div>
-            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Back to Inventory
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left"></i> @Localizer["Nav_StockSummary"]
             </a>
         </div>
 
-        <form asp-action="Purchase" method="post" id="purchaseForm">
+        <form asp-action="Purchase" method="post" enctype="multipart/form-data" id="inventoryPurchaseForm" data-app-form="true" novalidate>
             @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Subtotal" id="purSubtotalHidden" />
+            <input type="hidden" asp-for="TaxTotal" id="purTaxHidden" />
+            <input type="hidden" asp-for="GrandTotal" id="purGrandTotalHidden" />
 
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-4">
-                    <label asp-for="SupplierId" class="form-label fw-bold small text-ink">Supplier / Vendor *</label>
-                    <select asp-for="SupplierId" class="form-select">
-                        <option value="sup1">Pawar Dairy Products</option>
-                        <option value="sup2">Kisan Fresh Vegetables</option>
-                        <option value="sup3">Shree Ganesh Spices &amp; Grocery</option>
-                    </select>
-                </div>
+            <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 js-form-error-summary @(ViewData.ModelState.IsValid ? "d-none" : "")" role="alert">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="mb-0"></div>
+                }
+            </div>
 
-                <div class="col-12 col-md-4">
-                    <label asp-for="InvoiceNumber" class="form-label fw-bold small text-ink">Vendor Invoice # *</label>
-                    <input asp-for="InvoiceNumber" class="form-control font-monospace" placeholder="e.g. INV-2024-89" required />
-                    <span asp-validation-for="InvoiceNumber" class="text-danger small"></span>
-                </div>
+            <!-- Section 1: Supplier, Invoice & Attachment -->
+            <div class="mb-4">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_VendorInvoice"].Value, HelperText = Localizer["Form_Sec_VendorInvoice_Help"].Value, Icon = "bi-truck" }' />
+                <div class="row g-3">
+                    <div class="col-12 col-md-5 app-form-field">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label asp-for="SupplierId" class="form-label fw-semibold small text-ink mb-0">@Localizer["Supplier_Name"] <span class="text-chili">*</span></label>
+                            <button type="button" class="btn btn-link btn-sm p-0 text-plum fw-semibold text-decoration-none" data-bs-toggle="modal" data-bs-target="#quickAddSupplierModal">
+                                <i class="bi bi-plus-circle"></i> @Localizer["Quick Add"]
+                            </button>
+                        </div>
+                        <select asp-for="SupplierId" id="purchaseSupplierSelect" class="form-select" required>
+                            <option value="">-- @Localizer["Inventory_SelectSupplier"] --</option>
+                            @foreach (var sup in Model.Suppliers)
+                            {
+                                <option value="@sup.Id">@sup.Name (@sup.Category)</option>
+                            }
+                        </select>
+                        <span asp-validation-for="SupplierId" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
 
-                <div class="col-12 col-md-4">
-                    <label asp-for="InvoiceDate" class="form-label fw-bold small text-ink">Invoice Date</label>
-                    <input asp-for="InvoiceDate" type="date" class="form-control" value="@DateTime.UtcNow.ToString("yyyy-MM-dd")" />
+                    <div class="col-12 col-md-3 app-form-field">
+                        <label asp-for="InvoiceNumber" class="form-label fw-semibold small text-ink mb-1">@Localizer["Inventory_InvoiceNo"] <span class="text-chili">*</span></label>
+                        <input asp-for="InvoiceNumber" class="form-control font-monospace" placeholder="e.g. INV-2026-101" required />
+                        <span asp-validation-for="InvoiceNumber" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+
+                    <div class="col-12 col-md-4 app-form-field">
+                        <label asp-for="InvoiceDate" class="form-label fw-semibold small text-ink mb-1">@Localizer["Inventory_InvoiceDate"] <span class="text-chili">*</span></label>
+                        <input asp-for="InvoiceDate" type="date" class="form-control" max="@todayStr" value="@Model.InvoiceDate.ToString("yyyy-MM-dd")" required />
+                        <span asp-validation-for="InvoiceDate" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="AttachmentFile" class="form-label fw-semibold small text-ink mb-1">
+                            <i class="bi bi-paperclip me-1"></i> @Localizer["Inventory_InvoiceAttachment"]
+                        </label>
+                        <input asp-for="AttachmentFile" type="file" class="form-control form-control-sm" accept=".jpg,.jpeg,.png,.webp,.pdf" />
+                        <div class="form-text small">@Localizer["Inventory_AttachmentHelp"]</div>
+                        <span asp-validation-for="AttachmentFile" class="text-danger small"></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Items Inward Grid Table -->
-            <div class="table-responsive mb-4 border rounded-3 p-2 bg-light">
-                <table class="table table-sm align-middle mb-0" id="purchaseItemsTable">
-                    <thead class="small text-muted text-uppercase">
-                        <tr>
-                            <th>Item Name</th>
-                            <th style="width: 110px;">Qty</th>
-                            <th style="width: 90px;">Unit</th>
-                            <th style="width: 120px;" class="text-end">Rate (₹)</th>
-                            <th style="width: 100px;">Tax (%)</th>
-                            <th style="width: 130px;" class="text-end">Total (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @for (int i = 0; i < Model.Items.Count; i++)
-                        {
+            <!-- Section 2: Line Items Grid -->
+            <div class="mb-4">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                    <div class="flex-grow-1">
+                        <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_PurchaseItems"].Value, HelperText = Localizer["Form_Sec_PurchaseItems_Help"].Value, Icon = "bi-boxes" }' />
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-open-quick-tax-unit="unit">
+                            <i class="bi bi-plus"></i> @Localizer["Inventory_QuickAddUnit"]
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" data-open-quick-tax-unit="tax">
+                            <i class="bi bi-plus"></i> @Localizer["Inventory_QuickAddTax"]
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-teal" data-bs-toggle="modal" data-bs-target="#quickAddStockItemModal">
+                            <i class="bi bi-plus-circle"></i> @Localizer["Inventory_QuickAddItem"]
+                        </button>
+                        <button type="button" id="btnAddPurchaseLine" class="btn btn-sm btn-plum">
+                            <i class="bi bi-plus-lg"></i> @Localizer["Inventory_AddLine"]
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-responsive border rounded-3 p-2 bg-cream">
+                    <table class="table table-sm align-middle mb-0" id="invPurchaseLinesTable">
+                        <thead class="small text-muted text-uppercase">
                             <tr>
-                                <td>
-                                    <input type="text" name="Items[@i].ItemName" class="form-control form-control-sm" value="@Model.Items[i].ItemName" />
-                                </td>
-                                <td>
-                                    <input type="number" name="Items[@i].Quantity" class="form-control form-control-sm text-end" value="@Model.Items[i].Quantity" />
-                                </td>
-                                <td>
-                                    <select name="Items[@i].Unit" class="form-select form-select-sm">
-                                        <option value="Kg">Kg</option>
-                                        <option value="Ltr">Ltr</option>
-                                        <option value="Pkt">Pkt</option>
-                                        <option value="Nos">Nos</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="number" name="Items[@i].Rate" class="form-control form-control-sm text-end" value="@Model.Items[i].Rate" />
-                                </td>
-                                <td>
-                                    <input type="number" name="Items[@i].TaxRate" class="form-control form-control-sm text-end" value="@Model.Items[i].TaxRate" />
-                                </td>
-                                <td>
-                                    <input type="number" name="Items[@i].Total" class="form-control form-control-sm text-end fw-bold font-monospace" value="@Model.Items[i].Total" readonly />
-                                </td>
+                                <th style="min-width: 210px;">@Localizer["Inventory_ItemName"]</th>
+                                <th style="width: 100px;">@Localizer["Billing_Qty"]</th>
+                                <th style="width: 105px;">@Localizer["Inventory_Unit"]</th>
+                                <th style="width: 125px;">@Localizer["Billing_Rate"] (₹)</th>
+                                <th style="width: 110px;">@Localizer["Inventory_TaxPercent"]</th>
+                                <th style="width: 130px;" class="text-end">@Localizer["Billing_Amount"] (₹)</th>
+                                <th style="width: 42px;"></th>
                             </tr>
-                        }
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody id="invPurchaseLinesBody">
+                            @for (var i = 0; i < Model.Items.Count; i++)
+                            {
+                                var row = Model.Items[i];
+                                <tr data-line-index="@i">
+                                    <td>
+                                        <input type="hidden" name="Items[@i].StockItemId" value="@row.StockItemId" class="js-line-item-id" />
+                                        <select class="form-select form-select-sm js-line-item-select" data-row-select="@i">
+                                            <option value="">-- Select Stock Item --</option>
+                                            @foreach (var item in Model.StockItems)
+                                            {
+                                                <option value="@item.Id"
+                                                        data-name="@item.Name"
+                                                        data-unit="@item.Unit"
+                                                        data-rate="@item.LastPurchaseRate"
+                                                        selected="@(item.Id == row.StockItemId ? "selected" : null)">@item.Name (@item.Code)</option>
+                                            }
+                                        </select>
+                                        <input type="hidden" name="Items[@i].ItemName" value="@row.ItemName" class="js-line-item-name" />
+                                    </td>
+                                    <td>
+                                        <input type="number" name="Items[@i].Quantity" class="form-control form-control-sm text-end font-monospace js-line-qty" step="0.01" min="0.01" value="@row.Quantity" required />
+                                    </td>
+                                    <td>
+                                        <select name="Items[@i].Unit" class="form-select form-select-sm js-master-unit-select js-line-unit">
+                                            @foreach (var u in Model.Units)
+                                            {
+                                                <option value="@u.RateOrSymbol" selected="@(u.RateOrSymbol.Equals(row.Unit, StringComparison.OrdinalIgnoreCase) ? "selected" : null)">@u.RateOrSymbol</option>
+                                            }
+                                            @if (!Model.Units.Any(u => u.RateOrSymbol.Equals(row.Unit, StringComparison.OrdinalIgnoreCase)))
+                                            {
+                                                <option value="@row.Unit" selected>@row.Unit</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="Items[@i].Rate" class="form-control form-control-sm text-end font-monospace js-line-rate" step="0.01" min="0.01" value="@row.Rate" required />
+                                    </td>
+                                    <td>
+                                        <select name="Items[@i].TaxRate" class="form-select form-select-sm font-monospace js-master-tax-select js-line-tax">
+                                            @foreach (var t in Model.TaxRates)
+                                            {
+                                                var pct = t.RateOrSymbol.Replace("%", "").Trim();
+                                                <option value="@pct" selected="@(pct == row.TaxRate.ToString("0.##") ? "selected" : null)">@t.RateOrSymbol</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="number" name="Items[@i].Total" class="form-control form-control-sm text-end fw-bold font-monospace js-line-total" value="@row.Total.ToString("0.00")" readonly />
+                                    </td>
+                                    <td class="text-end">
+                                        <button type="button" class="btn btn-sm btn-outline-danger js-remove-purchase-line" title="Remove">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
-            <!-- Totals & Payment Mode -->
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-6">
-                    <label asp-for="PaymentMode" class="form-label fw-bold small text-ink">Payment Mode</label>
-                    <select asp-for="PaymentMode" class="form-select">
-                        <option value="Credit">Credit (Pay Later to Supplier)</option>
-                        <option value="Cash">Cash Paid Immediately</option>
-                        <option value="Bank">Bank Transfer (UPI / RTGS)</option>
-                    </select>
-                    <div class="mt-2">
-                        <label asp-for="Notes" class="form-label small text-muted">Notes / Delivery Memo</label>
-                        <input asp-for="Notes" class="form-control form-control-sm" placeholder="Optional notes" />
+            <!-- Section 3: Payment (Paid / Credit) & Totals -->
+            <div class="mb-3">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_PaymentSummary"].Value, HelperText = Localizer["Form_Sec_PaymentSummary_Help"].Value, Icon = "bi-wallet2" }' />
+                <div class="row g-3">
+                    <div class="col-12 col-md-7 d-flex flex-column gap-3">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small text-ink mb-1">@Localizer["Inventory_PaymentType"]</label>
+                                <div class="btn-group btn-group-sm w-100" role="group">
+                                    <input type="radio" class="btn-check" name="PaymentType" id="purTypePaid" value="Paid" checked="@(Model.PaymentType != "Credit" ? "checked" : null)" />
+                                    <label class="btn btn-outline-teal" for="purTypePaid"><i class="bi bi-check-circle"></i> @Localizer["Inventory_Paid"]</label>
+
+                                    <input type="radio" class="btn-check" name="PaymentType" id="purTypeCredit" value="Credit" checked="@(Model.PaymentType == "Credit" ? "checked" : null)" />
+                                    <label class="btn btn-outline-chili" for="purTypeCredit"><i class="bi bi-journal-bookmark"></i> @Localizer["Inventory_Credit"]</label>
+                                </div>
+                            </div>
+
+                            <div class="col-6" id="purPayModeWrap">
+                                <label asp-for="PaymentMode" class="form-label fw-semibold small text-ink mb-1">@Localizer["Billing_PaymentMode"]</label>
+                                <select asp-for="PaymentMode" class="form-select form-select-sm">
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank / UPI">Bank / UPI</option>
+                                    <option value="Cheque / NEFT">Cheque / NEFT</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="app-form-field">
+                            <label asp-for="Notes" class="form-label fw-semibold small text-ink mb-1">@Localizer["Inventory_Notes"]</label>
+                            <textarea asp-for="Notes" class="form-control form-control-sm" rows="2" placeholder="Delivery challan number, batch or quality notes"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-5">
+                        <div class="p-3 bg-cream rounded-3 border h-100 d-flex flex-column justify-content-center">
+                            <div class="d-flex justify-content-between py-1 small">
+                                <span class="text-muted">@Localizer["Billing_Subtotal"]</span>
+                                <span class="font-monospace fw-semibold" id="invPurSubtotal">₹0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between py-1 small border-bottom pb-2">
+                                <span class="text-muted">@Localizer["Inventory_GstTax"]</span>
+                                <span class="font-monospace fw-semibold" id="invPurTaxTotal">₹0.00</span>
+                            </div>
+                            <div class="d-flex justify-content-between pt-2 fs-5 fw-bold text-ink">
+                                <span>@Localizer["Inventory_GrandTotal"]</span>
+                                <span class="font-monospace text-teal" id="invPurGrandTotal">₹0.00</span>
+                            </div>
+                            <div class="small text-muted mt-1" id="invPurLedgerHint">
+                                <i class="bi bi-journal-check text-plum me-1"></i> @Localizer["Inventory_PostsToLedgerHint"]
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="col-12 col-md-6">
-                    <div class="p-3 bg-cream rounded-3 border">
-                        <div class="d-flex justify-content-between py-1 small">
-                            <span class="text-muted">Subtotal:</span>
-                            <span class="font-monospace">₹@Model.Subtotal.ToString("N2")</span>
-                        </div>
-                        <div class="d-flex justify-content-between py-1 small border-bottom pb-2">
-                            <span class="text-muted">GST Tax:</span>
-                            <span class="font-monospace">₹@Model.TaxTotal.ToString("N2")</span>
-                        </div>
-                        <div class="d-flex justify-content-between pt-2 fs-5 fw-bold text-ink">
-                            <span>Invoice Grand Total:</span>
-                            <span class="font-monospace text-plum">₹@Model.GrandTotal.ToString("N2")</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div class="border-top pt-3 d-flex justify-content-end gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
-                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
-                    <i class="bi bi-check-circle me-1"></i> Save Purchase Entry
-                </button>
-            </div>
+            <partial name="_FormFooter" model='new RestaurantMS.Web.Models.FormFooterModel { CancelUrl = Url.Action("Index", "Inventory")!, ShowSaveAndNew = true }' />
         </form>
     </div>
+
+    <!-- Recent Purchases & Supplier Ledger -->
+    <div class="row g-3">
+        <div class="col-12 col-lg-7">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h6 class="fw-bold text-ink mb-3"><i class="bi bi-receipt me-1 text-plum"></i> @Localizer["Inventory_RecentPurchases"]</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead class="table-light small text-muted text-uppercase">
+                            <tr>
+                                <th>@Localizer["Inventory_InvoiceNo"]</th>
+                                <th>@Localizer["Supplier_Name"]</th>
+                                <th>@Localizer["Date"]</th>
+                                <th class="text-end">@Localizer["Billing_Amount"]</th>
+                                <th class="text-center">@Localizer["Status"]</th>
+                                <th class="text-end">@Localizer["Inventory_Attachment"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.RecentPurchases.Count == 0)
+                            {
+                                <tr><td colspan="6" class="text-center text-muted py-3 small">@Localizer["Inventory_NoPurchasesYet"]</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var p in Model.RecentPurchases)
+                                {
+                                    <tr>
+                                        <td class="font-monospace fw-bold text-plum">@p.InvoiceNumber</td>
+                                        <td class="small">@p.SupplierName</td>
+                                        <td class="small text-muted">@p.InvoiceDate.ToString("dd-MMM-yyyy")</td>
+                                        <td class="text-end font-monospace fw-bold">₹@p.GrandTotal.ToString("N2")</td>
+                                        <td class="text-center">
+                                            <span class="badge @(p.PaymentStatus == "Paid" ? "bg-teal-subtle text-teal" : "bg-danger-subtle text-chili")">@p.PaymentStatus</span>
+                                        </td>
+                                        <td class="text-end">
+                                            @if (!string.IsNullOrWhiteSpace(p.AttachmentUrl))
+                                            {
+                                                <a href="@p.AttachmentUrl" target="_blank" rel="noopener" class="btn btn-sm btn-outline-plum py-0 px-2">
+                                                    <i class="bi bi-paperclip"></i>
+                                                </a>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted small">-</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
+                <h6 class="fw-bold text-ink mb-3"><i class="bi bi-journal-text me-1 text-teal"></i> @Localizer["Inventory_SupplierLedgerSnapshot"]</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead class="table-light small text-muted text-uppercase">
+                            <tr>
+                                <th>@Localizer["Supplier_Name"]</th>
+                                <th>@Localizer["Billing_Type"]</th>
+                                <th class="text-end">@Localizer["Billing_Amount"]</th>
+                                <th class="text-end">@Localizer["Inventory_Balance"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.SupplierLedger.Count == 0)
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3 small">@Localizer["Inventory_NoSupplierLedgerYet"]</td></tr>
+                            }
+                            else
+                            {
+                                @foreach (var l in Model.SupplierLedger.Take(8))
+                                {
+                                    <tr>
+                                        <td class="small fw-semibold">@l.SupplierName<div class="text-muted font-monospace" style="font-size:0.72rem;">@l.ReferenceNo</div></td>
+                                        <td><span class="badge @(l.EntryType == "Payment" ? "bg-teal-subtle text-teal" : "bg-plum-subtle text-plum")">@l.EntryType</span></td>
+                                        <td class="text-end font-monospace small">₹@((l.Credit > 0 ? l.Credit : l.Debit).ToString("N2"))</td>
+                                        <td class="text-end font-monospace fw-bold small">₹@l.RunningBalance.ToString("N2")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<partial name="_InventoryQuickAddModals" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/js/modules/inventory.js" asp-append-version="true"></script>
+}

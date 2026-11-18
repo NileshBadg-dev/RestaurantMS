@@ -1,0 +1,186 @@
+@model RestaurantMS.Web.Models.AdvanceReportsViewModel
+@{
+    ViewData["Title"] = Localizer["Adv_ReportsTitle"].Value;
+    Layout = "_Layout";
+}
+
+<div class="d-flex flex-column gap-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div>
+            <h2 class="h4 fw-bold text-ink mb-0"><i class="bi bi-bar-chart-line text-plum me-2"></i>@Localizer["Adv_ReportsTitle"]</h2>
+            <div class="small text-muted">Employee-wise Advance Ledger, Outstanding Balances &amp; Monthly Recovery Statements</div>
+        </div>
+        <div class="d-flex gap-2 d-print-none">
+            <button type="button" class="btn btn-outline-plum btn-sm rounded-pill px-3 js-print-report">
+                <i class="bi bi-printer me-1"></i> Print Report
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> @Localizer["Nav_StaffAdvances"]
+            </a>
+        </div>
+    </div>
+
+    <!-- 3 Report Tabs -->
+    <div class="masters-tabs-bar d-print-none">
+        <a asp-action="Reports" asp-route-report="outstanding" class="master-tab-btn @(Model.ReportType == "outstanding" ? "active" : "")">
+            <i class="bi bi-exclamation-circle"></i>
+            <span>@Localizer["Adv_Report_Outstanding"]</span>
+            <span class="badge">@Model.OutstandingRows.Count</span>
+        </a>
+        <a asp-action="Reports" asp-route-report="ledger" asp-route-staffId="@Model.StaffId" class="master-tab-btn @(Model.ReportType == "ledger" ? "active" : "")">
+            <i class="bi bi-journal-bookmark"></i>
+            <span>@Localizer["Adv_Report_Ledger"]</span>
+            <span class="badge">@Model.LedgerRows.Count</span>
+        </a>
+        <a asp-action="Reports" asp-route-report="recovery" asp-route-month="@Model.Month" asp-route-year="@Model.Year" class="master-tab-btn @(Model.ReportType == "recovery" ? "active" : "")">
+            <i class="bi bi-calendar-check"></i>
+            <span>@Localizer["Adv_Report_MonthlyRecovery"]</span>
+            <span class="badge">@Model.RecoveryRows.Count</span>
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        @if (Model.ReportType == "outstanding")
+        {
+            <div class="d-flex justify-content-between align-items-center pb-3 border-bottom mb-3">
+                <h3 class="h6 fw-bold text-ink mb-0">@Localizer["Adv_Report_Outstanding"]</h3>
+                <span class="badge bg-chili text-white fs-6 font-monospace">Total Outstanding: ₹@Model.TotalOutstanding.ToString("N2")</span>
+            </div>
+            <div class="table-responsive">
+                <table class="master-grid-table table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Designation</th>
+                            <th class="text-end">Total Given</th>
+                            <th class="text-end">Total Recovered</th>
+                            <th class="text-end">Outstanding</th>
+                            <th>Planned Instalment</th>
+                            <th>Auto-Recover</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.OutstandingRows)
+                        {
+                            <tr>
+                                <td class="fw-bold text-ink">@r.EmployeeName <span class="small text-muted">(@r.EmployeeCode)</span></td>
+                                <td class="small text-muted">@r.Designation</td>
+                                <td class="text-end font-monospace">₹@r.TotalGiven.ToString("N2")</td>
+                                <td class="text-end font-monospace text-teal">₹@r.TotalRecovered.ToString("N2")</td>
+                                <td class="text-end font-monospace fw-bold text-chili">₹@r.OutstandingBalance.ToString("N2")</td>
+                                <td class="small">@(r.PlannedMonthlyInstalment > 0 ? $"₹{r.PlannedMonthlyInstalment:N0}/mo" : "One-time")</td>
+                                <td><status-chip status="@(r.AutoRecoverFromSalary ? "Active" : "Inactive")" label="@(r.AutoRecoverFromSalary ? "Auto" : "Manual")"></status-chip></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (Model.ReportType == "ledger")
+        {
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-3 border-bottom mb-3">
+                <h3 class="h6 fw-bold text-ink mb-0">@Localizer["Adv_Report_Ledger"]</h3>
+                <form method="get" asp-action="Reports" class="d-flex align-items-center gap-2 d-print-none">
+                    <input type="hidden" name="report" value="ledger" />
+                    <select name="staffId" class="form-select form-select-sm js-report-filter" style="width: 220px;">
+                        <option value="">All Employees</option>
+                        @foreach (var e in Model.Employees)
+                        {
+                            <option value="@e.StaffId" selected="@(Model.StaffId == e.StaffId ? "selected" : null)">@e.EmployeeName (@e.EmployeeCode)</option>
+                        }
+                    </select>
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="master-grid-table table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Voucher #</th>
+                            <th>Type</th>
+                            <th>Mode</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-end">Balance</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model.LedgerRows)
+                        {
+                            <tr>
+                                <td class="small">@e.Date.ToString("dd MMM yyyy")</td>
+                                <td class="fw-bold text-ink">@e.EmployeeName <span class="small text-muted">(@e.EmployeeCode)</span></td>
+                                <td class="font-monospace small text-plum">@e.VoucherNumber</td>
+                                <td><status-chip status="@(e.EntryType == "Recovered" ? "Paid" : "Warning")" label="@e.EntryType"></status-chip></td>
+                                <td class="small">@e.PaymentMode</td>
+                                <td class="text-end font-monospace fw-bold @(e.EntryType == "Given" ? "text-chili" : "text-teal")">₹@e.Amount.ToString("N2")</td>
+                                <td class="text-end font-monospace">₹@e.RunningBalance.ToString("N2")</td>
+                                <td class="small text-muted">@e.Note</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 pb-3 border-bottom mb-3">
+                <div>
+                    <h3 class="h6 fw-bold text-ink mb-0">@Localizer["Adv_Report_MonthlyRecovery"] — @(new DateTime(Model.Year, Model.Month, 1).ToString("MMMM yyyy"))</h3>
+                    <div class="small text-teal fw-semibold">Total Recovered: ₹@Model.TotalRecovered.ToString("N2")</div>
+                </div>
+                <form method="get" asp-action="Reports" class="d-flex align-items-center gap-2 d-print-none">
+                    <input type="hidden" name="report" value="recovery" />
+                    <select name="month" class="form-select form-select-sm js-report-filter" style="width: 130px;">
+                        @for (var m = 1; m <= 12; m++)
+                        {
+                            <option value="@m" selected="@(m == Model.Month ? "selected" : null)">@(new DateTime(2026, m, 1).ToString("MMMM"))</option>
+                        }
+                    </select>
+                    <input type="number" name="year" value="@Model.Year" min="2024" max="2030" class="form-control form-control-sm js-report-filter" style="width: 90px;" />
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="master-grid-table table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Employee</th>
+                            <th>Voucher #</th>
+                            <th>Mode</th>
+                            <th class="text-end">Recovered (₹)</th>
+                            <th class="text-end">Balance After (₹)</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecoveryRows.Count == 0)
+                        {
+                            <tr><td colspan="7" class="text-center py-4 text-muted">No recoveries recorded in this month.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var r in Model.RecoveryRows)
+                            {
+                                <tr>
+                                    <td class="small">@r.RecoveryDate.ToString("dd MMM yyyy")</td>
+                                    <td class="fw-bold text-ink">@r.EmployeeName <span class="small text-muted">(@r.EmployeeCode)</span></td>
+                                    <td class="font-monospace small text-plum">@r.VoucherNumber</td>
+                                    <td class="small">@r.PaymentMode</td>
+                                    <td class="text-end font-monospace fw-bold text-teal">₹@r.RecoveredAmount.ToString("N2")</td>
+                                    <td class="text-end font-monospace">₹@r.BalanceAfterRecovery.ToString("N2")</td>
+                                    <td class="small text-muted">@r.Note</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modules/employeeAdvances.js" asp-append-version="true"></script>
+}

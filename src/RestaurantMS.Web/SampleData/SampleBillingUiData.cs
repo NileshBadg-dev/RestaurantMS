@@ -63,7 +63,20 @@ public class SampleBillingUiData : IBillingUiData
         lock (_lock)
         {
             var billNo = $"B-{_billSeq++}";
-            var timeFormatted = DateTime.UtcNow.ToString("dd-MMM, h:mm tt");
+            return RecordSettledBillWithNumber(billNo, orderType, tableOrCustomer, amount, paymentMode);
+        }
+    }
+
+    public static string RecordSettledBillWithNumber(string billNo, string orderType, string tableOrCustomer, decimal amount, string paymentMode)
+    {
+        lock (_lock)
+        {
+            if (SettledBills.Any(b => b.BillNo.Equals(billNo, StringComparison.OrdinalIgnoreCase)))
+            {
+                return billNo;
+            }
+
+            var timeFormatted = DateTime.UtcNow.AddHours(5).AddMinutes(30).ToString("dd-MMM, h:mm tt");
             var bill = new BillSummaryRowDto(billNo, timeFormatted, orderType, tableOrCustomer, amount, paymentMode, "Settled");
             SettledBills.Insert(0, bill);
 

@@ -4,11 +4,20 @@ namespace RestaurantMS.Web.Models;
 
 public class BillingViewModel
 {
-    public BillingOrderDetailsDto OrderDetails { get; set; } = new("DineIn", "T2", 1260m, 5.0m, 63m, 1323m, "Ramesh Patil", "9822012345", 4250m, 10000m, new List<BillingItemRowDto>());
-    public IReadOnlyList<BillSummaryRowDto> TodayBills { get; set; } = new List<BillSummaryRowDto>();
+    public BillingOrderDetailsDto OrderDetails { get; set; } = new("Dine-in", "T1", 0m, 5.0m, 0m, 0m, "Walk-in Customer", "", 0m, 10000m, []);
+    public IReadOnlyList<BillSummaryRowDto> TodayBills { get; set; } = [];
+    public IReadOnlyList<MenuItemDetailsDto> MenuCatalog { get; set; } = [];
+    public IReadOnlyList<CustomerListItemDto> Customers { get; set; } = [];
     public decimal TodayTotalBilled { get; set; }
     public decimal TodayCashTotal { get; set; }
     public decimal TodayUpiTotal { get; set; }
     public decimal TodayCardTotal { get; set; }
     public decimal TodayCreditTotal { get; set; }
+    public string HotelName { get; set; } = "Grand Restaurant";
+    public string HotelUpiId { get; set; } = "grandrestaurant@okhdfc";
+    public bool UpiReferenceRequired { get; set; } = false;
+    public bool CardDetailsRequired { get; set; } = true;
+    public bool AutoPrintOnSettle { get; set; } = true;
+    public string PaperSize { get; set; } = "80mm";
+    public bool CanOverrideCreditLimit { get; set; } = true;
 }

@@ -4,27 +4,30 @@
 }
 
 <div class="billing-page d-flex flex-column gap-4">
-    <!-- Header with Quick Cash/UPI/Credit Totals Summary -->
+    <!-- Header with Quick Cash/UPI/Card/Credit Totals Summary -->
     <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-cash-coin text-teal me-2"></i> @Localizer["Billing_Title"]</h2>
-                <div class="text-muted small">Active POS Terminal &bull; Settle Order, Generate Invoice &amp; Manage Udhari</div>
+                <div class="text-muted small">@Localizer["Billing_Subtitle"]</div>
             </div>
 
             <!-- Mini Summary Badges -->
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <span class="badge bg-cream border text-dark p-2">
-                    <span class="text-muted">Total:</span> <strong class="text-plum font-monospace">₹@Model.TodayTotalBilled.ToString("N0")</strong>
+                    <span class="text-muted">@Localizer["Billing_Total"]:</span> <strong class="text-plum font-monospace">₹@Model.TodayTotalBilled.ToString("N0")</strong>
                 </span>
                 <span class="badge bg-teal-subtle text-teal p-2">
-                    <i class="bi bi-cash me-1"></i> Cash: <strong class="font-monospace">₹@Model.TodayCashTotal.ToString("N0")</strong>
+                    <i class="bi bi-cash me-1"></i> @Localizer["PayMode_Cash"]: <strong class="font-monospace">₹@Model.TodayCashTotal.ToString("N0")</strong>
                 </span>
                 <span class="badge bg-plum-subtle text-plum p-2">
-                    <i class="bi bi-qr-code me-1"></i> UPI: <strong class="font-monospace">₹@Model.TodayUpiTotal.ToString("N0")</strong>
+                    <i class="bi bi-qr-code me-1"></i> @Localizer["PayMode_UPI"]: <strong class="font-monospace">₹@Model.TodayUpiTotal.ToString("N0")</strong>
+                </span>
+                <span class="badge bg-saffron-subtle text-dark p-2">
+                    <i class="bi bi-credit-card me-1"></i> @Localizer["PayMode_Card"]: <strong class="font-monospace">₹@Model.TodayCardTotal.ToString("N0")</strong>
                 </span>
                 <span class="badge bg-danger-subtle text-chili p-2">
-                    <i class="bi bi-journal-bookmark me-1"></i> Udhari: <strong class="font-monospace">₹@Model.TodayCreditTotal.ToString("N0")</strong>
+                    <i class="bi bi-journal-bookmark me-1"></i> @Localizer["PayMode_Udhari"]: <strong class="font-monospace">₹@Model.TodayCreditTotal.ToString("N0")</strong>
                 </span>
             </div>
         </div>
@@ -35,61 +38,88 @@
         Order = Model.OrderDetails,
         ShowCustomerPicker = true,
         EnableCreditPayment = true,
-        SettleActionUrl = "/Billing/Settle"
+        SettleActionUrl = Url.Action("Settle", "Billing") ?? "/Billing/Settle",
+        CalculateActionUrl = Url.Action("Calculate", "Billing") ?? "/Billing/Calculate",
+        PrintActionUrl = Url.Action("PreviewDraft", "Receipt") ?? "/Receipt/PreviewDraft",
+        HotelName = Model.HotelName,
+        HotelUpiId = Model.HotelUpiId,
+        UpiReferenceRequired = Model.UpiReferenceRequired,
+        CardDetailsRequired = Model.CardDetailsRequired,
+        AutoPrintOnSettle = Model.AutoPrintOnSettle,
+        PaperSize = Model.PaperSize,
+        CanOverrideCreditLimit = Model.CanOverrideCreditLimit,
+        MenuCatalog = Model.MenuCatalog,
+        Customers = Model.Customers
     }' />
 
     <!-- Settled Bills Today Grid -->
     <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-bold text-ink mb-0"><i class="bi bi-clock-history me-1 text-plum"></i> Bills Settled Today</h6>
-            <span class="badge bg-light text-muted border">@Model.TodayBills.Count Records</span>
+            <h6 class="fw-bold text-ink mb-0"><i class="bi bi-clock-history me-1 text-plum"></i> @Localizer["Billing_BillsSettledToday"]</h6>
+            <span class="badge bg-light text-muted border">@Model.TodayBills.Count</span>
         </div>
 
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0 font-monospace">
                 <thead class="table-light small text-muted text-uppercase font-sans">
                     <tr>
-                        <th>Bill #</th>
-                        <th>Time</th>
-                        <th>Type</th>
-                        <th class="font-sans">Table / Customer</th>
-                        <th class="text-end">Amount</th>
-                        <th class="font-sans">Payment Mode</th>
-                        <th class="font-sans">Status</th>
-                        <th class="text-end font-sans">Action</th>
+                        <th>@Localizer["Billing_BillNo"]</th>
+                        <th>@Localizer["Billing_Time"]</th>
+                        <th>@Localizer["Billing_Type"]</th>
+                        <th class="font-sans">@Localizer["Billing_TableOrCustomer"]</th>
+                        <th class="text-end">@Localizer["Billing_Amount"]</th>
+                        <th class="font-sans">@Localizer["Billing_PaymentMode"]</th>
+                        <th class="font-sans">@Localizer["Status"]</th>
+                        <th class="text-end font-sans">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach (var bill in Model.TodayBills)
+                <tbody id="settledBillsTodayBody">
+                    @if (Model.TodayBills.Count == 0)
                     {
-                        <tr>
-                            <td class="fw-bold text-plum">@bill.BillNo</td>
-                            <td class="small text-muted font-sans">@bill.DateTimeFormatted</td>
-                            <td>
-                                <span class="badge @(bill.OrderType == "Dine-in" ? "bg-plum" : "bg-saffron text-dark")">@bill.OrderType</span>
-                            </td>
-                            <td class="font-sans">@bill.TableOrCustomer</td>
-                            <td class="text-end fw-bold text-ink">₹@bill.Amount.ToString("N2")</td>
-                            <td class="font-sans">
-                                <span class="badge @(bill.PaymentMode == "Credit" ? "bg-danger-subtle text-chili" : bill.PaymentMode == "Cash" ? "bg-teal-subtle text-teal" : "bg-plum-subtle text-plum")">
-                                    @bill.PaymentMode
-                                </span>
-                            </td>
-                            <td class="font-sans">
-                                <status-chip status="@bill.Status" />
-                            </td>
-                            <td class="text-end font-sans">
-                                <button type="button" class="btn btn-sm btn-outline-plum px-2 py-1" onclick="openThermalBillPreview()" title="Reprint receipt">
-                                    <i class="bi bi-printer me-1"></i> Reprint
-                                </button>
-                                <button type="button" class="btn btn-sm btn-success px-2 py-1 ms-1" onclick="sendBillOnWhatsApp('', '@bill.BillNo', '₹@bill.Amount.ToString("N2")')" title="Send receipt via WhatsApp">
-                                    <i class="bi bi-whatsapp"></i>
-                                </button>
+                        <tr data-empty-bills-row="true">
+                            <td colspan="8" class="text-center text-muted py-4 font-sans small">
+                                @Localizer["Billing_NoBillsYet"]
                             </td>
                         </tr>
+                    }
+                    else
+                    {
+                        @foreach (var bill in Model.TodayBills)
+                        {
+                            <tr>
+                                <td class="fw-bold text-plum">@bill.BillNo</td>
+                                <td class="small text-muted font-sans">@bill.DateTimeFormatted</td>
+                                <td>
+                                    <span class="badge @(bill.OrderType == "Dine-in" ? "bg-plum" : "bg-saffron text-dark")">@bill.OrderType</span>
+                                </td>
+                                <td class="font-sans">@bill.TableOrCustomer</td>
+                                <td class="text-end fw-bold text-ink">₹@bill.Amount.ToString("N2")</td>
+                                <td class="font-sans">
+                                    <span class="badge @(bill.PaymentMode == "Credit" || bill.PaymentMode == "Udhari" ? "bg-danger-subtle text-chili" : bill.PaymentMode == "Cash" ? "bg-teal-subtle text-teal" : "bg-plum-subtle text-plum")">
+                                        @bill.PaymentMode
+                                    </span>
+                                </td>
+                                <td class="font-sans">
+                                    <status-chip status="@bill.Status" />
+                                </td>
+                                <td class="text-end font-sans">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-plum px-2 py-1"
+                                            data-reprint-bill="@bill.BillNo"
+                                            data-bill-amount="₹@bill.Amount.ToString("N2")"
+                                            title="@Localizer["Billing_Reprint"]">
+                                        <i class="bi bi-printer me-1"></i> @Localizer["Billing_Reprint"]
+                                    </button>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/modules/billing.js" asp-append-version="true"></script>
+}

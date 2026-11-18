@@ -69,7 +69,7 @@ public class AccountsController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CreateVoucher(VoucherFormViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateVoucher(VoucherFormViewModel model, string? submitAction = null, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid || model.TotalDebit != model.TotalCredit)
         {
@@ -79,6 +79,12 @@ public class AccountsController : Controller
 
         var vchId = await _accountsUiData.CreateVoucherAsync(model.VoucherType, model.TotalDebit, model.Narration, cancellationToken);
         TempData["SuccessMessage"] = $"Voucher #{vchId} recorded successfully!";
+        TempData["HighlightedRow"] = model.VoucherNumber;
+        if (string.Equals(submitAction, "saveAndNew", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction(nameof(CreateVoucher));
+        }
+
         return RedirectToAction(nameof(Vouchers));
     }
 

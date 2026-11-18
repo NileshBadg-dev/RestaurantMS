@@ -1,127 +1,243 @@
-@model RestaurantMS.Web.Models.StaffDetailsViewModel
+@model RestaurantMS.Web.Models.StaffProfilePageViewModel
 @{
-    ViewData["Title"] = Localizer["Staff_Details_Title"].Value;
+    ViewData["Title"] = $"{Model.Profile.Name} ({Model.Profile.EmployeeCode})";
+    Layout = "_Layout";
+    var initials = string.Join("", Model.Profile.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])));
+    var presentCount = Model.MonthlyCalendar.Count(d => d.Status == "Present");
+    var absentCount = Model.MonthlyCalendar.Count(d => d.Status == "Absent");
+    var halfDayCount = Model.MonthlyCalendar.Count(d => d.Status == "HalfDay");
+    var otHours = Model.MonthlyCalendar.Sum(d => d.OvertimeHours);
 }
 
-<div class="staff-details-page d-flex flex-column gap-3">
-    <!-- Header with Quick Navigation -->
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+<div class="d-flex flex-column gap-3">
+    <!-- Profile Header Card -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div class="d-flex align-items-center gap-3">
-                <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-circle p-2" title="Back to Staff List" style="width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
+                @if (!string.IsNullOrEmpty(Model.Profile.PhotoUrl))
+                {
+                    <img src="@Model.Profile.PhotoUrl" alt="@Model.Profile.Name" class="rounded-circle object-fit-cover border shadow-sm" style="width: 64px; height: 64px;" />
+                }
+                else
+                {
+                    <div class="rounded-circle bg-plum text-white fw-bold d-flex align-items-center justify-content-center shadow-sm" style="width: 64px; height: 64px; font-size: 1.4rem;">
+                        @initials
+                    </div>
+                }
                 <div>
-                    <h2 class="h4 fw-bold text-ink mb-0">@Model.FullName</h2>
-                    <div class="text-muted small">
-                        <span class="badge bg-plum-subtle text-plum me-2">@Model.Role</span>
-                        <span class="font-monospace text-muted">@Model.EmployeeCode</span>
-                        <span class="mx-2">&bull;</span>
-                        <span>Joined @Model.JoiningDate.ToString("dd MMM yyyy")</span>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <h1 class="h4 fw-bold text-ink mb-0">@Model.Profile.Name</h1>
+                        <span class="badge bg-light text-plum border">@Model.Profile.EmployeeCode</span>
+                        <status-chip status="@(Model.Profile.IsActive ? "Active" : "Inactive")" label="@(Model.Profile.IsActive ? Localizer["Common_Active"].Value : Localizer["Common_Inactive"].Value)"></status-chip>
+                    </div>
+                    <div class="small text-muted mt-1">
+                        @Model.Profile.Designation · @Model.Profile.Shift · <i class="bi bi-telephone me-1"></i>@Model.Profile.Mobile
                     </div>
                 </div>
             </div>
 
-            <div class="d-flex gap-2">
-                <a asp-action="Attendance" class="btn btn-outline-teal px-3 py-2 fw-semibold">
-                    <i class="bi bi-calendar-check me-1"></i> Attendance
+            <div class="d-flex align-items-center gap-2">
+                <a asp-action="Edit" asp-route-id="@Model.Profile.Id" class="btn btn-outline-primary btn-sm rounded-pill px-3" permission="Staff.Edit">
+                    <i class="bi bi-pencil-square me-1"></i> @Localizer["Common_Edit"]
                 </a>
-                <a asp-action="Advances" class="btn btn-outline-saffron px-3 py-2 fw-semibold">
-                    <i class="bi bi-cash-coin me-1"></i> Advance History
-                </a>
-                <a asp-action="SalaryReport" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
-                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Salary Statement
+                <a asp-action="Index" asp-route-tab="list" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                    <i class="bi bi-arrow-left me-1"></i> @Localizer["Nav_Staff"]
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Quick Stat Cards -->
-    <div class="row g-3">
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-                <div class="text-muted small mb-1">Monthly Base Salary</div>
-                <div class="h3 fw-bold text-ink mb-0">₹@Model.MonthlySalary.ToString("N0")</div>
-                <div class="text-muted small mt-1"><i class="bi bi-wallet2 text-plum me-1"></i> Fixed Pay</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-                <div class="text-muted small mb-1">Outstanding Advance</div>
-                <div class="h3 fw-bold text-chili mb-0">₹@Model.TotalAdvanceBalance.ToString("N0")</div>
-                <div class="text-muted small mt-1"><i class="bi bi-exclamation-circle text-chili me-1"></i> To be recovered</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-                <div class="text-muted small mb-1">Days Present This Month</div>
-                <div class="h3 fw-bold text-teal mb-0">@Model.DaysPresentThisMonth / 30</div>
-                <div class="text-muted small mt-1"><i class="bi bi-check-circle text-teal me-1"></i> @Model.DaysAbsentThisMonth days leave</div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
-                <div class="text-muted small mb-1">Sales Handled</div>
-                <div class="h3 fw-bold text-saffron mb-0">₹@Model.TotalSalesHandled.ToString("N0")</div>
-                <div class="text-muted small mt-1"><i class="bi bi-graph-up text-saffron me-1"></i> Performance rating 4.9★</div>
-            </div>
-        </div>
+    <!-- 4 Profile Tabs: Details, Attendance, Advances (read-only), Salary -->
+    <div class="masters-tabs-bar">
+        <a asp-action="Details" asp-route-id="@Model.Profile.Id" asp-route-tab="details" class="master-tab-btn @(Model.ActiveTab == "details" ? "active" : "")">
+            <i class="bi bi-person-lines-fill"></i>
+            <span>@Localizer["Staff_ProfileTab_Details"]</span>
+        </a>
+        <a asp-action="Details" asp-route-id="@Model.Profile.Id" asp-route-tab="attendance" class="master-tab-btn @(Model.ActiveTab == "attendance" ? "active" : "")">
+            <i class="bi bi-calendar2-check"></i>
+            <span>@Localizer["Nav_StaffAttendance"]</span>
+            <span class="badge">@presentCount P</span>
+        </a>
+        <a asp-action="Details" asp-route-id="@Model.Profile.Id" asp-route-tab="advances" class="master-tab-btn @(Model.ActiveTab == "advances" ? "active" : "")">
+            <i class="bi bi-cash-coin"></i>
+            <span>@Localizer["Staff_ProfileTab_Advances"]</span>
+            <span class="badge">₹@((Model.AdvanceSummary?.OutstandingBalance ?? 0m).ToString("N0"))</span>
+        </a>
+        <a asp-action="Details" asp-route-id="@Model.Profile.Id" asp-route-tab="salary" class="master-tab-btn @(Model.ActiveTab == "salary" ? "active" : "")">
+            <i class="bi bi-file-earmark-spreadsheet"></i>
+            <span>@Localizer["Staff_ProfileTab_Salary"]</span>
+            <span class="badge">@Model.SalaryHistory.Count</span>
+        </a>
     </div>
 
-    <!-- Employee Information Grid -->
-    <div class="row g-3">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
-                <h5 class="fw-bold text-ink mb-3 pb-2 border-bottom">
-                    <i class="bi bi-person-lines-fill text-plum me-2"></i> Personal & Contact Details
-                </h5>
-                <dl class="row mb-0 small">
-                    <dt class="col-sm-4 text-muted">Full Name</dt>
-                    <dd class="col-sm-8 text-ink fw-semibold">@Model.FullName</dd>
-
-                    <dt class="col-sm-4 text-muted">Mobile Number</dt>
-                    <dd class="col-sm-8 font-monospace text-ink"><i class="bi bi-telephone text-muted me-1"></i>@Model.MobileNumber</dd>
-
-                    <dt class="col-sm-4 text-muted">Official Email</dt>
-                    <dd class="col-sm-8 text-ink">@Model.Email</dd>
-
-                    <dt class="col-sm-4 text-muted">Emergency Contact</dt>
-                    <dd class="col-sm-8 text-ink">@Model.EmergencyContact</dd>
-
-                    <dt class="col-sm-4 text-muted">Aadhaar (Govt ID)</dt>
-                    <dd class="col-sm-8 font-monospace text-muted">@Model.AadhaarNumber</dd>
-
-                    <dt class="col-sm-4 text-muted">Assigned Shift</dt>
-                    <dd class="col-sm-8 text-ink"><span class="badge bg-secondary-subtle text-dark">@Model.Shift</span></dd>
-                </dl>
+    <!-- Tab Body -->
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        @if (Model.ActiveTab == "details")
+        {
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <h6 class="fw-bold text-plum mb-3"><i class="bi bi-person-vcard me-1"></i> Employment &amp; Shift Details</h6>
+                        <div class="mb-2"><span class="text-muted small">Employee Code:</span> <span class="fw-bold text-ink">@Model.Profile.EmployeeCode</span></div>
+                        <div class="mb-2"><span class="text-muted small">Designation:</span> <span class="fw-bold text-ink">@Model.Profile.Designation</span></div>
+                        <div class="mb-2"><span class="text-muted small">Assigned Shift:</span> <span class="text-ink">@Model.Profile.Shift</span></div>
+                        <div class="mb-2"><span class="text-muted small">Joining Date:</span> <span class="text-ink">@Model.Profile.JoiningDate.ToString("dd MMMM yyyy")</span></div>
+                        <div class="mb-0"><span class="text-muted small">Mobile:</span> <span class="text-ink">@Model.Profile.Mobile</span></div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <h6 class="fw-bold text-plum mb-3"><i class="bi bi-bank me-1"></i> Compensation, ID &amp; Banking</h6>
+                        <div class="mb-2"><span class="text-muted small">Salary Type:</span> <span class="badge bg-teal-subtle text-teal">@Model.Profile.SalaryType</span></div>
+                        <div class="mb-2"><span class="text-muted small">Basic Salary:</span> <span class="fw-bold text-ink">₹@Model.Profile.BasicSalary.ToString("N2")</span></div>
+                        <div class="mb-2"><span class="text-muted small">Monthly Equivalent:</span> <span class="fw-semibold text-teal">₹@Model.Profile.MonthlyEquivalentSalary.ToString("N2")</span></div>
+                        <div class="mb-2"><span class="text-muted small">ID Proof:</span> <span class="text-ink">@Model.Profile.IdProof</span></div>
+                        <div class="mb-0"><span class="text-muted small">Bank / UPI:</span> <code class="text-plum">@Model.Profile.BankOrUpi</code></div>
+                    </div>
+                </div>
             </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-3 bg-white p-3 h-100">
-                <h5 class="fw-bold text-ink mb-3 pb-2 border-bottom">
-                    <i class="bi bi-bank text-teal me-2"></i> Payroll & Bank Account
-                </h5>
-                <dl class="row mb-0 small">
-                    <dt class="col-sm-4 text-muted">Designation</dt>
-                    <dd class="col-sm-8 text-ink fw-semibold">@Model.Role</dd>
-
-                    <dt class="col-sm-4 text-muted">Bank / UPI Handle</dt>
-                    <dd class="col-sm-8 font-monospace text-ink">@Model.BankAccountOrUpi</dd>
-
-                    <dt class="col-sm-4 text-muted">Joining Date</dt>
-                    <dd class="col-sm-8 text-ink">@Model.JoiningDate.ToString("dd MMMM yyyy")</dd>
-
-                    <dt class="col-sm-4 text-muted">Current Advance Ledger</dt>
-                    <dd class="col-sm-8 font-monospace fw-bold text-chili">₹@Model.TotalAdvanceBalance.ToString("N2")</dd>
-
-                    <dt class="col-sm-4 text-muted">Payroll Frequency</dt>
-                    <dd class="col-sm-8 text-ink">Monthly (1st to 30th)</dd>
-
-                    <dt class="col-sm-4 text-muted">Account Status</dt>
-                    <dd class="col-sm-8"><span class="badge bg-teal-subtle text-teal">Active Employee</span></dd>
-                </dl>
+        }
+        else if (Model.ActiveTab == "attendance")
+        {
+            <div class="d-flex flex-wrap justify-content-between align-items-center pb-3 border-bottom mb-3">
+                <div>
+                    <h5 class="fw-bold text-ink mb-1">@(new DateTime(Model.SelectedYear, Model.SelectedMonth, 1).ToString("MMMM yyyy")) Attendance</h5>
+                    <div class="small text-muted">
+                        Present: <strong class="text-teal">@presentCount</strong> · Absent: <strong class="text-chili">@absentCount</strong> · Half-Days: <strong>@halfDayCount</strong> · Overtime: <strong class="text-plum">@otHours.ToString("0.#") hrs</strong>
+                    </div>
+                </div>
+                <a asp-action="Index" asp-route-tab="attendance" asp-route-calendarStaffId="@Model.Profile.Id" class="btn btn-outline-plum btn-sm rounded-pill px-3">
+                    <i class="bi bi-pencil me-1"></i> Open Attendance Sheet
+                </a>
             </div>
-        </div>
+            <div class="row row-cols-2 row-cols-sm-4 row-cols-md-7 g-2">
+                @foreach (var day in Model.MonthlyCalendar)
+                {
+                    var cls = day.Status switch
+                    {
+                        "Present" => "bg-teal-subtle text-teal border-teal-subtle",
+                        "Absent" => "bg-danger-subtle text-chili border-danger-subtle",
+                        "HalfDay" => "bg-warning-subtle text-dark border-warning",
+                        "Leave" => "bg-info-subtle text-dark border-info-subtle",
+                        _ => "bg-light text-muted border"
+                    };
+                    <div class="col">
+                        <div class="border rounded-3 p-2 text-center @cls">
+                            <div class="small fw-bold">@day.DayOfMonth @day.DayOfWeekShort</div>
+                            <div class="fw-bold my-1">@day.StatusCode</div>
+                            <div style="font-size: 0.68rem;">@(day.OvertimeHours > 0 ? $"+{day.OvertimeHours:0.#}h OT" : day.InTime)</div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else if (Model.ActiveTab == "advances")
+        {
+            <div class="d-flex flex-wrap justify-content-between align-items-center pb-3 border-bottom mb-3">
+                <div>
+                    <h5 class="fw-bold text-ink mb-1">@Localizer["Staff_AdvancesReadOnly_Title"]</h5>
+                    <div class="small text-muted">@Localizer["Staff_AdvancesReadOnly_Note"]</div>
+                </div>
+                <a asp-controller="EmployeeAdvances" asp-action="Index" asp-route-staffId="@Model.Profile.Id" class="btn btn-teal text-white btn-sm rounded-pill px-3 fw-semibold shadow-sm" permission="EmployeeAdvances.View">
+                    <i class="bi bi-box-arrow-up-right me-1"></i> @Localizer["Staff_ManageInAccounts"]
+                </a>
+            </div>
+
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="p-3 rounded-3 bg-light border">
+                        <div class="small text-muted">Total Given</div>
+                        <div class="h4 fw-bold text-ink mb-0">₹@((Model.AdvanceSummary?.TotalGiven ?? 0m).ToString("N2"))</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 rounded-3 bg-light border">
+                        <div class="small text-muted">Total Recovered</div>
+                        <div class="h4 fw-bold text-teal mb-0">₹@((Model.AdvanceSummary?.TotalRecovered ?? 0m).ToString("N2"))</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="p-3 rounded-3 bg-light border">
+                        <div class="small text-muted">Outstanding Balance</div>
+                        <div class="h4 fw-bold text-chili mb-0">₹@((Model.AdvanceSummary?.OutstandingBalance ?? 0m).ToString("N2"))</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="master-grid-table table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Voucher #</th>
+                            <th>Type</th>
+                            <th>Mode</th>
+                            <th class="text-end">Amount</th>
+                            <th class="text-end">Balance</th>
+                            <th>Note</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentAdvances.Count == 0)
+                        {
+                            <tr><td colspan="7" class="text-center py-4 text-muted">No advance transactions recorded for this employee.</td></tr>
+                        }
+                        else
+                        {
+                            @foreach (var entry in Model.RecentAdvances)
+                            {
+                                <tr>
+                                    <td class="small">@entry.Date.ToString("dd MMM yyyy")</td>
+                                    <td class="font-monospace small text-plum fw-semibold">@entry.VoucherNumber</td>
+                                    <td><status-chip status="@(entry.EntryType == "Recovered" ? "Paid" : "Warning")" label="@entry.EntryType"></status-chip></td>
+                                    <td class="small">@entry.PaymentMode</td>
+                                    <td class="text-end font-monospace fw-bold @(entry.EntryType == "Given" ? "text-chili" : "text-teal")">₹@entry.Amount.ToString("N2")</td>
+                                    <td class="text-end font-monospace fw-semibold">₹@entry.RunningBalance.ToString("N2")</td>
+                                    <td class="small text-muted">@entry.Note</td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else if (Model.ActiveTab == "salary")
+        {
+            <div class="table-responsive">
+                <table class="master-grid-table table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th class="text-end">Basic</th>
+                            <th class="text-end text-teal">Overtime</th>
+                            <th class="text-end text-chili">Absent Ded.</th>
+                            <th class="text-end text-plum">Adv. Recovery</th>
+                            <th class="text-end">Net Payable</th>
+                            <th>Status</th>
+                            <th class="text-end">Payslip</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.SalaryHistory)
+                        {
+                            <tr>
+                                <td class="fw-bold text-ink">@(new DateTime(s.Year, s.Month, 1).ToString("MMMM yyyy"))</td>
+                                <td class="text-end font-monospace">₹@s.BasicSalary.ToString("N2")</td>
+                                <td class="text-end font-monospace text-teal">+₹@s.OvertimePay.ToString("N2")</td>
+                                <td class="text-end font-monospace text-chili">-₹@s.AbsentDeduction.ToString("N2")</td>
+                                <td class="text-end font-monospace text-plum">-₹@s.AdvanceRecovery.ToString("N2")</td>
+                                <td class="text-end font-monospace fw-bold">₹@s.NetPayable.ToString("N2")</td>
+                                <td><status-chip status="@s.Status" label="@s.Status"></status-chip></td>
+                                <td class="text-end">
+                                    <a asp-action="Payslip" asp-route-staffId="@s.StaffId" asp-route-month="@s.Month" asp-route-year="@s.Year" target="_blank" class="btn btn-sm btn-outline-plum rounded-3 px-2 py-1">
+                                        <i class="bi bi-printer me-1"></i>Print
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
     </div>
 </div>

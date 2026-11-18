@@ -196,4 +196,443 @@
   <data name="Staff_EmployeeReport_Title" xml:space="preserve"><value>कर्मचारी कामगिरी अहवाल</value></data>
   <data name="Staff_Details_Title" xml:space="preserve"><value>कर्मचारी तपशील</value></data>
   <data name="Reports_ProfitLoss_Title" xml:space="preserve"><value>नफा-तोटा पत्रक (P&amp;L)</value></data>
+  <data name="Nav_Section_Operations" xml:space="preserve"><value>दैनंदिन कामकाज</value></data>
+  <data name="Nav_Section_Administration" xml:space="preserve"><value>प्रशासन</value></data>
+  <data name="Nav_StockAdjustment" xml:space="preserve"><value>साठा समायोजन</value></data>
+  <data name="Nav_Wastage" xml:space="preserve"><value>नासाडी नोंद</value></data>
+  <data name="Nav_CustomerLedger" xml:space="preserve"><value>ग्राहक खाते व उधारी</value></data>
+  <data name="Nav_DayBook" xml:space="preserve"><value>डे बुक (दैनंदिन वही)</value></data>
+  <data name="Nav_CashBook" xml:space="preserve"><value>कॅश बुक (रोकड वही)</value></data>
+  <data name="Nav_GeneralLedger" xml:space="preserve"><value>खातेवही सारांश</value></data>
+  <data name="Nav_TrialBalance" xml:space="preserve"><value>तेरीज पत्रक</value></data>
+  <data name="Nav_ProfitLoss" xml:space="preserve"><value>नफा-तोटा पत्रक</value></data>
+  <data name="Nav_BalanceSheet" xml:space="preserve"><value>ताळेबंद</value></data>
+  <data name="Nav_Expenses" xml:space="preserve"><value>खर्च नोंद</value></data>
+  <data name="Master_BackToDashboard" xml:space="preserve"><value>डॅशबोर्डवर परत जा</value></data>
+  <data name="Master_Floors" xml:space="preserve"><value>मजले</value></data>
+  <data name="Master_Tables" xml:space="preserve"><value>टेबल्स</value></data>
+  <data name="Master_Categories" xml:space="preserve"><value>श्रेण्या</value></data>
+  <data name="Master_MenuItems" xml:space="preserve"><value>मेनू आयटम्स</value></data>
+  <data name="Master_Customers" xml:space="preserve"><value>ग्राहक</value></data>
+  <data name="Master_Suppliers" xml:space="preserve"><value>पुरवठादार</value></data>
+  <data name="Master_Designations" xml:space="preserve"><value>पदे / हुद्दे</value></data>
+  <data name="Master_Shifts" xml:space="preserve"><value>शिफ्ट्स</value></data>
+  <data name="Master_TaxUnits" xml:space="preserve"><value>कर व एकके</value></data>
+  <data name="Master_PaymentModes" xml:space="preserve"><value>पेमेंट पद्धती</value></data>
+  <data name="Master_ExpenseHeads" xml:space="preserve"><value>खर्चाचे प्रकार</value></data>
+  <data name="Master_HotelInfo" xml:space="preserve"><value>हॉटेल माहिती</value></data>
+  <data name="Master_AddFloor" xml:space="preserve"><value>नवीन मजला जोडा</value></data>
+  <data name="Master_AddTable" xml:space="preserve"><value>नवीन टेबल जोडा</value></data>
+  <data name="Master_AddCategory" xml:space="preserve"><value>नवीन श्रेणी जोडा</value></data>
+  <data name="Master_AddMenuItem" xml:space="preserve"><value>नवीन मेनू आयटम जोडा</value></data>
+  <data name="Master_AddCustomer" xml:space="preserve"><value>नवीन ग्राहक जोडा</value></data>
+  <data name="Master_AddSupplier" xml:space="preserve"><value>नवीन पुरवठादार जोडा</value></data>
+  <data name="Master_AddDesignation" xml:space="preserve"><value>नवीन पद जोडा</value></data>
+  <data name="Master_AddShift" xml:space="preserve"><value>नवीन शिफ्ट जोडा</value></data>
+  <data name="Master_AddTaxUnit" xml:space="preserve"><value>नवीन कर/एकक जोडा</value></data>
+  <data name="Master_AddPaymentMode" xml:space="preserve"><value>नवीन पेमेंट पद्धत जोडा</value></data>
+  <data name="Master_AddExpenseHead" xml:space="preserve"><value>नवीन खर्च प्रकार जोडा</value></data>
+  <data name="Master_EditInfo" xml:space="preserve"><value>हॉटेल माहिती संपादित करा</value></data>
+  <data name="Common_SearchPlaceholder" xml:space="preserve"><value>शोधा...</value></data>
+  <data name="Common_Status" xml:space="preserve"><value>स्थिती</value></data>
+  <data name="Common_Actions" xml:space="preserve"><value>कृती</value></data>
+  <data name="Common_Active" xml:space="preserve"><value>सक्रिय</value></data>
+  <data name="Common_Inactive" xml:space="preserve"><value>निष्क्रिय</value></data>
+  <data name="Common_Edit" xml:space="preserve"><value>संपादित करा</value></data>
+  <data name="Common_Save" xml:space="preserve"><value>जतन करा</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>रद्द करा</value></data>
+  <data name="Common_Date" xml:space="preserve"><value>दिनांक</value></data>
+  <data name="Common_Amount" xml:space="preserve"><value>रक्कम</value></data>
+  <data name="Common_Remarks" xml:space="preserve"><value>शेरा</value></data>
+  <data name="Common_Total" xml:space="preserve"><value>एकूण</value></data>
+  <data name="Staff_List_Heading" xml:space="preserve"><value>कर्मचारी यादी</value></data>
+  <data name="Staff_List_Subtitle" xml:space="preserve"><value>कर्मचारी प्रोफाइल, शिफ्ट, पगार रचना आणि बँक/UPI तपशील व्यवस्थापित करा</value></data>
+  <data name="Staff_Empty_Title" xml:space="preserve"><value>कर्मचारी आढळले नाहीत</value></data>
+  <data name="Staff_Empty_Desc" xml:space="preserve"><value>हजेरी, उचल आणि पगार नोंदवण्यासाठी कर्मचारी जोडा.</value></data>
+  <data name="Staff_Col_Employee" xml:space="preserve"><value>कर्मचारी</value></data>
+  <data name="Staff_Col_DesignationShift" xml:space="preserve"><value>पद व शिफ्ट</value></data>
+  <data name="Staff_Col_JoiningDate" xml:space="preserve"><value>रुजू दिनांक</value></data>
+  <data name="Staff_Col_Salary" xml:space="preserve"><value>मूळ पगार</value></data>
+  <data name="Staff_Col_IdBank" xml:space="preserve"><value>ओळखपत्र व बँक/UPI</value></data>
+  <data name="Staff_Col_InTime" xml:space="preserve"><value>आगमन वेळ</value></data>
+  <data name="Staff_Col_OutTime" xml:space="preserve"><value>निर्गमन वेळ</value></data>
+  <data name="Staff_Col_OvertimeHrs" xml:space="preserve"><value>ओव्हरटाईम (तास)</value></data>
+  <data name="Staff_Col_Attendance" xml:space="preserve"><value>हजेरी</value></data>
+  <data name="Staff_Col_Basic" xml:space="preserve"><value>मूळ पगार</value></data>
+  <data name="Staff_Col_Overtime" xml:space="preserve"><value>ओव्हरटाईम (+)</value></data>
+  <data name="Staff_Col_AbsentDed" xml:space="preserve"><value>गैरहजेरी कपात (-)</value></data>
+  <data name="Staff_Col_AdvRecovery" xml:space="preserve"><value>उचल वसुली (-)</value></data>
+  <data name="Staff_Col_NetPayable" xml:space="preserve"><value>निव्वळ देय</value></data>
+  <data name="Staff_Profile" xml:space="preserve"><value>प्रोफाइल</value></data>
+  <data name="Staff_ViewProfile" xml:space="preserve"><value>कर्मचारी प्रोफाइल पहा</value></data>
+  <data name="Staff_Attendance_SheetTitle" xml:space="preserve"><value>दैनंदिन हजेरी पत्रक</value></data>
+  <data name="Staff_MonthLocked" xml:space="preserve"><value>महिना लॉक</value></data>
+  <data name="Staff_MarkAllPresent" xml:space="preserve"><value>सर्वांना हजर नोंदवा</value></data>
+  <data name="Staff_LockMonthAfterPayroll" xml:space="preserve"><value>पगारानंतर महिना लॉक करा</value></data>
+  <data name="Staff_UnlockMonth" xml:space="preserve"><value>महिना अनलॉक करा</value></data>
+  <data name="Staff_MonthlyCalendar_Title" xml:space="preserve"><value>मासिक कॅलेंडर</value></data>
+  <data name="Staff_SalaryStatement_Title" xml:space="preserve"><value>मासिक पगार पत्रक</value></data>
+  <data name="Staff_SalaryFormula" xml:space="preserve"><value>सूत्र: मूळ पगार + ओव्हरटाईम - गैरहजेरी कपात - उचल वसुली</value></data>
+  <data name="Staff_AutoRecoverAdvances" xml:space="preserve"><value>उचल आपोआप कपात करा</value></data>
+  <data name="Staff_MarkPaid" xml:space="preserve"><value>पगार झाला</value></data>
+  <data name="Staff_PrintPayslip" xml:space="preserve"><value>पगार पावती प्रिंट करा</value></data>
+  <data name="Staff_Kpi_Total" xml:space="preserve"><value>एकूण कर्मचारी</value></data>
+  <data name="Staff_Kpi_PresentToday" xml:space="preserve"><value>आज हजर</value></data>
+  <data name="Staff_Kpi_MonthlyPayroll" xml:space="preserve"><value>निव्वळ पगार</value></data>
+  <data name="Staff_Kpi_AdvRecovery" xml:space="preserve"><value>उचल वसुली</value></data>
+  <data name="Staff_Form_Subtitle" xml:space="preserve"><value>कर्मचारी प्रोफाइल, पगार रचना, ओळखपत्र आणि बँक तपशील</value></data>
+  <data name="Staff_Field_Code" xml:space="preserve"><value>कर्मचारी कोड</value></data>
+  <data name="Staff_Field_FullName" xml:space="preserve"><value>पूर्ण नाव</value></data>
+  <data name="Staff_Field_Mobile" xml:space="preserve"><value>मोबाईल नंबर</value></data>
+  <data name="Staff_Field_Designation" xml:space="preserve"><value>पद / हुद्दा</value></data>
+  <data name="Staff_Field_Shift" xml:space="preserve"><value>शिफ्ट</value></data>
+  <data name="Staff_Field_SalaryType" xml:space="preserve"><value>पगार प्रकार</value></data>
+  <data name="Staff_Field_BasicSalary" xml:space="preserve"><value>मूळ पगार (₹)</value></data>
+  <data name="Staff_Field_IdProof" xml:space="preserve"><value>ओळखपत्र (आधार / पॅन)</value></data>
+  <data name="Staff_Field_BankUpi" xml:space="preserve"><value>बँक खाते / UPI</value></data>
+  <data name="Staff_Field_PhotoUrl" xml:space="preserve"><value>फोटो URL</value></data>
+  <data name="Staff_Field_IsActive" xml:space="preserve"><value>सक्रिय कर्मचारी</value></data>
+  <data name="Staff_ProfileTab_Details" xml:space="preserve"><value>तपशील</value></data>
+  <data name="Staff_ProfileTab_Advances" xml:space="preserve"><value>उचल / अॅडव्हान्स</value></data>
+  <data name="Staff_ProfileTab_Salary" xml:space="preserve"><value>पगार</value></data>
+  <data name="Staff_AdvancesReadOnly_Title" xml:space="preserve"><value>उचल सारांश (केवळ पाहण्यासाठी)</value></data>
+  <data name="Staff_AdvancesReadOnly_Note" xml:space="preserve"><value>उचल देणे व वसुली नोंदी खाती &gt; कर्मचारी उचल विभागात व्यवस्थापित केल्या जातात.</value></data>
+  <data name="Staff_ManageInAccounts" xml:space="preserve"><value>खात्यांमध्ये व्यवस्थापित करा</value></data>
+  <data name="Adv_PageTitle" xml:space="preserve"><value>कर्मचारी उचल / अॅडव्हान्स</value></data>
+  <data name="Adv_PageSubtitle" xml:space="preserve"><value>कर्मचारी पगार उचल, हप्ते वेळापत्रक, वसुली आणि दुहेरी नोंद व्हाउचर व्यवस्थापित करा</value></data>
+  <data name="Adv_ReportsBtn" xml:space="preserve"><value>उचल अहवाल</value></data>
+  <data name="Adv_GiveAdvance" xml:space="preserve"><value>उचल द्या</value></data>
+  <data name="Adv_RecordRecovery" xml:space="preserve"><value>वसुली नोंदवा</value></data>
+  <data name="Adv_Kpi_TotalGiven" xml:space="preserve"><value>एकूण दिलेली उचल</value></data>
+  <data name="Adv_Kpi_TotalGivenSub" xml:space="preserve"><value>एकूण वितरण</value></data>
+  <data name="Adv_Kpi_RecoveredMonth" xml:space="preserve"><value>या महिन्यातील वसुली</value></data>
+  <data name="Adv_Kpi_Outstanding" xml:space="preserve"><value>एकूण थकबाकी</value></data>
+  <data name="Adv_Kpi_OutstandingSub" xml:space="preserve"><value>कर्मचाऱ्यांकडून येणे बाकी</value></data>
+  <data name="Adv_Kpi_StaffCount" xml:space="preserve"><value>थकबाकी असलेले कर्मचारी</value></data>
+  <data name="Adv_EmployeePicker" xml:space="preserve"><value>कर्मचारी</value></data>
+  <data name="Adv_SearchEmployeePlaceholder" xml:space="preserve"><value>नाव, कोड किंवा पदाने शोधा...</value></data>
+  <data name="Adv_SalaryLabel" xml:space="preserve"><value>पगार</value></data>
+  <data name="Adv_CurrentOutstanding" xml:space="preserve"><value>सध्याची थकबाकी</value></data>
+  <data name="Adv_AutoRecoverToggle" xml:space="preserve"><value>पगार पत्रकातून आपोआप वसुली</value></data>
+  <data name="Adv_RunningLedger" xml:space="preserve"><value>उचल खातेवही</value></data>
+  <data name="Adv_FullLedgerReport" xml:space="preserve"><value>संपूर्ण अहवाल पहा</value></data>
+  <data name="Adv_LedgerEmpty_Title" xml:space="preserve"><value>उचल नोंदी नाहीत</value></data>
+  <data name="Adv_LedgerEmpty_Desc" xml:space="preserve"><value>या कर्मचाऱ्यासाठी अद्याप कोणतीही उचल किंवा वसुली नोंदलेली नाही.</value></data>
+  <data name="Adv_SelectEmployee_Title" xml:space="preserve"><value>कर्मचारी निवडा</value></data>
+  <data name="Adv_SelectEmployee_Desc" xml:space="preserve"><value>उचल तपशील आणि खातेवही पाहण्यासाठी डावीकडील यादीतून कर्मचारी निवडा.</value></data>
+  <data name="Adv_Col_Voucher" xml:space="preserve"><value>व्हाउचर क्र.</value></data>
+  <data name="Adv_Col_Type" xml:space="preserve"><value>प्रकार</value></data>
+  <data name="Adv_Col_Mode" xml:space="preserve"><value>पद्धत</value></data>
+  <data name="Adv_Col_Balance" xml:space="preserve"><value>शिल्लक</value></data>
+  <data name="Adv_Col_Note" xml:space="preserve"><value>नोंद</value></data>
+  <data name="Adv_Field_Employee" xml:space="preserve"><value>कर्मचारी</value></data>
+  <data name="Adv_Field_PaymentMode" xml:space="preserve"><value>पेमेंट पद्धत</value></data>
+  <data name="Adv_Field_RecoveryPlan" xml:space="preserve"><value>वसुली योजना</value></data>
+  <data name="Adv_Field_InstalmentAmt" xml:space="preserve"><value>मासिक हप्ता</value></data>
+  <data name="Adv_Field_StartMonth" xml:space="preserve"><value>सुरुवात महिना</value></data>
+  <data name="Adv_Field_Purpose" xml:space="preserve"><value>कारण</value></data>
+  <data name="Adv_Field_RecoveryAmt" xml:space="preserve"><value>वसुली रक्कम</value></data>
+  <data name="Adv_SchedulePreview" xml:space="preserve"><value>हप्ते वेळापत्रक पूर्वावलोकन</value></data>
+  <data name="Adv_PostAdvance" xml:space="preserve"><value>उचल व व्हाउचर नोंदवा</value></data>
+  <data name="Adv_PostRecovery" xml:space="preserve"><value>वसुली व व्हाउचर नोंदवा</value></data>
+  <data name="Adv_ReportsTitle" xml:space="preserve"><value>कर्मचारी उचल अहवाल</value></data>
+  <data name="Adv_Report_Outstanding" xml:space="preserve"><value>थकीत उचल अहवाल</value></data>
+  <data name="Adv_Report_Ledger" xml:space="preserve"><value>कर्मचारीनिहाय उचल खातेवही</value></data>
+  <data name="Adv_Report_MonthlyRecovery" xml:space="preserve"><value>मासिक वसुली अहवाल</value></data>
+  <data name="Form_SaveAndNew" xml:space="preserve"><value>जतन करा व नवीन</value></data>
+  <data name="Form_UnsavedChanges" xml:space="preserve"><value>जतन न केलेले बदल</value></data>
+  <data name="Form_NextField" xml:space="preserve"><value>पुढील रकाना</value></data>
+  <data name="Form_BackToMenu" xml:space="preserve"><value>मेनू आयटम्सवर परत जा</value></data>
+  <data name="Form_PostVoucher" xml:space="preserve"><value>व्हाउचर नोंदवा</value></data>
+  <data name="Menu_ItemForm_Subtitle" xml:space="preserve"><value>किंमत, जीएसटी, फोटो, प्रकार आणि लाईव्ह पीओएस पूर्वावलोकनासह डिश सेटअप</value></data>
+  <data name="Menu_Field_Category" xml:space="preserve"><value>श्रेणी</value></data>
+  <data name="Menu_QuickAddCategory" xml:space="preserve"><value>त्वरित श्रेणी जोडा</value></data>
+  <data name="Menu_Field_ShortCode" xml:space="preserve"><value>शॉर्ट कोड / SKU</value></data>
+  <data name="Menu_Field_Dietary" xml:space="preserve"><value>शाकाहारी / मांसाहारी</value></data>
+  <data name="Menu_Field_NameEn" xml:space="preserve"><value>डिश नाव (इंग्रजी)</value></data>
+  <data name="Menu_Field_NameMr" xml:space="preserve"><value>डिश नाव (मराठी)</value></data>
+  <data name="Menu_Field_Description" xml:space="preserve"><value>संक्षिप्त माहिती</value></data>
+  <data name="Menu_Field_Tags" xml:space="preserve"><value>टॅग्स</value></data>
+  <data name="Menu_Field_Price" xml:space="preserve"><value>विक्री किंमत</value></data>
+  <data name="Menu_Field_TaxRate" xml:space="preserve"><value>GST कर दर</value></data>
+  <data name="Menu_Field_TaxInclusive" xml:space="preserve"><value>किंमतीत GST समाविष्ट</value></data>
+  <data name="Menu_LiveFinalPrice" xml:space="preserve"><value>अंतिम पीओएस किंमत</value></data>
+  <data name="Menu_Field_Station" xml:space="preserve"><value>किचन स्टेशन</value></data>
+  <data name="Menu_Field_PrepTime" xml:space="preserve"><value>तयार होण्याचा वेळ</value></data>
+  <data name="Menu_Field_Available" xml:space="preserve"><value>आज उपलब्ध</value></data>
+  <data name="Menu_Field_OrderType" xml:space="preserve"><value>ऑर्डर प्रकारासाठी उपलब्ध</value></data>
+  <data name="Menu_Field_Photos" xml:space="preserve"><value>डिशचे फोटो</value></data>
+  <data name="Menu_SaveDish" xml:space="preserve"><value>डिश जतन करा</value></data>
+  <data name="Menu_LivePosPreview" xml:space="preserve"><value>लाईव्ह पीओएस कार्ड पूर्वावलोकन</value></data>
+  <data name="Form_Sec_BasicInfo" xml:space="preserve"><value>मूलभूत माहिती</value></data>
+  <data name="Form_Sec_BasicInfo_Help" xml:space="preserve"><value>श्रेणी, शाकाहारी/मांसाहारी प्रकार, इंग्रजी-मराठी नाव, शॉर्ट कोड व टॅग्स</value></data>
+  <data name="Form_Sec_PricingTax" xml:space="preserve"><value>किंमत व कर (GST)</value></data>
+  <data name="Form_Sec_PricingTax_Help" xml:space="preserve"><value>मूळ किंमत, जीएसटी दर आणि अंतिम किंमतीचे लाईव्ह गणित</value></data>
+  <data name="Form_Sec_KitchenAvail" xml:space="preserve"><value>किचन व उपलब्धता</value></data>
+  <data name="Form_Sec_KitchenAvail_Help" xml:space="preserve"><value>केओटी स्टेशन, तयारी वेळ, ऑर्डर प्रकार आणि उपलब्धता स्विच</value></data>
+  <data name="Form_Sec_Images" xml:space="preserve"><value>फोटो गॅलरी</value></data>
+  <data name="Form_Sec_Images_Help" xml:space="preserve"><value>कमाल ३ फोटो अपलोड करा आणि मुख्य फोटो निवडा</value></data>
+  <data name="Form_Sec_Variants" xml:space="preserve"><value>प्रकार (Half/Full) व अ‍ॅड-ऑन्स</value></data>
+  <data name="Form_Sec_Variants_Help" xml:space="preserve"><value>पर्यायी प्रमाण आणि अतिरिक्त टॉपिंग्स दर</value></data>
+  <data name="Form_Sec_PersonalInfo" xml:space="preserve"><value>वैयक्तिक व संपर्क तपशील</value></data>
+  <data name="Form_Sec_PersonalInfo_Help" xml:space="preserve"><value>कर्मचारी कोड, नाव, १०-अंकी मोबाईल व ओळखपत्र</value></data>
+  <data name="Form_Sec_RoleShift" xml:space="preserve"><value>पद व शिफ्ट तपशील</value></data>
+  <data name="Form_Sec_RoleShift_Help" xml:space="preserve"><value>हुद्दा, कामाची शिफ्ट आणि रुजू दिनांक</value></data>
+  <data name="Form_Sec_SalaryBank" xml:space="preserve"><value>पगार, बँक व स्थिती</value></data>
+  <data name="Form_Sec_SalaryBank_Help" xml:space="preserve"><value>मासिक किंवा दैनिक पगार, बँक/UPI तपशील व सक्रिय स्थिती</value></data>
+  <data name="Form_Sec_VendorInvoice" xml:space="preserve"><value>पुरवठादार व बिल तपशील</value></data>
+  <data name="Form_Sec_VendorInvoice_Help" xml:space="preserve"><value>पुरवठादार निवड, बिल क्रमांक आणि खरेदी दिनांक</value></data>
+  <data name="Form_Sec_PurchaseItems" xml:space="preserve"><value>खरेदी साहित्याची यादी</value></data>
+  <data name="Form_Sec_PurchaseItems_Help" xml:space="preserve"><value>साहित्य प्रमाण, दर आणि जीएसटी नोंदवा</value></data>
+  <data name="Form_Sec_PaymentSummary" xml:space="preserve"><value>पेमेंट पद्धत व एकूण रक्कम</value></data>
+  <data name="Form_Sec_PaymentSummary_Help" xml:space="preserve"><value>पेमेंट प्रकार, टिपण आणि एकूण बिल</value></data>
+  <data name="Form_Sec_VoucherHeader" xml:space="preserve"><value>व्हाउचर तपशील</value></data>
+  <data name="Form_Sec_VoucherHeader_Help" xml:space="preserve"><value>व्हाउचर प्रकार, क्रमांक आणि दिनांक निवडा</value></data>
+  <data name="Form_Sec_VoucherLines" xml:space="preserve"><value>दुहेरी नोंद (डेबिट / क्रेडिट)</value></data>
+  <data name="Form_Sec_VoucherLines_Help" xml:space="preserve"><value>एकूण डेबिट व क्रेडिट समान असणे आवश्यक आहे</value></data>
+  <data name="Form_Sec_Narration" xml:space="preserve"><value>तपशील व नोंद</value></data>
+  <data name="Form_Sec_Narration_Help" xml:space="preserve"><value>डे बुक व खातेवहीमध्ये दिसणारे व्यवहाराचे वर्णन</value></data>
+  <data name="Form_Sec_Category_Help" xml:space="preserve"><value>इंग्रजी व मराठी श्रेणी नाव, आयकॉन व क्रमवारी</value></data>
+  <data name="Form_Sec_CustomerContact" xml:space="preserve"><value>ग्राहक संपर्क व ओळख</value></data>
+  <data name="Form_Sec_CustomerContact_Help" xml:space="preserve"><value>नाव, १०-अंकी मोबाईल, पत्ता व पर्यायी जीएसटीआयएन</value></data>
+  <data name="Form_Sec_UdhariTerms" xml:space="preserve"><value>उधारी मर्यादा व अटी</value></data>
+  <data name="Form_Sec_UdhariTerms_Help" xml:space="preserve"><value>कमाल उधारी मर्यादा, कालावधी व नोंदी</value></data>
+  <data name="Billing_Subtitle" xml:space="preserve"><value>सक्रिय पीओएस बिलिंग • बिल सेटलमेंट, पावती व उधारी व्यवस्थापन</value></data>
+  <data name="Billing_Total" xml:space="preserve"><value>एकूण</value></data>
+  <data name="Billing_Table" xml:space="preserve"><value>टेबल</value></data>
+  <data name="Billing_NoTableRequired" xml:space="preserve"><value>पार्सल / डिलिव्हरी — टेबल आवश्यक नाही</value></data>
+  <data name="Billing_ShortCodePlaceholder" xml:space="preserve"><value>शॉर्ट कोड (M01) किंवा डिशचे नाव लिहून Enter दाबा...</value></data>
+  <data name="Billing_BrowseMenu" xml:space="preserve"><value>मेनू पहा</value></data>
+  <data name="Billing_PreviewBill" xml:space="preserve"><value>प्रिव्ह्यू</value></data>
+  <data name="Billing_Item" xml:space="preserve"><value>पदार्थ</value></data>
+  <data name="Billing_Qty" xml:space="preserve"><value>नग</value></data>
+  <data name="Billing_Rate" xml:space="preserve"><value>दर</value></data>
+  <data name="Billing_Amount" xml:space="preserve"><value>रक्कम</value></data>
+  <data name="Billing_Discount" xml:space="preserve"><value>सूट</value></data>
+  <data name="Billing_PackingCharge" xml:space="preserve"><value>पॅकिंग शुल्क</value></data>
+  <data name="Billing_GstRate" xml:space="preserve"><value>जीएसटी दर</value></data>
+  <data name="Billing_Subtotal" xml:space="preserve"><value>उप-एकूण</value></data>
+  <data name="Billing_RoundOff" xml:space="preserve"><value>राउंड ऑफ</value></data>
+  <data name="Billing_PayableTotal" xml:space="preserve"><value>देय रक्कम</value></data>
+  <data name="Billing_PaymentMode" xml:space="preserve"><value>पेमेंट पद्धत</value></data>
+  <data name="PayMode_Cash" xml:space="preserve"><value>रोख</value></data>
+  <data name="PayMode_UPI" xml:space="preserve"><value>यूपीआय</value></data>
+  <data name="PayMode_Card" xml:space="preserve"><value>कार्ड</value></data>
+  <data name="PayMode_Split" xml:space="preserve"><value>विभागून</value></data>
+  <data name="PayMode_Udhari" xml:space="preserve"><value>उधारी</value></data>
+  <data name="OrderType_DineIn" xml:space="preserve"><value>डाइन-इन</value></data>
+  <data name="OrderType_Parcel" xml:space="preserve"><value>पार्सल</value></data>
+  <data name="OrderType_Delivery" xml:space="preserve"><value>डिलिव्हरी</value></data>
+  <data name="Billing_AmountReceived" xml:space="preserve"><value>मिळालेली रक्कम</value></data>
+  <data name="Billing_Exact" xml:space="preserve"><value>नेमकी</value></data>
+  <data name="Billing_ChangeToReturn" xml:space="preserve"><value>परत देण्याचे सुट्टे</value></data>
+  <data name="Billing_BalanceDue" xml:space="preserve"><value>उर्वरित रक्कम</value></data>
+  <data name="Billing_UpiPayExact" xml:space="preserve"><value>नेमकी रक्कम भरण्यासाठी QR स्कॅन करा</value></data>
+  <data name="Billing_UpiRefLabel" xml:space="preserve"><value>यूटीआर / संदर्भ क्रमांक</value></data>
+  <data name="Billing_UpiPaymentReceived" xml:space="preserve"><value>पेमेंट मिळाले</value></data>
+  <data name="Billing_CardLast4" xml:space="preserve"><value>कार्डचे शेवटचे ४ अंक</value></data>
+  <data name="Billing_CardApprovalCode" xml:space="preserve"><value>अप्रूव्हल कोड</value></data>
+  <data name="Billing_CardBankMachine" xml:space="preserve"><value>मशीन / बँकेचे नाव</value></data>
+  <data name="Billing_SplitRowsTitle" xml:space="preserve"><value>विभागलेले पेमेंट तपशील</value></data>
+  <data name="Billing_AddRow" xml:space="preserve"><value>ओळ जोडा</value></data>
+  <data name="Billing_Paid" xml:space="preserve"><value>भरलेले</value></data>
+  <data name="Billing_Remaining" xml:space="preserve"><value>बाकी</value></data>
+  <data name="Billing_UdhariSelectCustomerHint" xml:space="preserve"><value>उधारी नोंदविण्यासाठी डावीकडून ग्राहक निवडा किंवा नवीन जोडा.</value></data>
+  <data name="Billing_CreditAmount" xml:space="preserve"><value>उधारी रक्कम</value></data>
+  <data name="Billing_BalancePayMode" xml:space="preserve"><value>उर्वरित पेमेंट प्रकार</value></data>
+  <data name="Billing_RemainingPayNow" xml:space="preserve"><value>आता भरावी लागणारी रक्कम</value></data>
+  <data name="Billing_ManagerOverride" xml:space="preserve"><value>मॅनेजर ओव्हरराइड (मर्यादेपेक्षा जास्त उधारीस परवानगी)</value></data>
+  <data name="Billing_ManagerOverrideReasonPlaceholder" xml:space="preserve"><value>मर्यादा ओव्हरराइडचे कारण लिहा (आवश्यक)</value></data>
+  <data name="Billing_CreditNotePlaceholder" xml:space="preserve"><value>पर्यायी उधारी नोंद / अपेक्षित परतफेड दिनांक</value></data>
+  <data name="Billing_SettleAndPrint" xml:space="preserve"><value>बिल सेटल करा आणि प्रिंट करा</value></data>
+  <data name="Billing_SearchDishesPlaceholder" xml:space="preserve"><value>डिशचे नाव, श्रेणी किंवा शॉर्ट कोड (M01) ने शोधा...</value></data>
+  <data name="Billing_BillsSettledToday" xml:space="preserve"><value>आजची सेटल झालेली बिले</value></data>
+  <data name="Billing_BillNo" xml:space="preserve"><value>बिल क्र.</value></data>
+  <data name="Billing_Time" xml:space="preserve"><value>वेळ</value></data>
+  <data name="Billing_Type" xml:space="preserve"><value>प्रकार</value></data>
+  <data name="Billing_TableOrCustomer" xml:space="preserve"><value>टेबल / ग्राहक</value></data>
+  <data name="Billing_NoBillsYet" xml:space="preserve"><value>आज अद्याप कोणतेही बिल सेटल झालेले नाही.</value></data>
+  <data name="Billing_Reprint" xml:space="preserve"><value>पुन्हा प्रिंट</value></data>
+  <data name="Billing_AvailableCredit" xml:space="preserve"><value>उपलब्ध उधारी</value></data>
+  <data name="Billing_CreditDisabledBadge" xml:space="preserve"><value>उधारी बंद</value></data>
+  <data name="Billing_Err_CashUnderpaid" xml:space="preserve"><value>मिळालेली रक्कम बिलाच्या एकूण रकमेपेक्षा कमी आहे</value></data>
+  <data name="Billing_Err_UpiRefRequired" xml:space="preserve"><value>यूपीआय संदर्भ क्रमांक (UTR) आवश्यक आहे</value></data>
+  <data name="Billing_Err_UpiConfirmRequired" xml:space="preserve"><value>यूपीआय पेमेंट निश्चित करण्यासाठी "पेमेंट मिळाले" वर क्लिक करा</value></data>
+  <data name="Billing_Err_CardLast4Required" xml:space="preserve"><value>कार्डचे शेवटचे ४ अंक प्रविष्ट करा</value></data>
+  <data name="Billing_Err_CardApprovalRequired" xml:space="preserve"><value>कार्ड अप्रूव्हल कोड आवश्यक आहे</value></data>
+  <data name="Billing_Err_SplitMismatch" xml:space="preserve"><value>एकूण पेमेंट रु. {0} इतके असणे आवश्यक आहे. बाकी: रु. {1}</value></data>
+  <data name="Billing_Err_UdhariCustomerRequired" xml:space="preserve"><value>उधारीसाठी ग्राहक निवडा</value></data>
+  <data name="Billing_Err_CreditLimitExceeded" xml:space="preserve"><value>उधारी मर्यादा ओलांडली आहे. उपलब्ध उधारी: रु. {0}</value></data>
+  <data name="Billing_Err_CreditDisabled" xml:space="preserve"><value>या ग्राहकाला उधारीची परवानगी नाही</value></data>
+  <data name="Billing_Err_OverrideReasonRequired" xml:space="preserve"><value>मर्यादा ओव्हरराइडसाठी कारण लिहिणे आवश्यक आहे</value></data>
+  <data name="Billing_Err_EmptyItems" xml:space="preserve"><value>बिल सेटल करण्यासाठी किमान एक पदार्थ जोडा</value></data>
+  <data name="Receipt_PreviewTitle" xml:space="preserve"><value>पावती प्रिंट प्रिव्ह्यू</value></data>
+  <data name="Receipt_TaxInvoice" xml:space="preserve"><value>कर पावती</value></data>
+  <data name="Receipt_ParcelTokenSlip" xml:space="preserve"><value>पार्सल टोकन स्लिप</value></data>
+  <data name="Receipt_PrintParcelToken" xml:space="preserve"><value>टोकन प्रिंट करा</value></data>
+  <data name="Receipt_PrintUnavailable" xml:space="preserve"><value>स्वयंचलित प्रिंटिंग उपलब्ध नाही. खालील प्रिव्ह्यू पहा किंवा पुन्हा प्रिंट / पीडीएफ डाउनलोड करा.</value></data>
+  <data name="Receipt_PrintAgain" xml:space="preserve"><value>पुन्हा प्रिंट करा</value></data>
+  <data name="Receipt_DownloadPdf" xml:space="preserve"><value>पीडीएफ डाउनलोड</value></data>
+  <data name="Receipt_Share" xml:space="preserve"><value>शेअर करा</value></data>
+  <data name="Receipt_NewOrder" xml:space="preserve"><value>नवीन ऑर्डर</value></data>
+  <data name="Btn_Add" xml:space="preserve"><value>जोडा</value></data>
+  <data name="Btn_Clear" xml:space="preserve"><value>पुसून टाका</value></data>
+  <data name="Settings_UpiId_Help" xml:space="preserve"><value>बिलाच्या नेमक्या रकमेचा यूपीआय QR कोड तयार करण्यासाठी वापरला जातो</value></data>
+  <data name="Settings_UpiRefRequired" xml:space="preserve"><value>यूपीआय पेमेंटसाठी यूटीआर / संदर्भ क्रमांक अनिवार्य करा</value></data>
+  <data name="Settings_CardDetailsRequired" xml:space="preserve"><value>कार्ड पेमेंटसाठी शेवटचे ४ अंक आणि अप्रूव्हल कोड अनिवार्य करा</value></data>
+  <data name="Settings_PaperSize" xml:space="preserve"><value>पावतीचा डीफॉल्ट कागद आकार</value></data>
+  <data name="Settings_PrintCopies" xml:space="preserve"><value>डीफॉल्ट प्रिंट प्रती</value></data>
+  <data name="Settings_AutoPrintOnSettle" xml:space="preserve"><value>बिल सेटल होताच पावती आपोआप प्रिंट करा</value></data>
+  <data name="Settings_AutoPrintKot" xml:space="preserve"><value>किचनला पाठवताच केओटी आपोआप प्रिंट करा</value></data>
+  <data name="Settings_ShowMarathiItems" xml:space="preserve"><value>पावतीवर इंग्रजीसोबत मराठी पदार्थांची नावे छापा</value></data>
+  <data name="Settings_ShowUpiQr" xml:space="preserve"><value>छापील पावतीवर यूपीआय QR कोड दाखवा</value></data>
+  <data name="Nav_StockSummary" xml:space="preserve"><value>साठा सारांश</value></data>
+  <data name="Nav_Consumption" xml:space="preserve"><value>वापर नोंद</value></data>
+  <data name="Nav_StockLedger" xml:space="preserve"><value>साठा खातेवही</value></data>
+  <data name="FeatureDisabled_Title" xml:space="preserve"><value>मॉड्यूल बंद आहे</value></data>
+  <data name="FeatureDisabled_Heading" xml:space="preserve"><value>हे मॉड्यूल सध्या बंद केलेले आहे</value></data>
+  <data name="FeatureDisabled_Message" xml:space="preserve"><value>अॅडमिनिस्ट्रेटरने हे फीचर टॉगल बंद केले आहे. पुन्हा सुरू करण्यासाठी फीचर टॉगल सेटिंग्जमध्ये जा.</value></data>
+  <data name="Inventory_SummarySubtitle" xml:space="preserve"><value>थेट साठा मूल्य, रिऑर्डर अलर्ट आणि मुदत समाप्ती नियंत्रण</value></data>
+  <data name="Inventory_ManageSuppliersInMasters" xml:space="preserve"><value>मास्टर्समध्ये पुरवठादार</value></data>
+  <data name="Inventory_ManageUnitsInMasters" xml:space="preserve"><value>मास्टर्समध्ये युनिट व कर</value></data>
+  <data name="Inventory_QuickAddSupplier" xml:space="preserve"><value>त्वरित पुरवठादार जोडा</value></data>
+  <data name="Inventory_QuickAddUnit" xml:space="preserve"><value>त्वरित युनिट जोडा</value></data>
+  <data name="Inventory_QuickAddTax" xml:space="preserve"><value>त्वरित कर दर जोडा</value></data>
+  <data name="Inventory_QuickAddItem" xml:space="preserve"><value>नवीन साठा वस्तू जोडा</value></data>
+  <data name="Inventory_SymbolOrRate" xml:space="preserve"><value>चिन्ह / दर</value></data>
+  <data name="Inventory_ItemName" xml:space="preserve"><value>साहित्य / वस्तू</value></data>
+  <data name="Inventory_Unit" xml:space="preserve"><value>युनिट</value></data>
+  <data name="Inventory_OpeningStock" xml:space="preserve"><value>प्रारंभिक साठा</value></data>
+  <data name="Inventory_CurrentStock" xml:space="preserve"><value>सध्याचा साठा</value></data>
+  <data name="Inventory_ReorderLevel" xml:space="preserve"><value>रिऑर्डर पातळी</value></data>
+  <data name="Inventory_LastRate" xml:space="preserve"><value>शेवटचा खरेदी दर</value></data>
+  <data name="Inventory_StockValue" xml:space="preserve"><value>साठा मूल्य</value></data>
+  <data name="Inventory_ExpiryDate" xml:space="preserve"><value>मुदत समाप्ती दिनांक (पर्यायी)</value></data>
+  <data name="Inventory_Kpi_Items" xml:space="preserve"><value>एकूण वस्तू</value></data>
+  <data name="Inventory_Kpi_ItemsSub" xml:space="preserve"><value>सक्रिय साठा नोंदी</value></data>
+  <data name="Inventory_Kpi_StockValue" xml:space="preserve"><value>एकूण साठा मूल्य</value></data>
+  <data name="Inventory_Kpi_StockValueSub" xml:space="preserve"><value>शेवटच्या खरेदी दरानुसार</value></data>
+  <data name="Inventory_Kpi_LowStock" xml:space="preserve"><value>कमी साठा</value></data>
+  <data name="Inventory_OutOfStock" xml:space="preserve"><value>साठा संपलेला</value></data>
+  <data name="Inventory_Kpi_ExpiringSoon" xml:space="preserve"><value>लवकरच कालबाह्य</value></data>
+  <data name="Inventory_Kpi_ExpiringSub" xml:space="preserve"><value>पुढील ७ दिवसांत</value></data>
+  <data name="StockStatus_OK" xml:space="preserve"><value>पुरेसा</value></data>
+  <data name="StockStatus_Low" xml:space="preserve"><value>कमी</value></data>
+  <data name="StockStatus_Out" xml:space="preserve"><value>संपला</value></data>
+  <data name="Filter_All" xml:space="preserve"><value>सर्व</value></data>
+  <data name="Inventory_AllCategories" xml:space="preserve"><value>सर्व श्रेणी</value></data>
+  <data name="Inventory_SearchPlaceholder" xml:space="preserve"><value>वस्तू किंवा कोड शोधा...</value></data>
+  <data name="Inventory_NoItemsMatch" xml:space="preserve"><value>निवडलेल्या फिल्टरनुसार कोणतीही वस्तू आढळली नाही.</value></data>
+  <data name="Inventory_PurchaseSubtitle" xml:space="preserve"><value>कच्चा माल खरेदी नोंद — साठा, पुरवठादार खातेवही आणि अकाउंट्समध्ये आपोआप नोंद होते</value></data>
+  <data name="Inventory_SelectSupplier" xml:space="preserve"><value>पुरवठादार निवडा</value></data>
+  <data name="Inventory_InvoiceNo" xml:space="preserve"><value>बिल क्रमांक</value></data>
+  <data name="Inventory_InvoiceDate" xml:space="preserve"><value>बिल दिनांक</value></data>
+  <data name="Inventory_InvoiceAttachment" xml:space="preserve"><value>बिलाची प्रत (फोटो किंवा पीडीएफ)</value></data>
+  <data name="Inventory_AttachmentHelp" xml:space="preserve"><value>पुरवठादाराच्या बिलाचा फोटो (JPG, PNG, WEBP) किंवा PDF (कमाल ५ MB) अपलोड करा</value></data>
+  <data name="Inventory_AddLine" xml:space="preserve"><value>ओळ जोडा</value></data>
+  <data name="Inventory_TaxPercent" xml:space="preserve"><value>कर %</value></data>
+  <data name="Inventory_PaymentType" xml:space="preserve"><value>पेमेंट प्रकार</value></data>
+  <data name="Inventory_Paid" xml:space="preserve"><value>भरलेले</value></data>
+  <data name="Inventory_Credit" xml:space="preserve"><value>उधारीवर</value></data>
+  <data name="Inventory_Notes" xml:space="preserve"><value>टिपण / नोंदी</value></data>
+  <data name="Inventory_GstTax" xml:space="preserve"><value>इनपुट जीएसटी कर</value></data>
+  <data name="Inventory_GrandTotal" xml:space="preserve"><value>एकूण रक्कम</value></data>
+  <data name="Inventory_PostsToLedgerHint" xml:space="preserve"><value>अकाउंट्स आणि पुरवठादार खातेवहीत आपोआप व्हाउचर नोंदवले जाते</value></data>
+  <data name="Inventory_RecentPurchases" xml:space="preserve"><value>अलीकडील खरेदी बिले</value></data>
+  <data name="Inventory_Attachment" xml:space="preserve"><value>प्रत</value></data>
+  <data name="Inventory_NoPurchasesYet" xml:space="preserve"><value>अद्याप कोणतीही खरेदी नोंद नाही.</value></data>
+  <data name="Inventory_SupplierLedgerSnapshot" xml:space="preserve"><value>पुरवठादार खातेवही नोंदी</value></data>
+  <data name="Inventory_Balance" xml:space="preserve"><value>शिल्लक</value></data>
+  <data name="Inventory_NoSupplierLedgerYet" xml:space="preserve"><value>पुरवठादार खातेवहीत अद्याप नोंदी नाहीत.</value></data>
+  <data name="Inventory_AdjustmentSubtitle" xml:space="preserve"><value>प्रत्यक्ष मोजणी आणि सिस्टममधील साठ्याचा मेळ घाला</value></data>
+  <data name="Inventory_PhysicalCount" xml:space="preserve"><value>प्रत्यक्ष साठा</value></data>
+  <data name="Inventory_SystemStock" xml:space="preserve"><value>सिस्टम साठा</value></data>
+  <data name="Inventory_Variance" xml:space="preserve"><value>फरक</value></data>
+  <data name="Inventory_Reason" xml:space="preserve"><value>कारण</value></data>
+  <data name="Inventory_RecentAdjustments" xml:space="preserve"><value>अलीकडील साठा समायोजने</value></data>
+  <data name="Inventory_WastageSubtitle" xml:space="preserve"><value>खराब झालेला किंवा कालबाह्य माल नोंदवा — साठा वजा होतो व नुकसान व्हाउचर तयार होते</value></data>
+  <data name="Inventory_AvailableStock" xml:space="preserve"><value>उपलब्ध साठा</value></data>
+  <data name="Inventory_EstimatedLoss" xml:space="preserve"><value>अंदाजित नुकसान</value></data>
+  <data name="Inventory_WastageReason" xml:space="preserve"><value>नुकसानीचे कारण</value></data>
+  <data name="Inventory_RecentWastage" xml:space="preserve"><value>अलीकडील नुकसान नोंदी</value></data>
+  <data name="Inventory_WastedQty" xml:space="preserve"><value>वाया गेलेले प्रमाण</value></data>
+  <data name="Inventory_LossValue" xml:space="preserve"><value>नुकसान मूल्य</value></data>
+  <data name="Inventory_ConsumptionSubtitle" xml:space="preserve"><value>किचन, तंदूर, बेकरी किंवा स्टाफसाठी वापरलेला कच्चा माल नोंदवा</value></data>
+  <data name="Inventory_Department" xml:space="preserve"><value>किचन / विभाग</value></data>
+  <data name="Inventory_ConsumptionValue" xml:space="preserve"><value>वापर मूल्य</value></data>
+  <data name="Inventory_RecentConsumption" xml:space="preserve"><value>अलीकडील वापर नोंदी</value></data>
+  <data name="Inventory_EstRestockCost" xml:space="preserve"><value>अंदाजित रिस्टॉक खर्च</value></data>
+  <data name="Inventory_Deficit" xml:space="preserve"><value>तूट</value></data>
+  <data name="Inventory_AllStockHealthy" xml:space="preserve"><value>सर्व वस्तूंचा साठा रिऑर्डर पातळीपेक्षा वर आहे.</value></data>
+  <data name="Inventory_Restock" xml:space="preserve"><value>खरेदी करा</value></data>
+  <data name="Inventory_LedgerSubtitle" xml:space="preserve"><value>सर्व साठा आवक-जावक नोंदी व चालू शिल्लक</value></data>
+  <data name="Inventory_InQty" xml:space="preserve"><value>आवक</value></data>
+  <data name="Inventory_OutQty" xml:space="preserve"><value>जावक</value></data>
+  <data name="Inventory_RefNo" xml:space="preserve"><value>संदर्भ क्र.</value></data>
+  <data name="Inventory_ValueImpact" xml:space="preserve"><value>मूल्य परिणाम</value></data>
+  <data name="Inventory_NoRecordsYet" xml:space="preserve"><value>अद्याप कोणतीही नोंद नाही.</value></data>
+  <data name="Supplier_Name" xml:space="preserve"><value>पुरवठादार</value></data>
+  <data name="Contact_Person" xml:space="preserve"><value>संपर्क व्यक्ती</value></data>
+  <data name="Code" xml:space="preserve"><value>कोड</value></data>
+  <data name="Date" xml:space="preserve"><value>दिनांक</value></data>
+  <data name="Category" xml:space="preserve"><value>श्रेणी</value></data>
+  <data name="Name" xml:space="preserve"><value>नाव</value></data>
+  <data name="FromDate" xml:space="preserve"><value>पासून दिनांक</value></data>
+  <data name="ToDate" xml:space="preserve"><value>पर्यंत दिनांक</value></data>
+  <data name="Btn_Filter" xml:space="preserve"><value>फिल्टर</value></data>
+  <data name="Btn_Print" xml:space="preserve"><value>प्रिंट</value></data>
+  <data name="Reports_HubSubtitle" xml:space="preserve"><value>श्रेणीनुसार विक्री, जीएसटी, कर्मचारी, साठा आणि आर्थिक विश्लेषण अहवाल</value></data>
+  <data name="Reports_AvailableCount" xml:space="preserve"><value>अहवाल उपलब्ध</value></data>
+  <data name="Reports_SearchPlaceholder" xml:space="preserve"><value>नाव, कोड किंवा श्रेणीने अहवाल शोधा...</value></data>
+  <data name="Reports_Favourites" xml:space="preserve"><value>आवडते</value></data>
+  <data name="Reports_RecentlyUsed" xml:space="preserve"><value>अलीकडे पाहिलेले</value></data>
+  <data name="Reports_ToggleFavorite" xml:space="preserve"><value>आवडत्यामध्ये जोडा / काढा</value></data>
+  <data name="Reports_HasChart" xml:space="preserve"><value>केपीआय + चार्ट + तक्ता</value></data>
+  <data name="Reports_PagedGrid" xml:space="preserve"><value>पृष्ठनिहाय तक्ता</value></data>
+  <data name="Reports_OpenReport" xml:space="preserve"><value>अहवाल पहा</value></data>
+  <data name="Reports_NoMatchingReports" xml:space="preserve"><value>जुळणारे अहवाल आढळले नाहीत</value></data>
+  <data name="Reports_TryDifferentSearch" xml:space="preserve"><value>वेगळा शब्द शोधा किंवा वरील श्रेणी टॅब बदला.</value></data>
+  <data name="Reports_ExportExcel" xml:space="preserve"><value>एक्सेल</value></data>
+  <data name="Reports_AllReports" xml:space="preserve"><value>सर्व अहवाल</value></data>
+  <data name="Reports_Preset_Today" xml:space="preserve"><value>आज</value></data>
+  <data name="Reports_Preset_Yesterday" xml:space="preserve"><value>काल</value></data>
+  <data name="Reports_Preset_ThisWeek" xml:space="preserve"><value>हा आठवडा</value></data>
+  <data name="Reports_Preset_ThisMonth" xml:space="preserve"><value>हा महिना</value></data>
+  <data name="Reports_Preset_LastMonth" xml:space="preserve"><value>मागील महिना</value></data>
+  <data name="Reports_Preset_ThisFY" xml:space="preserve"><value>हे आर्थिक वर्ष</value></data>
+  <data name="Reports_Preset_Custom" xml:space="preserve"><value>सानुकूल</value></data>
+  <data name="Reports_Filter_Shift" xml:space="preserve"><value>शिफ्ट</value></data>
+  <data name="Reports_Filter_Waiter" xml:space="preserve"><value>वेटर / कर्मचारी</value></data>
+  <data name="Reports_Filter_OrderType" xml:space="preserve"><value>ऑर्डर प्रकार</value></data>
+  <data name="Reports_Apply" xml:space="preserve"><value>लागू करा</value></data>
+  <data name="Reports_Reset" xml:space="preserve"><value>रीसेट</value></data>
+  <data name="Reports_NoDataForFilters" xml:space="preserve"><value>निवडलेल्या फिल्टरसाठी कोणतीही माहिती उपलब्ध नाही</value></data>
+  <data name="Reports_NoDataHint" xml:space="preserve"><value>माहिती पाहण्यासाठी दिनांक कालावधी बदला किंवा फिल्टर रीसेट करा.</value></data>
+  <data name="Reports_ErrorTitle" xml:space="preserve"><value>अहवाल लोड करता आला नाही</value></data>
+  <data name="Reports_ErrorFallback" xml:space="preserve"><value>अहवाल माहिती मिळवताना त्रुटी आली. कृपया पुन्हा प्रयत्न करा.</value></data>
+  <data name="Reports_Retry" xml:space="preserve"><value>पुन्हा प्रयत्न करा</value></data>
+  <data name="Reports_InteractiveChart" xml:space="preserve"><value>आलेख विश्लेषण</value></data>
+  <data name="Reports_DrillDownHint" xml:space="preserve"><value>सविस्तर माहिती ड्रॉवरमध्ये पाहण्यासाठी कोणत्याही ओळीवर क्लिक करा</value></data>
+  <data name="Reports_RowsPerPage" xml:space="preserve"><value>ओळी</value></data>
+  <data name="Val_MobileFormat" xml:space="preserve"><value>६, ७, ८ किंवा ९ ने सुरू होणारा वैध १०-अंकी मोबाईल क्रमांक प्रविष्ट करा.</value></data>
+  <data name="Val_EmailFormat" xml:space="preserve"><value>वैध ईमेल पत्ता प्रविष्ट करा (उदा. name@example.com).</value></data>
+  <data name="Val_GstinFormat" xml:space="preserve"><value>योग्य चेकसम असलेला १५-अक्षरी वैध जीएसटीआयएन प्रविष्ट करा (उदा. 27AAAAA0000A1Z5).</value></data>
+  <data name="Val_PanFormat" xml:space="preserve"><value>वैध १०-अक्षरी पॅन क्रमांक प्रविष्ट करा (उदा. ABCDE1234F).</value></data>
+  <data name="Val_UpiIdFormat" xml:space="preserve"><value>वैध यूपीआय आयडी प्रविष्ट करा (उदा. hotelname@okhdfc).</value></data>
+  <data name="Val_DuplicateRecord" xml:space="preserve"><value>{1} '{2}' असलेला {0} आधीच अस्तित्वात आहे. वेगळा {1} प्रविष्ट करा.</value></data>
+  <data name="Val_DeleteInUse" xml:space="preserve"><value>हटवता येत नाही, {0} बिलांमध्ये वापरलेले आहे. त्याऐवजी निष्क्रिय करा</value></data>
+  <data name="Val_ConcurrencyConflict" xml:space="preserve"><value>आपण बदल करत असताना इतर वापरकर्त्याने ही नोंद अद्यतनित केली आहे. कृपया ताजी माहिती रीलोड करून पुन्हा प्रयत्न करा.</value></data>
+  <data name="Val_LockedAccountingPeriod" xml:space="preserve"><value>{1} पर्यंत लेखा कालावधी लॉक असल्याने {0} रोजीचे व्यवहार करता येत नाहीत.</value></data>
+  <data name="Val_LockedAttendanceMonth" xml:space="preserve"><value>{0} महिन्याचा पगार अंतिम झाल्यामुळे हजेरी लॉक केली आहे; बदल करता येणार नाहीत.</value></data>
+  <data name="Val_TableOccupied" xml:space="preserve"><value>टेबल {0} आधीच व्यापलेले आहे. चालू ऑर्डर उघडा किंवा रिकामे टेबल निवडा.</value></data>
+  <data name="Val_TableMoveRunningKot" xml:space="preserve"><value>टेबल {0} वर {1} सक्रिय केओटी किचनमध्ये चालू आहेत. टेबल {2} वर हलवण्यापूर्वी केओटी हस्तांतरणाची खात्री करा.</value></data>
+  <data name="Val_NegativeStockBlocked" xml:space="preserve"><value>{0} चा साठा अपुरा आहे. हॉटेल सेटिंग्जनुसार ऋण साठ्याला परवानगी नाही.</value></data>
+  <data name="Val_WastageReasonRequired" xml:space="preserve"><value>नुकसानीचे कारण लिहिणे आवश्यक आहे.</value></data>
+  <data name="Val_DuplicateSupplierInvoice" xml:space="preserve"><value>{1} साठी बिल क्रमांक '{0}' आधीच नोंदवला आहे.</value></data>
+  <data name="Val_FutureDateBlocked" xml:space="preserve"><value>भविष्यातील दिनांक निवडता येणार नाही.</value></data>
+  <data name="Val_SessionTimeoutCartSaved" xml:space="preserve"><value>तुमची पीओएस कार्ट सुरक्षित ठेवली आहे. ऑर्डर न गमावता बिलिंग पुढे सुरू ठेवण्यासाठी पुन्हा लॉगिन करा.</value></data>
+  <data name="Val_OfflineToast" xml:space="preserve"><value>तुम्ही ऑफलाइन आहात. इंटरनेट सुरू होईपर्यंत न जतन केलेली माहिती फॉर्ममध्ये सुरक्षित ठेवली आहे.</value></data>
+  <data name="Val_VoucherUnbalanced" xml:space="preserve"><value>व्हाउचर नोंदवण्यापूर्वी एकूण डेबिट आणि एकूण क्रेडिट समान असणे आवश्यक आहे.</value></data>
+  <data name="Val_ManagerOverrideReason" xml:space="preserve"><value>पुढे जाण्यापूर्वी मॅनेजर ओव्हरराइडचे स्पष्ट कारण प्रविष्ट करा.</value></data>
+  <data name="Val_ImageUploadInvalid" xml:space="preserve"><value>कमाल २ MB ची वैध JPG, PNG किंवा WEBP प्रतिमा (किंवा बिलासाठी कमाल ५ MB ची PDF) अपलोड करा.</value></data>
 </root>

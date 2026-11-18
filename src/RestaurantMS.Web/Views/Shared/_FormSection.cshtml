@@ -1,0 +1,23 @@
+@model RestaurantMS.Web.Models.FormSectionModel
+
+<div class="app-form-section-header d-flex align-items-start gap-2 pb-2 mb-3 border-bottom">
+    @if (!string.IsNullOrEmpty(Model.Icon))
+    {
+        <div class="app-form-section-icon d-flex align-items-center justify-content-center rounded-3 bg-plum-subtle text-plum flex-shrink-0">
+            <i class="bi @Model.Icon"></i>
+        </div>
+    }
+    else if (Model.StepNumber.HasValue)
+    {
+        <div class="app-form-section-icon d-flex align-items-center justify-content-center rounded-circle bg-plum text-white fw-bold small flex-shrink-0">
+            @Model.StepNumber
+        </div>
+    }
+    <div>
+        <h3 class="h6 fw-bold text-ink mb-0">@Model.Title</h3>
+        @if (!string.IsNullOrEmpty(Model.HelperText))
+        {
+            <p class="text-muted small mb-0 mt-1">@Model.HelperText</p>
+        }
+    </div>
+</div>

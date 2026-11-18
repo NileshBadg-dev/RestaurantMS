@@ -1,0 +1,103 @@
+@model RestaurantMS.Web.Models.StaffHubViewModel
+
+<div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3 pb-3 border-bottom">
+        <div class="d-flex align-items-center gap-2">
+            <div class="d-flex align-items-center justify-content-center bg-plum-subtle text-plum rounded-3" style="width: 36px; height: 36px;">
+                <i class="bi bi-people-fill fs-5"></i>
+            </div>
+            <div>
+                <h2 class="h5 fw-bold text-ink mb-0">@Localizer["Staff_List_Heading"]</h2>
+                <div class="small text-muted">@Localizer["Staff_List_Subtitle"]</div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+                <input type="hidden" name="tab" value="list" />
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" value="@Model.Search" class="form-control border-start-0" placeholder="@Localizer["Common_SearchPlaceholder"]" />
+                </div>
+            </form>
+            <a asp-action="Create" class="btn btn-teal btn-sm rounded-pill px-3 fw-semibold text-white shadow-sm" permission="Staff.Create">
+                <i class="bi bi-person-plus me-1"></i> @Localizer["Staff_Create_Title"]
+            </a>
+        </div>
+    </div>
+
+    <div class="table-responsive mt-3">
+        @if (Model.StaffProfiles.Count == 0)
+        {
+            <partial name="_EmptyState" model='new RestaurantMS.Web.Models.EmptyStateModel { Icon = "bi-people", Title = "Staff_Empty_Title", Description = "Staff_Empty_Desc", ActionText = "Staff_Create_Title", ActionUrl = Url.Action("Create", "Staff") }' />
+        }
+        else
+        {
+            <table class="master-grid-table table align-middle mb-0" id="staffListTable">
+                <thead>
+                    <tr>
+                        <th>@Localizer["Staff_Col_Employee"]</th>
+                        <th>@Localizer["Staff_Col_DesignationShift"]</th>
+                        <th>@Localizer["Staff_Col_JoiningDate"]</th>
+                        <th>@Localizer["Staff_Col_Salary"]</th>
+                        <th>@Localizer["Staff_Col_IdBank"]</th>
+                        <th>@Localizer["Common_Status"]</th>
+                        <th class="text-end">@Localizer["Common_Actions"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.StaffProfiles)
+                    {
+                        var initials = string.Join("", s.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(w => char.ToUpperInvariant(w[0])));
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrEmpty(s.PhotoUrl))
+                                    {
+                                        <img src="@s.PhotoUrl" alt="@s.Name" class="rounded-circle object-fit-cover border" style="width: 38px; height: 38px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-plum text-white fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; font-size: 0.85rem;">
+                                            @initials
+                                        </div>
+                                    }
+                                    <div>
+                                        <div class="fw-bold text-ink">@s.Name <span class="badge bg-light text-muted border ms-1">@s.EmployeeCode</span></div>
+                                        <div class="small text-muted"><i class="bi bi-telephone me-1"></i>@s.Mobile</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="fw-semibold text-ink">@s.Designation</div>
+                                <div class="small text-muted"><i class="bi bi-clock me-1"></i>@s.Shift</div>
+                            </td>
+                            <td class="small text-muted">@s.JoiningDate.ToString("dd MMM yyyy")</td>
+                            <td>
+                                <div class="fw-bold text-ink">₹@s.BasicSalary.ToString("N0")</div>
+                                <span class="badge @(s.SalaryType == "Daily" ? "bg-warning-subtle text-dark" : "bg-teal-subtle text-teal") border-0">
+                                    @s.SalaryType
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small text-ink">@s.IdProof</div>
+                                <div class="small text-muted text-truncate" style="max-width: 190px;" title="@s.BankOrUpi">@s.BankOrUpi</div>
+                            </td>
+                            <td>
+                                <status-chip status="@(s.IsActive ? "Active" : "Inactive")" label="@(s.IsActive ? Localizer["Common_Active"].Value : Localizer["Common_Inactive"].Value)"></status-chip>
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@s.Id" class="btn btn-sm btn-outline-plum rounded-3 px-2 py-1 me-1" title="@Localizer["Staff_ViewProfile"]">
+                                    <i class="bi bi-person-vcard me-1"></i>@Localizer["Staff_Profile"]
+                                </a>
+                                <a asp-action="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-outline-primary rounded-3 px-2 py-1" permission="Staff.Edit" title="@Localizer["Common_Edit"]">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+</div>

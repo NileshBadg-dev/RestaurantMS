@@ -8,31 +8,45 @@
 <ul class="nav flex-column sidebar-nav-list gap-1 p-0 m-0">
     @foreach (var item in Model)
     {
+        if (item.IsSectionHeader)
+        {
+            <li class="nav-section-label">
+                <span>@Localizer[item.TitleKey]</span>
+            </li>
+            continue;
+        }
+
         var children = item.Children ?? new List<RestaurantMS.Web.Models.NavItem>();
         var hasChildren = children.Count > 0;
         var isChildActive = hasChildren && children.Any(c => string.Equals(currentController, c.Controller, StringComparison.OrdinalIgnoreCase));
-        var isActive = string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase) || isChildActive;
+        var isActive = (string.Equals(currentController, item.Controller, StringComparison.OrdinalIgnoreCase) && !hasChildren) || isChildActive;
 
         if (hasChildren)
         {
-            var collapseId = $"collapse-{item.Controller}";
+            var collapseId = $"collapse-{item.Controller}-{item.TitleKey.Replace(" ", "-")}";
             <li class="nav-item">
-                <div class="d-flex align-items-center justify-content-between sidebar-nav-link @(isActive ? "active" : "")">
+                <div class="d-flex align-items-center justify-content-between sidebar-nav-link @(isChildActive ? "active" : "")">
                     <a asp-controller="@item.Controller" asp-action="@item.Action" class="d-flex align-items-center gap-2 text-decoration-none text-reset flex-grow-1" title="@Localizer[item.TitleKey]">
                         <i class="bi @item.Icon nav-icon"></i>
                         <span class="nav-text">@Localizer[item.TitleKey]</span>
                     </a>
-                    <button class="btn btn-sm btn-link p-0 text-reset border-0 ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(isActive ? "true" : "false")" aria-controls="@collapseId" title="Toggle Submenu" style="min-height: auto !important; width: 24px; height: 24px;">
-                        <i class="bi bi-chevron-down small transition-transform" style="@(isActive ? "transform: rotate(180deg);" : "")"></i>
+                    <button class="btn btn-sm btn-link p-0 text-reset border-0 ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="@(isChildActive ? "true" : "false")" aria-controls="@collapseId" title="Toggle Submenu" style="min-height: auto !important; width: 24px; height: 24px;">
+                        <i class="bi bi-chevron-down small transition-transform" style="@(isChildActive ? "transform: rotate(180deg);" : "")"></i>
                     </button>
                 </div>
-                <div class="collapse @(isActive ? "show" : "") mt-1 ps-2" id="@collapseId">
+                <div class="collapse @(isChildActive ? "show" : "") mt-1 ps-2" id="@collapseId">
                     <ul class="nav flex-column gap-1 border-start border-white border-opacity-25 ps-2">
                         @foreach (var child in children)
                         {
-                            var isSubActive = string.Equals(currentController, child.Controller, StringComparison.OrdinalIgnoreCase);
+                            var isSubActive = string.Equals(currentController, child.Controller, StringComparison.OrdinalIgnoreCase) &&
+                                              (string.IsNullOrEmpty(child.Action) || string.Equals(currentAction, child.Action, StringComparison.OrdinalIgnoreCase));
+
+                            var routeValues = !string.IsNullOrEmpty(child.RouteValueKey) && !string.IsNullOrEmpty(child.RouteValue)
+                                ? new Dictionary<string, string> { { child.RouteValueKey, child.RouteValue } }
+                                : null;
+
                             <li class="nav-item">
-                                <a asp-controller="@child.Controller" asp-action="@child.Action"
+                                <a asp-controller="@child.Controller" asp-action="@child.Action" asp-all-route-data="routeValues"
                                    class="sidebar-nav-link sidebar-subnav-link py-1 px-2 @(isSubActive ? "active" : "")"
                                    title="@Localizer[child.TitleKey]" style="font-size: 0.82rem; min-height: 32px !important;">
                                     <i class="bi @child.Icon nav-icon fs-6" style="width: 18px !important;"></i>

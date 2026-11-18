@@ -1,0 +1,113 @@
+@model RestaurantMS.Web.Models.StockAdjustmentViewModel
+@{
+    ViewData["Title"] = Localizer["Nav_StockAdjustment"].Value;
+    var todayStr = DateTime.UtcNow.AddHours(5).AddMinutes(30).ToString("yyyy-MM-dd");
+}
+
+<div class="mx-auto d-flex flex-column gap-4" style="max-width: 920px;" id="inventoryModuleRoot">
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+        <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3">
+            <div>
+                <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-sliders text-plum me-2"></i> @Localizer["Nav_StockAdjustment"]</h2>
+                <div class="text-muted small">@Localizer["Inventory_AdjustmentSubtitle"]</div>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="bi bi-arrow-left"></i> @Localizer["Nav_StockSummary"]
+            </a>
+        </div>
+
+        <form method="post" asp-action="Adjustment" data-app-form="true" novalidate>
+            @Html.AntiForgeryToken()
+
+            <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 js-form-error-summary @(ViewData.ModelState.IsValid ? "d-none" : "")" role="alert">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="mb-0"></div>
+                }
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-12 col-md-6 app-form-field">
+                    <label asp-for="StockItemId" class="form-label fw-semibold small text-ink mb-1">@Localizer["Inventory_ItemName"] <span class="text-chili">*</span></label>
+                    <select asp-for="StockItemId" id="invMovementItemSelect" class="form-select" required>
+                        <option value="">-- Select Stock Item --</option>
+                        @foreach (var item in Model.StockItems)
+                        {
+                            <option value="@item.Id"
+                                    data-stock="@item.CurrentStock"
+                                    data-unit="@item.Unit"
+                                    data-rate="@item.LastPurchaseRate">@item.Name (@item.CurrentStock.ToString("0.##") @item.Unit)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-6 col-md-3 app-form-field">
+                    <label asp-for="PhysicalCount" class="form-label fw-semibold small text-ink mb-1">@Localizer["Inventory_PhysicalCount"] <span class="text-chili">*</span></label>
+                    <input asp-for="PhysicalCount" id="invPhysicalCountInput" type="number" step="0.01" min="@(Model.AllowNegativeStock ? "-999999" : "0")" class="form-control font-monospace" required />
+                </div>
+
+                <div class="col-6 col-md-3 app-form-field">
+                    <label asp-for="AdjustmentDate" class="form-label fw-semibold small text-ink mb-1">@Localizer["Date"] <span class="text-chili">*</span></label>
+                    <input asp-for="AdjustmentDate" type="date" max="@todayStr" value="@Model.AdjustmentDate.ToString("yyyy-MM-dd")" class="form-control" required />
+                </div>
+
+                <div class="col-12">
+                    <div class="p-3 bg-cream rounded-3 border d-flex flex-wrap justify-content-between gap-3 small">
+                        <span>@Localizer["Inventory_SystemStock"]: <strong id="invSystemStockDisplay" class="font-monospace text-ink">-</strong></span>
+                        <span>@Localizer["Inventory_LastRate"]: <strong id="invItemRateDisplay" class="font-monospace text-muted">-</strong></span>
+                        <span>@Localizer["Inventory_Variance"]: <strong id="invVariancePreview" class="font-monospace">-</strong></span>
+                    </div>
+                </div>
+
+                <div class="col-12 app-form-field">
+                    <label asp-for="Reason" class="form-label fw-semibold small text-ink mb-1">@Localizer["Inventory_Reason"] <span class="text-chili">*</span></label>
+                    <textarea asp-for="Reason" class="form-control" rows="2" placeholder="e.g. Monthly physical audit reconciliation" required></textarea>
+                </div>
+            </div>
+
+            <partial name="_FormFooter" model='new RestaurantMS.Web.Models.FormFooterModel { CancelUrl = Url.Action("Index", "Inventory")!, ShowSaveAndNew = true }' />
+        </form>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
+        <h6 class="fw-bold text-ink mb-3"><i class="bi bi-clock-history me-1 text-plum"></i> @Localizer["Inventory_RecentAdjustments"]</h6>
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
+                    <tr>
+                        <th>@Localizer["Date"]</th>
+                        <th>@Localizer["Inventory_ItemName"]</th>
+                        <th class="text-end">@Localizer["Inventory_InQty"]</th>
+                        <th class="text-end">@Localizer["Inventory_OutQty"]</th>
+                        <th class="text-end">@Localizer["Inventory_Balance"]</th>
+                        <th>@Localizer["Inventory_Reason"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.RecentAdjustments.Count == 0)
+                    {
+                        <tr><td colspan="6" class="text-center text-muted py-3 small">@Localizer["Inventory_NoRecordsYet"]</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var r in Model.RecentAdjustments)
+                        {
+                            <tr>
+                                <td class="small text-muted">@r.EntryDate.ToString("dd-MMM-yyyy")</td>
+                                <td class="fw-semibold small">@r.ItemName</td>
+                                <td class="text-end font-monospace text-teal">@(r.InQty > 0 ? $"+{r.InQty:0.##} {r.Unit}" : "-")</td>
+                                <td class="text-end font-monospace text-chili">@(r.OutQty > 0 ? $"-{r.OutQty:0.##} {r.Unit}" : "-")</td>
+                                <td class="text-end font-monospace fw-bold">@r.BalanceQty.ToString("0.##") @r.Unit</td>
+                                <td class="small text-muted">@r.Reason</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/modules/inventory.js" asp-append-version="true"></script>
+}

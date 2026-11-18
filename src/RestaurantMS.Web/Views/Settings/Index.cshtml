@@ -129,21 +129,82 @@
                             </select>
                             <span asp-validation-for="Currency" class="text-danger small"></span>
                         </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="HotelUpiId" class="form-label fw-semibold small text-secondary"></label>
+                            <input asp-for="HotelUpiId" class="form-control font-monospace" placeholder="e.g. grandrestaurant@okhdfc" />
+                            <span asp-validation-for="HotelUpiId" class="text-danger small"></span>
+                            <div class="form-text small">@Localizer["Settings_UpiId_Help"]</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-2">
+                                <input asp-for="UpiReferenceRequired" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="UpiReferenceRequired" class="form-check-label fw-semibold small">@Localizer["Settings_UpiRefRequired"]</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-2">
+                                <input asp-for="CardDetailsRequired" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="CardDetailsRequired" class="form-check-label fw-semibold small">@Localizer["Settings_CardDetailsRequired"]</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Tab 3: Printing & Receipts -->
                 <div class="tab-pane fade @(Model.ActiveTab == "printing" ? "show active" : "")" id="printing-pane" role="tabpanel">
                     <div class="row g-3">
+                        <div class="col-md-4">
+                            <label asp-for="PaperSize" class="form-label fw-semibold small text-secondary">@Localizer["Settings_PaperSize"]</label>
+                            <select asp-for="PaperSize" class="form-select">
+                                <option value="58mm">58mm Thermal Roll</option>
+                                <option value="80mm">80mm Thermal Roll (Standard)</option>
+                                <option value="A4">A4 Laser / Inkjet Invoice</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label asp-for="PrintCopies" class="form-label fw-semibold small text-secondary">@Localizer["Settings_PrintCopies"]</label>
+                            <input asp-for="PrintCopies" class="form-control" type="number" min="1" max="5" />
+                            <span asp-validation-for="PrintCopies" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 d-flex flex-column justify-content-end gap-2">
+                            <div class="form-check form-switch">
+                                <input asp-for="AutoPrintOnSettle" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="AutoPrintOnSettle" class="form-check-label fw-semibold small">@Localizer["Settings_AutoPrintOnSettle"]</label>
+                            </div>
+                            <div class="form-check form-switch">
+                                <input asp-for="AutoPrintKot" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="AutoPrintKot" class="form-check-label fw-semibold small">@Localizer["Settings_AutoPrintKot"]</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input asp-for="ShowMarathiItemNames" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="ShowMarathiItemNames" class="form-check-label fw-semibold small">@Localizer["Settings_ShowMarathiItems"]</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                <input asp-for="ShowUpiQrOnReceipt" class="form-check-input" type="checkbox" role="switch" />
+                                <label asp-for="ShowUpiQrOnReceipt" class="form-check-label fw-semibold small">@Localizer["Settings_ShowUpiQr"]</label>
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label asp-for="ReceiptHeader" class="form-label fw-semibold small text-secondary"></label>
-                            <textarea asp-for="ReceiptHeader" class="form-control font-monospace" rows="3" placeholder="Text displayed at top of customer invoice"></textarea>
+                            <textarea asp-for="ReceiptHeader" class="form-control font-monospace" rows="2" placeholder="Text displayed at top of customer invoice"></textarea>
                             <span asp-validation-for="ReceiptHeader" class="text-danger small"></span>
                         </div>
 
                         <div class="col-12">
                             <label asp-for="ReceiptFooter" class="form-label fw-semibold small text-secondary"></label>
-                            <textarea asp-for="ReceiptFooter" class="form-control font-monospace" rows="3" placeholder="Text displayed at bottom of customer invoice"></textarea>
+                            <textarea asp-for="ReceiptFooter" class="form-control font-monospace" rows="2" placeholder="Text displayed at bottom of customer invoice"></textarea>
                             <span asp-validation-for="ReceiptFooter" class="text-danger small"></span>
                         </div>
                     </div>

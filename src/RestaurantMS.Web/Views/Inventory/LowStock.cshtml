@@ -4,59 +4,75 @@
 }
 
 <div class="low-stock-page d-flex flex-column gap-3">
-    <!-- Header with Alert Badge -->
     <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <h2 class="h4 fw-bold text-ink mb-1"><i class="bi bi-exclamation-triangle-fill text-chili me-2"></i> @Localizer["Inventory_LowStock_Title"]</h2>
-                <div class="d-flex align-items-center gap-3 text-muted small">
-                    <span class="text-chili"><strong class="badge bg-danger-subtle text-chili">@Model.CriticalItemCount Items</strong> Below Reorder Point</span>
-                    <span>&bull;</span>
-                    <span class="fw-bold text-plum font-monospace">Estimated Restock Cost: ₹@Model.EstimatedReorderCost.ToString("N0")</span>
+                <div class="d-flex flex-wrap align-items-center gap-3 text-muted small">
+                    <span class="badge bg-chili text-white">@Model.OutOfStockCount @Localizer["StockStatus_Out"]</span>
+                    <span class="badge bg-saffron text-dark">@(Model.CriticalItemCount - Model.OutOfStockCount) @Localizer["StockStatus_Low"]</span>
+                    <span class="fw-bold text-plum font-monospace">@Localizer["Inventory_EstRestockCost"]: ₹@Model.EstimatedReorderCost.ToString("N2")</span>
                 </div>
             </div>
 
             <div class="d-flex gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary px-3 py-2">
-                    <i class="bi bi-arrow-left me-1"></i> Stock List
+                <a asp-action="Index" class="btn btn-sm btn-outline-secondary px-3">
+                    <i class="bi bi-arrow-left"></i> @Localizer["Nav_StockSummary"]
                 </a>
-                <a asp-action="Purchase" class="btn btn-plum px-3 py-2 fw-semibold shadow-sm">
-                    <i class="bi bi-cart-plus me-1"></i> Order Stock
+                <a asp-action="Purchase" class="btn btn-sm btn-plum px-3 shadow-sm" permission="@Permissions.Inventory.Purchase">
+                    <i class="bi bi-cart-plus"></i> @Localizer["Nav_Purchase"]
                 </a>
             </div>
         </div>
     </div>
 
-    <!-- Alert Items Table Grid -->
     <div class="card border-0 shadow-sm rounded-3 bg-white p-3">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0 font-monospace">
-                <thead class="table-light small text-muted text-uppercase font-sans">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light small text-muted text-uppercase">
                     <tr>
-                        <th>Item Name</th>
-                        <th>Category</th>
-                        <th class="text-end text-danger">Current Stock</th>
-                        <th class="text-end">Reorder Point</th>
-                        <th class="text-end">Deficit</th>
-                        <th class="text-end font-sans">Action</th>
+                        <th>@Localizer["Code"]</th>
+                        <th>@Localizer["Inventory_ItemName"]</th>
+                        <th>@Localizer["Category"]</th>
+                        <th class="text-end">@Localizer["Inventory_CurrentStock"]</th>
+                        <th class="text-end">@Localizer["Inventory_ReorderLevel"]</th>
+                        <th class="text-end">@Localizer["Inventory_Deficit"]</th>
+                        <th class="text-end">@Localizer["Inventory_LastRate"]</th>
+                        <th class="text-center">@Localizer["Status"]</th>
+                        <th class="text-end">@Localizer["Actions"]</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.AlertItems)
+                    @if (Model.AlertItems.Count == 0)
                     {
-                        var deficit = item.ReorderLevel - item.CurrentStock;
-                        <tr>
-                            <td class="font-sans fw-bold text-ink">@item.Name</td>
-                            <td class="font-sans small text-muted">@item.Category</td>
-                            <td class="text-end fw-bold text-danger">@item.CurrentStock.ToString("N1") @item.Unit</td>
-                            <td class="text-end text-muted">@item.ReorderLevel.ToString("N1") @item.Unit</td>
-                            <td class="text-end fw-bold text-chili">@deficit.ToString("N1") @item.Unit</td>
-                            <td class="text-end font-sans">
-                                <a asp-action="Purchase" class="btn btn-sm btn-teal text-white py-1 px-2">
-                                    <i class="bi bi-cart-plus me-1"></i> Restock
-                                </a>
-                            </td>
-                        </tr>
+                        <tr><td colspan="9" class="text-center text-teal py-4 small fw-semibold"><i class="bi bi-check-circle me-1"></i> @Localizer["Inventory_AllStockHealthy"]</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var item in Model.AlertItems)
+                        {
+                            var deficit = Math.Max(0m, item.ReorderLevel - item.CurrentStock);
+                            var isOut = item.Status == "Out";
+                            <tr>
+                                <td class="font-monospace small text-muted">@item.Code</td>
+                                <td class="fw-bold text-ink">@item.Name</td>
+                                <td><span class="badge bg-light text-dark border">@item.Category</span></td>
+                                <td class="text-end font-monospace fw-bold @(isOut ? "text-chili" : "text-dark")">@item.CurrentStock.ToString("0.##") @item.Unit</td>
+                                <td class="text-end font-monospace text-muted">@item.ReorderLevel.ToString("0.##") @item.Unit</td>
+                                <td class="text-end font-monospace fw-bold text-chili">@deficit.ToString("0.##") @item.Unit</td>
+                                <td class="text-end font-monospace">₹@item.LastPurchaseRate.ToString("N2")</td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill px-3 @(isOut ? "bg-chili text-white" : "bg-saffron text-dark")">
+                                        @(isOut ? Localizer["StockStatus_Out"] : Localizer["StockStatus_Low"])
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-action="Purchase" asp-route-itemId="@item.Id" class="btn btn-sm btn-teal text-white py-1 px-2" permission="@Permissions.Inventory.Purchase">
+                                        <i class="bi bi-cart-plus"></i> @Localizer["Inventory_Restock"]
+                                    </a>
+                                </td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>

@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = Localizer["FeatureDisabled_Title"].Value;
+    var featureKey = ViewData["DisabledFeatureKey"]?.ToString() ?? "Module";
+}
+
+<div class="mx-auto my-5" style="max-width: 560px;">
+    <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-white">
+        <div class="mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center rounded-circle bg-saffron-subtle text-dark" style="width: 64px; height: 64px;">
+                <i class="bi bi-toggle-off fs-1 text-chili"></i>
+            </span>
+        </div>
+        <h3 class="h5 fw-bold text-ink mb-2">@Localizer["FeatureDisabled_Heading"]</h3>
+        <p class="text-muted small mb-3">
+            @Localizer["FeatureDisabled_Message"] (<code class="text-plum">@featureKey</code>)
+        </p>
+        <div class="d-flex justify-content-center gap-2">
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary btn-sm px-3">
+                <i class="bi bi-house-door"></i> @Localizer["Nav_Dashboard"]
+            </a>
+            <a asp-controller="FeatureToggles" asp-action="Index" class="btn btn-plum btn-sm px-3" permission="@Permissions.FeatureToggles.View">
+                <i class="bi bi-toggle-on"></i> @Localizer["Nav_FeatureToggles"]
+            </a>
+        </div>
+    </div>
+</div>

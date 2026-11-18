@@ -18,18 +18,15 @@ public class MenuController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> Categories(CancellationToken cancellationToken)
+    public IActionResult Index()
     {
-        var categories = await _menuUiData.GetCategoriesAsync(cancellationToken);
+        return RedirectToActionPermanent("Index", "Masters", new { tab = "menu-items" });
+    }
 
-        var viewModel = new MenuCategoriesViewModel
-        {
-            Categories = categories,
-            TotalCategories = categories.Count,
-            TotalItems = categories.Sum(c => c.ItemCount)
-        };
-
-        return View(viewModel);
+    [HttpGet]
+    public IActionResult Categories()
+    {
+        return RedirectToActionPermanent("Index", "Masters", new { tab = "categories" });
     }
 
     [HttpGet]
@@ -44,7 +41,7 @@ public class MenuController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult CategoryForm(CategoryFormViewModel model)
+    public IActionResult CategoryForm(CategoryFormViewModel model, string? submitAction = null)
     {
         if (!ModelState.IsValid)
         {
@@ -52,26 +49,32 @@ public class MenuController : Controller
         }
 
         TempData["SuccessMessage"] = $"Category '{model.NameEn}' saved!";
-        return RedirectToAction(nameof(Categories));
+        TempData["HighlightedRow"] = model.NameEn;
+        if (string.Equals(submitAction, "saveAndNew", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction(nameof(CategoryForm));
+        }
+
+        return RedirectToActionPermanent("Index", "Masters", new { tab = "categories" });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult QuickAddCategory(string nameEn, string? nameMr)
+    {
+        if (string.IsNullOrWhiteSpace(nameEn))
+        {
+            return Json(new { isSuccess = false, error = "Category name is required." });
+        }
+
+        var trimmed = nameEn.Trim();
+        return Json(new { isSuccess = true, value = new { id = trimmed, name = trimmed, marathiName = nameMr?.Trim() ?? trimmed } });
     }
 
     [HttpGet]
-    public async Task<IActionResult> Items([FromQuery] string? category, CancellationToken cancellationToken)
+    public IActionResult Items([FromQuery] string? category)
     {
-        var request = new DataTableRequest { Start = 0, Length = 50 };
-        var pagedItems = await _menuUiData.GetMenuItemsAsync(request, null, cancellationToken);
-        var items = pagedItems.Items;
-
-        var viewModel = new MenuItemsViewModel
-        {
-            Items = items,
-            SelectedCategory = category ?? "All",
-            TotalItems = items.Count,
-            VegCount = items.Count(i => i.IsVegetarian),
-            NonVegCount = items.Count(i => !i.IsVegetarian)
-        };
-
-        return View(viewModel);
+        return RedirectToActionPermanent("Index", "Masters", new { tab = "menu-items", category });
     }
 
     [HttpGet]
@@ -91,7 +94,7 @@ public class MenuController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult ItemForm(MenuItemFormViewModel model)
+    public IActionResult ItemForm(MenuItemFormViewModel model, string? submitAction = null)
     {
         if (User.IsInRole("Waiter"))
         {
@@ -104,7 +107,13 @@ public class MenuController : Controller
         }
 
         TempData["SuccessMessage"] = $"Dish '{model.NameEn}' saved successfully!";
-        return RedirectToAction(nameof(Items));
+        TempData["HighlightedRow"] = model.NameEn;
+        if (string.Equals(submitAction, "saveAndNew", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction(nameof(ItemForm));
+        }
+
+        return RedirectToActionPermanent("Index", "Masters", new { tab = "menu-items" });
     }
 
     [HttpPost]
@@ -117,6 +126,6 @@ public class MenuController : Controller
         }
 
         TempData["SuccessMessage"] = $"Dish #{id} removed successfully from menu!";
-        return RedirectToAction(nameof(Items));
+        return RedirectToActionPermanent("Index", "Masters", new { tab = "menu-items" });
     }
 }

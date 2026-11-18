@@ -1,0 +1,45 @@
+@model RestaurantMS.Web.Models.FormFooterModel
+@inject Microsoft.Extensions.Localization.IStringLocalizer<RestaurantMS.Web.SharedResource> Localizer
+
+<div class="app-form-sticky-footer @(Model.IsDrawer ? "app-drawer-sticky-footer" : "") d-flex flex-wrap align-items-center justify-content-between gap-2">
+    <div class="d-flex align-items-center gap-2 small text-muted">
+        <span class="badge bg-saffron-subtle text-dark border border-warning d-none js-dirty-badge">
+            <i class="bi bi-dot fs-5 align-middle"></i>@Localizer["Form_UnsavedChanges"]
+        </span>
+        <span class="d-none d-md-inline-flex align-items-center gap-1 text-muted">
+            <kbd class="bg-light text-dark border px-1">Ctrl+S</kbd> @Localizer["Common_Save"]
+            <span class="mx-1">·</span>
+            <kbd class="bg-light text-dark border px-1">Enter</kbd> @Localizer["Form_NextField"]
+        </span>
+    </div>
+
+    <div class="d-flex align-items-center gap-2 ms-auto">
+        @if (Model.IsDrawer)
+        {
+            <button type="button" class="btn btn-outline-secondary rounded-pill px-3 js-form-cancel" data-bs-dismiss="offcanvas">
+                @Localizer[Model.CancelLabelKey]
+            </button>
+        }
+        else
+        {
+            <a href="@Model.CancelUrl" class="btn btn-outline-secondary rounded-pill px-4 js-form-cancel">
+                @Localizer[Model.CancelLabelKey]
+            </a>
+        }
+
+        @if (Model.ShowSaveAndNew)
+        {
+            <button type="submit" name="submitAction" value="saveAndNew" class="btn btn-outline-teal rounded-pill px-3 fw-semibold js-submit-save-new">
+                <i class="bi bi-plus-circle me-1"></i> @Localizer[Model.SaveAndNewLabelKey]
+            </button>
+        }
+
+        <button type="submit" name="submitAction" value="save" class="btn btn-teal text-white rounded-pill px-4 fw-bold shadow-sm js-submit-save">
+            @if (!string.IsNullOrEmpty(Model.PrimaryButtonIcon))
+            {
+                <i class="bi @Model.PrimaryButtonIcon me-1"></i>
+            }
+            @Localizer[Model.SaveLabelKey]
+        </button>
+    </div>
+</div>

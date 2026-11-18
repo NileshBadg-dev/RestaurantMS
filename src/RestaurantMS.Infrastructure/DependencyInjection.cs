@@ -49,6 +49,7 @@ public static class DependencyInjection
         services.AddScoped<ISettingService, SettingService>();
         services.AddScoped<IFeatureService, FeatureService>();
         services.AddScoped<IPermissionService, PermissionService>();
+        services.AddSingleton<IAccountingService, InMemoryAccountingService>();
 
         return services;
     }

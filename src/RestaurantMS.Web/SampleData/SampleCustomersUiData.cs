@@ -97,11 +97,40 @@ public class SampleCustomersUiData : ICustomersUiData
         }
     }
 
+    public static CustomerListItemDto? FindById(long id)
+    {
+        lock (_lock)
+        {
+            return CustomersList.FirstOrDefault(c => c.Id == id);
+        }
+    }
+
+    public static CustomerListItemDto? FindByMobile(string mobile)
+    {
+        lock (_lock)
+        {
+            return CustomersList.FirstOrDefault(c => c.Mobile.Equals(mobile.Trim(), StringComparison.OrdinalIgnoreCase));
+        }
+    }
+
     public static void RecordCreditDebt(string mobile, decimal amount)
     {
         lock (_lock)
         {
             var idx = CustomersList.FindIndex(c => c.Mobile == mobile);
+            if (idx >= 0)
+            {
+                var cur = CustomersList[idx];
+                CustomersList[idx] = new CustomerListItemDto(cur.Id, cur.Name, cur.Mobile, cur.Address, cur.Gstin, cur.CreditAllowed, cur.CreditLimit, cur.OutstandingBalance + amount);
+            }
+        }
+    }
+
+    public static void RecordCreditDebtById(long id, decimal amount)
+    {
+        lock (_lock)
+        {
+            var idx = CustomersList.FindIndex(c => c.Id == id);
             if (idx >= 0)
             {
                 var cur = CustomersList[idx];

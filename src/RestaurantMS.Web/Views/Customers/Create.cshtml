@@ -3,73 +3,75 @@
     ViewData["Title"] = Localizer["Customers_Create_Title"].Value;
 }
 
-<div class="customer-create-page" style="max-width: 800px; margin: 0 auto;">
-    <div class="card border-0 shadow-sm rounded-3 bg-white p-4">
-        <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-3">
-            <div>
-                <h3 class="h4 fw-bold text-ink mb-1"><i class="bi bi-person-plus text-plum me-2"></i> @Localizer["Customers_Create_Title"]</h3>
-                <div class="text-muted small">Register a customer profile for udhari credit tracking &amp; loyalty</div>
-            </div>
-            <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-arrow-left me-1"></i> Back to Customers
-            </a>
-        </div>
-
-        <form asp-action="Create" method="post" id="customerForm">
+<div class="mx-auto" style="max-width: 820px;">
+    <div class="card border-0 shadow-sm rounded-4 bg-white p-4">
+        <form asp-action="Create" method="post" id="customerForm" data-app-form="true" novalidate>
             @Html.AntiForgeryToken()
 
-            <div class="row g-3 mb-4">
-                <div class="col-12 col-md-6">
-                    <label asp-for="FullName" class="form-label fw-bold small text-ink">Full Name *</label>
-                    <input asp-for="FullName" class="form-control" placeholder="e.g. Ramesh Patil" required />
-                    <span asp-validation-for="FullName" class="text-danger small"></span>
-                </div>
+            <div class="alert alert-danger py-2 px-3 small rounded-3 mb-3 js-form-error-summary @(ViewData.ModelState.IsValid ? "d-none" : "")" role="alert">
+                @if (!ViewData.ModelState.IsValid) { <div asp-validation-summary="All" class="mb-0"></div> }
+            </div>
 
-                <div class="col-12 col-md-6">
-                    <label asp-for="MobileNumber" class="form-label fw-bold small text-ink">Mobile Number *</label>
-                    <mobile-input asp-for="MobileNumber" />
-                    <span asp-validation-for="MobileNumber" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="Email" class="form-label fw-bold small text-ink">Email (Optional)</label>
-                    <input asp-for="Email" type="email" class="form-control" placeholder="ramesh@example.com" />
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="Gstin" class="form-label fw-bold small text-ink">GSTIN (for B2B customers)</label>
-                    <input asp-for="Gstin" class="form-control font-monospace" placeholder="27AAAAA0000A1Z2" maxlength="15" />
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="CreditLimit" class="form-label fw-bold small text-ink">Credit Limit (₹)</label>
-                    <money-input asp-for="CreditLimit" />
-                    <span asp-validation-for="CreditLimit" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12 col-md-6">
-                    <label asp-for="CreditDays" class="form-label fw-bold small text-ink">Credit Period (Days)</label>
-                    <input asp-for="CreditDays" type="number" class="form-control" min="0" max="365" value="30" />
-                    <span asp-validation-for="CreditDays" class="text-danger small"></span>
-                </div>
-
-                <div class="col-12">
-                    <label asp-for="Address" class="form-label fw-bold small text-ink">Address</label>
-                    <input asp-for="Address" class="form-control" placeholder="Shop / Home address" />
-                </div>
-
-                <div class="col-12">
-                    <label asp-for="Notes" class="form-label fw-bold small text-ink">Internal Notes</label>
-                    <textarea asp-for="Notes" class="form-control" rows="2" placeholder="e.g. Regular lunch customer, monthly account settlement"></textarea>
+            <div class="mb-4">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_CustomerContact"].Value, HelperText = Localizer["Form_Sec_CustomerContact_Help"].Value, Icon = "bi-person-plus" }' />
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="FullName" class="form-label fw-semibold small text-ink mb-1">Full Name <span class="text-chili">*</span></label>
+                        <input asp-for="FullName" class="form-control" placeholder="e.g. Ramesh Patil" required />
+                        <span asp-validation-for="FullName" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="MobileNumber" class="form-label fw-semibold small text-ink mb-1">Mobile Number <span class="text-chili">*</span></label>
+                        <input asp-for="MobileNumber" class="form-control" placeholder="10-digit mobile" pattern="^[6-9]\d{9}$" maxlength="10" required />
+                        <span asp-validation-for="MobileNumber" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="Email" class="form-label fw-semibold small text-ink mb-1">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="ramesh@example.com" />
+                    </div>
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="Gstin" class="form-label fw-semibold small text-ink mb-1">GSTIN (B2B)</label>
+                        <input asp-for="Gstin" class="form-control font-monospace" placeholder="27AAAAA0000A1Z2" maxlength="15" />
+                    </div>
+                    <div class="col-12 app-form-field">
+                        <label asp-for="Address" class="form-label fw-semibold small text-ink mb-1">Address <span class="text-chili">*</span></label>
+                        <input asp-for="Address" class="form-control" placeholder="Flat / Shop, Road, Area, City" required />
+                        <span asp-validation-for="Address" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
                 </div>
             </div>
 
-            <div class="border-top pt-3 d-flex justify-content-end gap-2">
-                <a asp-action="Index" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
-                <button type="submit" class="btn btn-plum px-4 py-2 fw-bold shadow-sm">
-                    <i class="bi bi-check-circle me-1"></i> Save Customer
-                </button>
+            <div class="mb-3">
+                <partial name="_FormSection" model='new RestaurantMS.Web.Models.FormSectionModel { Title = Localizer["Form_Sec_UdhariTerms"].Value, HelperText = Localizer["Form_Sec_UdhariTerms_Help"].Value, Icon = "bi-journal-bookmark" }' />
+                <div class="row g-3">
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="CreditLimit" class="form-label fw-semibold small text-ink mb-1">Credit Limit</label>
+                        <div class="input-group">
+                            <input asp-for="CreditLimit" type="number" step="100" min="0" class="form-control" placeholder="5000" />
+                            <span class="input-group-text bg-light text-muted fw-semibold">₹</span>
+                        </div>
+                        <span asp-validation-for="CreditLimit" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+                    <div class="col-12 col-md-6 app-form-field">
+                        <label asp-for="CreditDays" class="form-label fw-semibold small text-ink mb-1">Credit Period</label>
+                        <div class="input-group">
+                            <input asp-for="CreditDays" type="number" min="0" max="365" class="form-control" placeholder="30" />
+                            <span class="input-group-text bg-light text-muted small fw-semibold">days</span>
+                        </div>
+                        <span asp-validation-for="CreditDays" class="invalid-feedback d-block small js-field-error"></span>
+                    </div>
+                    <div class="col-12 app-form-field">
+                        <label asp-for="Notes" class="form-label fw-semibold small text-ink mb-1">Internal Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2" placeholder="e.g. Monthly account settlement customer"></textarea>
+                    </div>
+                </div>
             </div>
+
+            <partial name="_FormFooter" model='new RestaurantMS.Web.Models.FormFooterModel { CancelUrl = Url.Action("Index", "Masters", new { tab = "customers" })!, ShowSaveAndNew = true }' />
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

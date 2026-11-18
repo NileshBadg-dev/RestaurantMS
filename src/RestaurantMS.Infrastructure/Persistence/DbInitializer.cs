@@ -128,7 +128,8 @@ public static class DbInitializer
             Permissions.Billing.View, Permissions.Billing.Create, Permissions.Billing.Edit, Permissions.Billing.Print,
             Permissions.Customers.View, Permissions.Customers.Create, Permissions.Customers.Edit,
             Permissions.Credit.View, Permissions.Credit.Create, Permissions.Credit.Edit,
-            Permissions.DayClosing.View, Permissions.DayClosing.Create, Permissions.DayClosing.Print
+            Permissions.DayClosing.View, Permissions.DayClosing.Create, Permissions.DayClosing.Print,
+            Permissions.Reports.View, Permissions.Reports.Print, Permissions.Reports.Sales, Permissions.Reports.Tables, Permissions.Reports.Parcel, Permissions.Reports.Payments
         ]);
 
         // Waiter
@@ -144,7 +145,9 @@ public static class DbInitializer
         Assign("Kitchen",
         [
             Permissions.Kitchen.View, Permissions.Kitchen.Edit, Permissions.Kitchen.Print,
-            Permissions.Orders.View
+            Permissions.Orders.View,
+            Permissions.Inventory.View, Permissions.Inventory.Wastage, Permissions.Inventory.Consumption,
+            Permissions.Reports.View, Permissions.Reports.Kitchen, Permissions.Reports.Inventory
         ]);
 
         // Accountant
@@ -154,7 +157,11 @@ public static class DbInitializer
             Permissions.Billing.View, Permissions.Billing.Export,
             Permissions.Credit.View, Permissions.Credit.Export,
             Permissions.Accounts.View, Permissions.Accounts.Create, Permissions.Accounts.Edit, Permissions.Accounts.Print, Permissions.Accounts.Export,
-            Permissions.Reports.View, Permissions.Reports.Print, Permissions.Reports.Export
+            Permissions.Inventory.View, Permissions.Inventory.Purchase, Permissions.Inventory.Export,
+            Permissions.EmployeeAdvances.View, Permissions.EmployeeAdvances.Create, Permissions.EmployeeAdvances.Recover, Permissions.EmployeeAdvances.Export,
+            Permissions.Staff.View, Permissions.Staff.Salary, Permissions.Staff.PrintPayslip,
+            Permissions.Reports.View, Permissions.Reports.Print, Permissions.Reports.Export,
+            Permissions.Reports.Sales, Permissions.Reports.Payments, Permissions.Reports.Accounts, Permissions.Reports.Tax, Permissions.Reports.Staff, Permissions.Reports.Inventory
         ]);
 
         if (newRolePermissions.Count > 0)
@@ -177,7 +184,19 @@ public static class DbInitializer
             ("Currency", "INR", SettingDataType.String, "Billing"),
             ("Timezone", "Asia/Kolkata", SettingDataType.String, "General"),
             ("ReceiptHeader", "Thank you for dining with us!", SettingDataType.String, "Printing"),
-            ("ReceiptFooter", "Visit Again! Powered by RestaurantMS", SettingDataType.String, "Printing")
+            ("ReceiptFooter", "Visit Again! Powered by RestaurantMS", SettingDataType.String, "Printing"),
+            ("MaxAdvanceSalaryPercent", "100", SettingDataType.Decimal, "Staff"),
+            ("AccountingPeriodLockDate", "2026-09-30", SettingDataType.String, "Accounting"),
+            ("Payments.UpiId", "grandrestaurant@okhdfc", SettingDataType.String, "Payments"),
+            ("Payments.UpiReferenceRequired", "false", SettingDataType.Boolean, "Payments"),
+            ("Payments.CardDetailsRequired", "true", SettingDataType.Boolean, "Payments"),
+            ("Printing.PaperSize", "80mm", SettingDataType.String, "Printing"),
+            ("Printing.AutoPrintOnSettle", "true", SettingDataType.Boolean, "Printing"),
+            ("Printing.Copies", "1", SettingDataType.Int, "Printing"),
+            ("Printing.ShowMarathiItemNames", "true", SettingDataType.Boolean, "Printing"),
+            ("Printing.ShowUpiQrOnReceipt", "true", SettingDataType.Boolean, "Printing"),
+            ("Kitchen.AutoPrintKot", "true", SettingDataType.Boolean, "Printing"),
+            ("Inventory.AllowNegativeStock", "false", SettingDataType.Boolean, "Inventory")
         };
 
         var existingSettings = await context.HotelSettings.ToListAsync();
@@ -212,6 +231,7 @@ public static class DbInitializer
             (FeatureKeys.KitchenDisplay, "Kitchen Display System (KDS)", "Digital order display and management in the kitchen", "Operations"),
             (FeatureKeys.Kitchen, "Kitchen Module", "Enable or disable the kitchen display screen", "Operations"),
             (FeatureKeys.InventoryTracking, "Inventory & Stock Tracking", "Real-time stock deduction, ingredient mapping and alerts", "Operations"),
+            (FeatureKeys.Inventory, "Inventory Module", "Enable or disable the Inventory module, stock tracking, purchases and ledger", "Operations"),
             (FeatureKeys.CreditUdhari, "Credit (Udhari) Management", "Customer credit accounts, ledger tracking and settlements", "Billing"),
             (FeatureKeys.Credit, "Credit & Udhari Options", "Show or hide credit options in customer and billing screens", "Billing"),
             (FeatureKeys.CustomerLoyalty, "Customer Loyalty Program", "Reward points, membership tiers and repeat customer discounts", "Marketing"),

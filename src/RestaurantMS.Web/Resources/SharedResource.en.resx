@@ -196,4 +196,443 @@
   <data name="Staff_EmployeeReport_Title" xml:space="preserve"><value>Employee Performance &amp; Analytics</value></data>
   <data name="Staff_Details_Title" xml:space="preserve"><value>Staff Profile &amp; Details</value></data>
   <data name="Reports_ProfitLoss_Title" xml:space="preserve"><value>Profit &amp; Loss (P&amp;L) Statement</value></data>
+  <data name="Nav_Section_Operations" xml:space="preserve"><value>OPERATIONS</value></data>
+  <data name="Nav_Section_Administration" xml:space="preserve"><value>ADMINISTRATION</value></data>
+  <data name="Nav_StockAdjustment" xml:space="preserve"><value>Stock Adjustment</value></data>
+  <data name="Nav_Wastage" xml:space="preserve"><value>Wastage</value></data>
+  <data name="Nav_CustomerLedger" xml:space="preserve"><value>Customer Ledger &amp; Udhari Recovery</value></data>
+  <data name="Nav_DayBook" xml:space="preserve"><value>Day Book</value></data>
+  <data name="Nav_CashBook" xml:space="preserve"><value>Cash Book</value></data>
+  <data name="Nav_GeneralLedger" xml:space="preserve"><value>Ledger</value></data>
+  <data name="Nav_TrialBalance" xml:space="preserve"><value>Trial Balance</value></data>
+  <data name="Nav_ProfitLoss" xml:space="preserve"><value>P&amp;L</value></data>
+  <data name="Nav_BalanceSheet" xml:space="preserve"><value>Balance Sheet</value></data>
+  <data name="Nav_Expenses" xml:space="preserve"><value>Expenses</value></data>
+  <data name="Master_BackToDashboard" xml:space="preserve"><value>Back to Dashboard</value></data>
+  <data name="Master_Floors" xml:space="preserve"><value>Floors</value></data>
+  <data name="Master_Tables" xml:space="preserve"><value>Tables</value></data>
+  <data name="Master_Categories" xml:space="preserve"><value>Categories</value></data>
+  <data name="Master_MenuItems" xml:space="preserve"><value>Menu Items</value></data>
+  <data name="Master_Customers" xml:space="preserve"><value>Customers</value></data>
+  <data name="Master_Suppliers" xml:space="preserve"><value>Suppliers</value></data>
+  <data name="Master_Designations" xml:space="preserve"><value>Designations</value></data>
+  <data name="Master_Shifts" xml:space="preserve"><value>Shifts</value></data>
+  <data name="Master_TaxUnits" xml:space="preserve"><value>Tax &amp; Units</value></data>
+  <data name="Master_PaymentModes" xml:space="preserve"><value>Payment Modes</value></data>
+  <data name="Master_ExpenseHeads" xml:space="preserve"><value>Expense Heads</value></data>
+  <data name="Master_HotelInfo" xml:space="preserve"><value>Hotel Info</value></data>
+  <data name="Master_AddFloor" xml:space="preserve"><value>Add Floor</value></data>
+  <data name="Master_AddTable" xml:space="preserve"><value>Add Table</value></data>
+  <data name="Master_AddCategory" xml:space="preserve"><value>Add Category</value></data>
+  <data name="Master_AddMenuItem" xml:space="preserve"><value>Add Menu Item</value></data>
+  <data name="Master_AddCustomer" xml:space="preserve"><value>Add Customer</value></data>
+  <data name="Master_AddSupplier" xml:space="preserve"><value>Add Supplier</value></data>
+  <data name="Master_AddDesignation" xml:space="preserve"><value>Add Designation</value></data>
+  <data name="Master_AddShift" xml:space="preserve"><value>Add Shift</value></data>
+  <data name="Master_AddTaxUnit" xml:space="preserve"><value>Add Tax/Unit</value></data>
+  <data name="Master_AddPaymentMode" xml:space="preserve"><value>Add Payment Mode</value></data>
+  <data name="Master_AddExpenseHead" xml:space="preserve"><value>Add Expense Head</value></data>
+  <data name="Master_EditInfo" xml:space="preserve"><value>Edit Info</value></data>
+  <data name="Common_SearchPlaceholder" xml:space="preserve"><value>Search...</value></data>
+  <data name="Common_Status" xml:space="preserve"><value>Status</value></data>
+  <data name="Common_Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="Common_Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Common_Inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="Common_Edit" xml:space="preserve"><value>Edit</value></data>
+  <data name="Common_Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Common_Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Common_Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Common_Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Common_Remarks" xml:space="preserve"><value>Remarks</value></data>
+  <data name="Common_Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Staff_List_Heading" xml:space="preserve"><value>Employee Directory</value></data>
+  <data name="Staff_List_Subtitle" xml:space="preserve"><value>Manage employee profiles, shifts, salary setup and bank/UPI details</value></data>
+  <data name="Staff_Empty_Title" xml:space="preserve"><value>No Staff Found</value></data>
+  <data name="Staff_Empty_Desc" xml:space="preserve"><value>Add your restaurant staff members to track attendance, advances and payroll.</value></data>
+  <data name="Staff_Col_Employee" xml:space="preserve"><value>Employee</value></data>
+  <data name="Staff_Col_DesignationShift" xml:space="preserve"><value>Designation &amp; Shift</value></data>
+  <data name="Staff_Col_JoiningDate" xml:space="preserve"><value>Joining Date</value></data>
+  <data name="Staff_Col_Salary" xml:space="preserve"><value>Basic Salary</value></data>
+  <data name="Staff_Col_IdBank" xml:space="preserve"><value>ID Proof &amp; Bank/UPI</value></data>
+  <data name="Staff_Col_InTime" xml:space="preserve"><value>In Time</value></data>
+  <data name="Staff_Col_OutTime" xml:space="preserve"><value>Out Time</value></data>
+  <data name="Staff_Col_OvertimeHrs" xml:space="preserve"><value>Overtime (Hrs)</value></data>
+  <data name="Staff_Col_Attendance" xml:space="preserve"><value>Attendance</value></data>
+  <data name="Staff_Col_Basic" xml:space="preserve"><value>Basic</value></data>
+  <data name="Staff_Col_Overtime" xml:space="preserve"><value>Overtime (+)</value></data>
+  <data name="Staff_Col_AbsentDed" xml:space="preserve"><value>Absent Ded. (-)</value></data>
+  <data name="Staff_Col_AdvRecovery" xml:space="preserve"><value>Adv. Recovery (-)</value></data>
+  <data name="Staff_Col_NetPayable" xml:space="preserve"><value>Net Payable</value></data>
+  <data name="Staff_Profile" xml:space="preserve"><value>Profile</value></data>
+  <data name="Staff_ViewProfile" xml:space="preserve"><value>View Employee Profile</value></data>
+  <data name="Staff_Attendance_SheetTitle" xml:space="preserve"><value>Daily Attendance Sheet</value></data>
+  <data name="Staff_MonthLocked" xml:space="preserve"><value>Month Locked</value></data>
+  <data name="Staff_MarkAllPresent" xml:space="preserve"><value>Mark All Present</value></data>
+  <data name="Staff_LockMonthAfterPayroll" xml:space="preserve"><value>Lock Month after Payroll</value></data>
+  <data name="Staff_UnlockMonth" xml:space="preserve"><value>Unlock Month</value></data>
+  <data name="Staff_MonthlyCalendar_Title" xml:space="preserve"><value>Monthly Calendar View</value></data>
+  <data name="Staff_SalaryStatement_Title" xml:space="preserve"><value>Monthly Salary Statement</value></data>
+  <data name="Staff_SalaryFormula" xml:space="preserve"><value>Formula: Basic + Overtime - Absent Deduction - Advance Recovery</value></data>
+  <data name="Staff_AutoRecoverAdvances" xml:space="preserve"><value>Auto-recover Advances</value></data>
+  <data name="Staff_MarkPaid" xml:space="preserve"><value>Mark Paid</value></data>
+  <data name="Staff_PrintPayslip" xml:space="preserve"><value>Print Payslip</value></data>
+  <data name="Staff_Kpi_Total" xml:space="preserve"><value>Total Staff</value></data>
+  <data name="Staff_Kpi_PresentToday" xml:space="preserve"><value>Present Today</value></data>
+  <data name="Staff_Kpi_MonthlyPayroll" xml:space="preserve"><value>Net Payroll</value></data>
+  <data name="Staff_Kpi_AdvRecovery" xml:space="preserve"><value>Advance Recovery</value></data>
+  <data name="Staff_Form_Subtitle" xml:space="preserve"><value>Complete employee profile, salary structure, ID proof and payout details</value></data>
+  <data name="Staff_Field_Code" xml:space="preserve"><value>Employee Code</value></data>
+  <data name="Staff_Field_FullName" xml:space="preserve"><value>Full Name</value></data>
+  <data name="Staff_Field_Mobile" xml:space="preserve"><value>Mobile Number</value></data>
+  <data name="Staff_Field_Designation" xml:space="preserve"><value>Designation</value></data>
+  <data name="Staff_Field_Shift" xml:space="preserve"><value>Shift</value></data>
+  <data name="Staff_Field_SalaryType" xml:space="preserve"><value>Salary Type</value></data>
+  <data name="Staff_Field_BasicSalary" xml:space="preserve"><value>Basic Salary (₹)</value></data>
+  <data name="Staff_Field_IdProof" xml:space="preserve"><value>ID Proof (Aadhaar / PAN)</value></data>
+  <data name="Staff_Field_BankUpi" xml:space="preserve"><value>Bank Account / UPI</value></data>
+  <data name="Staff_Field_PhotoUrl" xml:space="preserve"><value>Photo URL</value></data>
+  <data name="Staff_Field_IsActive" xml:space="preserve"><value>Active Employee</value></data>
+  <data name="Staff_ProfileTab_Details" xml:space="preserve"><value>Details</value></data>
+  <data name="Staff_ProfileTab_Advances" xml:space="preserve"><value>Advances</value></data>
+  <data name="Staff_ProfileTab_Salary" xml:space="preserve"><value>Salary</value></data>
+  <data name="Staff_AdvancesReadOnly_Title" xml:space="preserve"><value>Advances Summary (Read-Only)</value></data>
+  <data name="Staff_AdvancesReadOnly_Note" xml:space="preserve"><value>Advance disbursements and recoveries are managed under Accounts &gt; Employee Advances.</value></data>
+  <data name="Staff_ManageInAccounts" xml:space="preserve"><value>Manage in Accounts</value></data>
+  <data name="Adv_PageTitle" xml:space="preserve"><value>Employee Advances</value></data>
+  <data name="Adv_PageSubtitle" xml:space="preserve"><value>Track staff salary advances, instalment schedules, recoveries and double-entry vouchers</value></data>
+  <data name="Adv_ReportsBtn" xml:space="preserve"><value>Advance Reports</value></data>
+  <data name="Adv_GiveAdvance" xml:space="preserve"><value>Give Advance</value></data>
+  <data name="Adv_RecordRecovery" xml:space="preserve"><value>Record Recovery</value></data>
+  <data name="Adv_Kpi_TotalGiven" xml:space="preserve"><value>Total Advance Given</value></data>
+  <data name="Adv_Kpi_TotalGivenSub" xml:space="preserve"><value>Cumulative disbursements</value></data>
+  <data name="Adv_Kpi_RecoveredMonth" xml:space="preserve"><value>Recovered This Month</value></data>
+  <data name="Adv_Kpi_Outstanding" xml:space="preserve"><value>Total Outstanding</value></data>
+  <data name="Adv_Kpi_OutstandingSub" xml:space="preserve"><value>Receivable from staff</value></data>
+  <data name="Adv_Kpi_StaffCount" xml:space="preserve"><value>Staff With Outstanding</value></data>
+  <data name="Adv_EmployeePicker" xml:space="preserve"><value>Employees</value></data>
+  <data name="Adv_SearchEmployeePlaceholder" xml:space="preserve"><value>Search by name, code or role...</value></data>
+  <data name="Adv_SalaryLabel" xml:space="preserve"><value>Salary</value></data>
+  <data name="Adv_CurrentOutstanding" xml:space="preserve"><value>Current Outstanding</value></data>
+  <data name="Adv_AutoRecoverToggle" xml:space="preserve"><value>Auto-recover from Salary Statement</value></data>
+  <data name="Adv_RunningLedger" xml:space="preserve"><value>Running Advance Ledger</value></data>
+  <data name="Adv_FullLedgerReport" xml:space="preserve"><value>View Full Report</value></data>
+  <data name="Adv_LedgerEmpty_Title" xml:space="preserve"><value>No Advance History</value></data>
+  <data name="Adv_LedgerEmpty_Desc" xml:space="preserve"><value>No advances or recoveries have been recorded for this employee yet.</value></data>
+  <data name="Adv_SelectEmployee_Title" xml:space="preserve"><value>Select an Employee</value></data>
+  <data name="Adv_SelectEmployee_Desc" xml:space="preserve"><value>Pick an employee from the left list to inspect their advance summary and ledger.</value></data>
+  <data name="Adv_Col_Voucher" xml:space="preserve"><value>Voucher #</value></data>
+  <data name="Adv_Col_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Adv_Col_Mode" xml:space="preserve"><value>Mode</value></data>
+  <data name="Adv_Col_Balance" xml:space="preserve"><value>Balance</value></data>
+  <data name="Adv_Col_Note" xml:space="preserve"><value>Note</value></data>
+  <data name="Adv_Field_Employee" xml:space="preserve"><value>Employee</value></data>
+  <data name="Adv_Field_PaymentMode" xml:space="preserve"><value>Payment Mode</value></data>
+  <data name="Adv_Field_RecoveryPlan" xml:space="preserve"><value>Recovery Plan</value></data>
+  <data name="Adv_Field_InstalmentAmt" xml:space="preserve"><value>Monthly Instalment</value></data>
+  <data name="Adv_Field_StartMonth" xml:space="preserve"><value>Start Month</value></data>
+  <data name="Adv_Field_Purpose" xml:space="preserve"><value>Purpose</value></data>
+  <data name="Adv_Field_RecoveryAmt" xml:space="preserve"><value>Recovery Amount</value></data>
+  <data name="Adv_SchedulePreview" xml:space="preserve"><value>Instalment Schedule Preview</value></data>
+  <data name="Adv_PostAdvance" xml:space="preserve"><value>Post Advance &amp; Voucher</value></data>
+  <data name="Adv_PostRecovery" xml:space="preserve"><value>Post Recovery &amp; Voucher</value></data>
+  <data name="Adv_ReportsTitle" xml:space="preserve"><value>Employee Advance Reports</value></data>
+  <data name="Adv_Report_Outstanding" xml:space="preserve"><value>Outstanding Advances</value></data>
+  <data name="Adv_Report_Ledger" xml:space="preserve"><value>Employee-wise Advance Ledger</value></data>
+  <data name="Adv_Report_MonthlyRecovery" xml:space="preserve"><value>Monthly Recovery Report</value></data>
+  <data name="Form_SaveAndNew" xml:space="preserve"><value>Save &amp; New</value></data>
+  <data name="Form_UnsavedChanges" xml:space="preserve"><value>Unsaved changes</value></data>
+  <data name="Form_NextField" xml:space="preserve"><value>Next field</value></data>
+  <data name="Form_BackToMenu" xml:space="preserve"><value>Back to Menu Items</value></data>
+  <data name="Form_PostVoucher" xml:space="preserve"><value>Post Voucher</value></data>
+  <data name="Menu_ItemForm_Subtitle" xml:space="preserve"><value>Structured dish setup with live pricing, images, variants and POS preview</value></data>
+  <data name="Menu_Field_Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Menu_QuickAddCategory" xml:space="preserve"><value>Quick add category</value></data>
+  <data name="Menu_Field_ShortCode" xml:space="preserve"><value>Short Code / SKU</value></data>
+  <data name="Menu_Field_Dietary" xml:space="preserve"><value>Dietary Type</value></data>
+  <data name="Menu_Field_NameEn" xml:space="preserve"><value>Dish Name (English)</value></data>
+  <data name="Menu_Field_NameMr" xml:space="preserve"><value>Dish Name (Marathi)</value></data>
+  <data name="Menu_Field_Description" xml:space="preserve"><value>Short Description</value></data>
+  <data name="Menu_Field_Tags" xml:space="preserve"><value>Tags</value></data>
+  <data name="Menu_Field_Price" xml:space="preserve"><value>Selling Price</value></data>
+  <data name="Menu_Field_TaxRate" xml:space="preserve"><value>GST Tax Rate</value></data>
+  <data name="Menu_Field_TaxInclusive" xml:space="preserve"><value>Price includes GST</value></data>
+  <data name="Menu_LiveFinalPrice" xml:space="preserve"><value>Final POS Price</value></data>
+  <data name="Menu_Field_Station" xml:space="preserve"><value>Kitchen Station</value></data>
+  <data name="Menu_Field_PrepTime" xml:space="preserve"><value>Prep Time</value></data>
+  <data name="Menu_Field_Available" xml:space="preserve"><value>Available Today</value></data>
+  <data name="Menu_Field_OrderType" xml:space="preserve"><value>Available For Order Types</value></data>
+  <data name="Menu_Field_Photos" xml:space="preserve"><value>Dish Photographs</value></data>
+  <data name="Menu_SaveDish" xml:space="preserve"><value>Save Dish</value></data>
+  <data name="Menu_LivePosPreview" xml:space="preserve"><value>Live POS Order Card Preview</value></data>
+  <data name="Form_Sec_BasicInfo" xml:space="preserve"><value>Basic Information</value></data>
+  <data name="Form_Sec_BasicInfo_Help" xml:space="preserve"><value>Category, dietary type, bilingual names, short code and display tags</value></data>
+  <data name="Form_Sec_PricingTax" xml:space="preserve"><value>Pricing &amp; Tax</value></data>
+  <data name="Form_Sec_PricingTax_Help" xml:space="preserve"><value>Base price, GST slab and live customer-facing final price breakdown</value></data>
+  <data name="Form_Sec_KitchenAvail" xml:space="preserve"><value>Kitchen &amp; Availability</value></data>
+  <data name="Form_Sec_KitchenAvail_Help" xml:space="preserve"><value>KOT routing station, prep duration, channel scope and live toggle</value></data>
+  <data name="Form_Sec_Images" xml:space="preserve"><value>Images</value></data>
+  <data name="Form_Sec_Images_Help" xml:space="preserve"><value>Upload up to 3 photos and star your preferred main thumbnail</value></data>
+  <data name="Form_Sec_Variants" xml:space="preserve"><value>Variants &amp; Add-ons</value></data>
+  <data name="Form_Sec_Variants_Help" xml:space="preserve"><value>Optional portion sizes (Half/Full) and paid extra toppings</value></data>
+  <data name="Form_Sec_PersonalInfo" xml:space="preserve"><value>Personal &amp; Contact Details</value></data>
+  <data name="Form_Sec_PersonalInfo_Help" xml:space="preserve"><value>Employee code, name, 10-digit mobile and ID proof</value></data>
+  <data name="Form_Sec_RoleShift" xml:space="preserve"><value>Role &amp; Shift Assignment</value></data>
+  <data name="Form_Sec_RoleShift_Help" xml:space="preserve"><value>Designation, working shift and joining date</value></data>
+  <data name="Form_Sec_SalaryBank" xml:space="preserve"><value>Compensation, Banking &amp; Status</value></data>
+  <data name="Form_Sec_SalaryBank_Help" xml:space="preserve"><value>Monthly or daily wage structure, UPI/Bank payout and active status</value></data>
+  <data name="Form_Sec_VendorInvoice" xml:space="preserve"><value>Supplier &amp; Invoice Info</value></data>
+  <data name="Form_Sec_VendorInvoice_Help" xml:space="preserve"><value>Vendor selection, invoice number and purchase date</value></data>
+  <data name="Form_Sec_PurchaseItems" xml:space="preserve"><value>Inward Line Items</value></data>
+  <data name="Form_Sec_PurchaseItems_Help" xml:space="preserve"><value>Enter material quantities, rates and GST slabs for automatic totaling</value></data>
+  <data name="Form_Sec_PaymentSummary" xml:space="preserve"><value>Payment Mode &amp; Summary</value></data>
+  <data name="Form_Sec_PaymentSummary_Help" xml:space="preserve"><value>Settlement terms, delivery memo and grand total</value></data>
+  <data name="Form_Sec_VoucherHeader" xml:space="preserve"><value>Voucher Header</value></data>
+  <data name="Form_Sec_VoucherHeader_Help" xml:space="preserve"><value>Choose voucher type, auto-number and posting date</value></data>
+  <data name="Form_Sec_VoucherLines" xml:space="preserve"><value>Double-Entry Ledger Lines</value></data>
+  <data name="Form_Sec_VoucherLines_Help" xml:space="preserve"><value>Total debits must equal total credits before posting</value></data>
+  <data name="Form_Sec_Narration" xml:space="preserve"><value>Narration &amp; Audit Note</value></data>
+  <data name="Form_Sec_Narration_Help" xml:space="preserve"><value>Clear accounting description printed in Day Book and Ledgers</value></data>
+  <data name="Form_Sec_Category_Help" xml:space="preserve"><value>Bilingual category title, icon and POS menu display order</value></data>
+  <data name="Form_Sec_CustomerContact" xml:space="preserve"><value>Customer Contact &amp; Identity</value></data>
+  <data name="Form_Sec_CustomerContact_Help" xml:space="preserve"><value>Name, 10-digit mobile, address and optional GSTIN</value></data>
+  <data name="Form_Sec_UdhariTerms" xml:space="preserve"><value>Udhari Credit Terms</value></data>
+  <data name="Form_Sec_UdhariTerms_Help" xml:space="preserve"><value>Maximum credit limit, settlement window and account notes</value></data>
+  <data name="Billing_Subtitle" xml:space="preserve"><value>Active POS Terminal • Settle Order, Generate Invoice &amp; Manage Udhari</value></data>
+  <data name="Billing_Total" xml:space="preserve"><value>Total</value></data>
+  <data name="Billing_Table" xml:space="preserve"><value>Table</value></data>
+  <data name="Billing_NoTableRequired" xml:space="preserve"><value>Parcel / Delivery — No table required</value></data>
+  <data name="Billing_ShortCodePlaceholder" xml:space="preserve"><value>Enter short code (M01) or dish name &amp; press Enter...</value></data>
+  <data name="Billing_BrowseMenu" xml:space="preserve"><value>Browse Menu</value></data>
+  <data name="Billing_PreviewBill" xml:space="preserve"><value>Preview</value></data>
+  <data name="Billing_Item" xml:space="preserve"><value>Item</value></data>
+  <data name="Billing_Qty" xml:space="preserve"><value>Qty</value></data>
+  <data name="Billing_Rate" xml:space="preserve"><value>Rate</value></data>
+  <data name="Billing_Amount" xml:space="preserve"><value>Amount</value></data>
+  <data name="Billing_Discount" xml:space="preserve"><value>Discount</value></data>
+  <data name="Billing_PackingCharge" xml:space="preserve"><value>Packing Charge</value></data>
+  <data name="Billing_GstRate" xml:space="preserve"><value>GST Slab</value></data>
+  <data name="Billing_Subtotal" xml:space="preserve"><value>Subtotal</value></data>
+  <data name="Billing_RoundOff" xml:space="preserve"><value>Round Off</value></data>
+  <data name="Billing_PayableTotal" xml:space="preserve"><value>Payable Total</value></data>
+  <data name="Billing_PaymentMode" xml:space="preserve"><value>Payment Mode</value></data>
+  <data name="PayMode_Cash" xml:space="preserve"><value>Cash</value></data>
+  <data name="PayMode_UPI" xml:space="preserve"><value>UPI</value></data>
+  <data name="PayMode_Card" xml:space="preserve"><value>Card</value></data>
+  <data name="PayMode_Split" xml:space="preserve"><value>Split</value></data>
+  <data name="PayMode_Udhari" xml:space="preserve"><value>Udhari</value></data>
+  <data name="OrderType_DineIn" xml:space="preserve"><value>Dine-in</value></data>
+  <data name="OrderType_Parcel" xml:space="preserve"><value>Parcel</value></data>
+  <data name="OrderType_Delivery" xml:space="preserve"><value>Delivery</value></data>
+  <data name="Billing_AmountReceived" xml:space="preserve"><value>Amount Received</value></data>
+  <data name="Billing_Exact" xml:space="preserve"><value>Exact</value></data>
+  <data name="Billing_ChangeToReturn" xml:space="preserve"><value>Change to return</value></data>
+  <data name="Billing_BalanceDue" xml:space="preserve"><value>Balance due</value></data>
+  <data name="Billing_UpiPayExact" xml:space="preserve"><value>Scan QR to pay exact amount</value></data>
+  <data name="Billing_UpiRefLabel" xml:space="preserve"><value>UTR / Reference No.</value></data>
+  <data name="Billing_UpiPaymentReceived" xml:space="preserve"><value>Payment Received</value></data>
+  <data name="Billing_CardLast4" xml:space="preserve"><value>Card Last 4 Digits</value></data>
+  <data name="Billing_CardApprovalCode" xml:space="preserve"><value>Approval Code</value></data>
+  <data name="Billing_CardBankMachine" xml:space="preserve"><value>Machine / Bank Name</value></data>
+  <data name="Billing_SplitRowsTitle" xml:space="preserve"><value>Split Payment Breakdown</value></data>
+  <data name="Billing_AddRow" xml:space="preserve"><value>Add Row</value></data>
+  <data name="Billing_Paid" xml:space="preserve"><value>Paid</value></data>
+  <data name="Billing_Remaining" xml:space="preserve"><value>Remaining</value></data>
+  <data name="Billing_UdhariSelectCustomerHint" xml:space="preserve"><value>Select or quick-add a customer on the left to post Udhari credit.</value></data>
+  <data name="Billing_CreditAmount" xml:space="preserve"><value>Credit Amount</value></data>
+  <data name="Billing_BalancePayMode" xml:space="preserve"><value>Balance Paid Via</value></data>
+  <data name="Billing_RemainingPayNow" xml:space="preserve"><value>Balance payable now</value></data>
+  <data name="Billing_ManagerOverride" xml:space="preserve"><value>Manager Override (Allow over credit limit)</value></data>
+  <data name="Billing_ManagerOverrideReasonPlaceholder" xml:space="preserve"><value>Enter reason for credit limit override (mandatory)</value></data>
+  <data name="Billing_CreditNotePlaceholder" xml:space="preserve"><value>Optional Udhari note / expected settlement date</value></data>
+  <data name="Billing_SettleAndPrint" xml:space="preserve"><value>Settle &amp; Print Receipt</value></data>
+  <data name="Billing_SearchDishesPlaceholder" xml:space="preserve"><value>Search dishes by name, category or short code (M01)...</value></data>
+  <data name="Billing_BillsSettledToday" xml:space="preserve"><value>Bills Settled Today</value></data>
+  <data name="Billing_BillNo" xml:space="preserve"><value>Bill #</value></data>
+  <data name="Billing_Time" xml:space="preserve"><value>Time</value></data>
+  <data name="Billing_Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Billing_TableOrCustomer" xml:space="preserve"><value>Table / Customer</value></data>
+  <data name="Billing_NoBillsYet" xml:space="preserve"><value>No bills settled yet today.</value></data>
+  <data name="Billing_Reprint" xml:space="preserve"><value>Reprint</value></data>
+  <data name="Billing_AvailableCredit" xml:space="preserve"><value>Available</value></data>
+  <data name="Billing_CreditDisabledBadge" xml:space="preserve"><value>Credit Disabled</value></data>
+  <data name="Billing_Err_CashUnderpaid" xml:space="preserve"><value>Received amount is less than the bill total</value></data>
+  <data name="Billing_Err_UpiRefRequired" xml:space="preserve"><value>UPI reference number is required</value></data>
+  <data name="Billing_Err_UpiConfirmRequired" xml:space="preserve"><value>Click "Payment Received" to confirm UPI payment</value></data>
+  <data name="Billing_Err_CardLast4Required" xml:space="preserve"><value>Enter the last 4 digits of the card</value></data>
+  <data name="Billing_Err_CardApprovalRequired" xml:space="preserve"><value>Card approval code is required</value></data>
+  <data name="Billing_Err_SplitMismatch" xml:space="preserve"><value>Total of payments must equal Rs {0}. Remaining: Rs {1}</value></data>
+  <data name="Billing_Err_UdhariCustomerRequired" xml:space="preserve"><value>Select a customer for Udhari</value></data>
+  <data name="Billing_Err_CreditLimitExceeded" xml:space="preserve"><value>Credit limit exceeded. Available credit: Rs {0}</value></data>
+  <data name="Billing_Err_CreditDisabled" xml:space="preserve"><value>This customer is not allowed credit</value></data>
+  <data name="Billing_Err_OverrideReasonRequired" xml:space="preserve"><value>Enter a manager override reason to exceed the credit limit</value></data>
+  <data name="Billing_Err_EmptyItems" xml:space="preserve"><value>Add at least one item to settle the bill</value></data>
+  <data name="Receipt_PreviewTitle" xml:space="preserve"><value>Receipt Print Preview</value></data>
+  <data name="Receipt_TaxInvoice" xml:space="preserve"><value>Tax Receipt</value></data>
+  <data name="Receipt_ParcelTokenSlip" xml:space="preserve"><value>Parcel Token Slip</value></data>
+  <data name="Receipt_PrintParcelToken" xml:space="preserve"><value>Print Token Slip</value></data>
+  <data name="Receipt_PrintUnavailable" xml:space="preserve"><value>Automatic printing is unavailable. Preview is shown below — use Print Again or Download PDF.</value></data>
+  <data name="Receipt_PrintAgain" xml:space="preserve"><value>Print Again</value></data>
+  <data name="Receipt_DownloadPdf" xml:space="preserve"><value>Download PDF</value></data>
+  <data name="Receipt_Share" xml:space="preserve"><value>Share</value></data>
+  <data name="Receipt_NewOrder" xml:space="preserve"><value>New Order</value></data>
+  <data name="Btn_Add" xml:space="preserve"><value>Add</value></data>
+  <data name="Btn_Clear" xml:space="preserve"><value>Clear</value></data>
+  <data name="Settings_UpiId_Help" xml:space="preserve"><value>Used to generate dynamic UPI QR codes with exact payable bill amount</value></data>
+  <data name="Settings_UpiRefRequired" xml:space="preserve"><value>Require UPI UTR / Reference Number on UPI settlement</value></data>
+  <data name="Settings_CardDetailsRequired" xml:space="preserve"><value>Require Card Last 4 Digits &amp; Approval Code on Card settlement</value></data>
+  <data name="Settings_PaperSize" xml:space="preserve"><value>Default Receipt Paper Size</value></data>
+  <data name="Settings_PrintCopies" xml:space="preserve"><value>Default Print Copies</value></data>
+  <data name="Settings_AutoPrintOnSettle" xml:space="preserve"><value>Auto-Print Receipt immediately on Bill Settle</value></data>
+  <data name="Settings_AutoPrintKot" xml:space="preserve"><value>Auto-Print KOT when sent to Kitchen</value></data>
+  <data name="Settings_ShowMarathiItems" xml:space="preserve"><value>Print Marathi item names alongside English on receipts</value></data>
+  <data name="Settings_ShowUpiQr" xml:space="preserve"><value>Include UPI QR code on printed receipts</value></data>
+  <data name="Nav_StockSummary" xml:space="preserve"><value>Stock Summary</value></data>
+  <data name="Nav_Consumption" xml:space="preserve"><value>Consumption</value></data>
+  <data name="Nav_StockLedger" xml:space="preserve"><value>Stock Ledger</value></data>
+  <data name="FeatureDisabled_Title" xml:space="preserve"><value>Module Disabled</value></data>
+  <data name="FeatureDisabled_Heading" xml:space="preserve"><value>This module is currently disabled</value></data>
+  <data name="FeatureDisabled_Message" xml:space="preserve"><value>An administrator has turned off this feature toggle. Enable it in Feature Toggles to access this module.</value></data>
+  <data name="Inventory_SummarySubtitle" xml:space="preserve"><value>Live stock valuation, reorder alerts and batch expiry tracking</value></data>
+  <data name="Inventory_ManageSuppliersInMasters" xml:space="preserve"><value>Suppliers in Masters</value></data>
+  <data name="Inventory_ManageUnitsInMasters" xml:space="preserve"><value>Units &amp; Tax in Masters</value></data>
+  <data name="Inventory_QuickAddSupplier" xml:space="preserve"><value>Quick Add Supplier</value></data>
+  <data name="Inventory_QuickAddUnit" xml:space="preserve"><value>Quick Add Unit</value></data>
+  <data name="Inventory_QuickAddTax" xml:space="preserve"><value>Quick Add Tax Rate</value></data>
+  <data name="Inventory_QuickAddItem" xml:space="preserve"><value>Add Stock Item</value></data>
+  <data name="Inventory_SymbolOrRate" xml:space="preserve"><value>Symbol / Rate</value></data>
+  <data name="Inventory_ItemName" xml:space="preserve"><value>Stock Item</value></data>
+  <data name="Inventory_Unit" xml:space="preserve"><value>Unit</value></data>
+  <data name="Inventory_OpeningStock" xml:space="preserve"><value>Opening Stock</value></data>
+  <data name="Inventory_CurrentStock" xml:space="preserve"><value>Current Stock</value></data>
+  <data name="Inventory_ReorderLevel" xml:space="preserve"><value>Reorder Level</value></data>
+  <data name="Inventory_LastRate" xml:space="preserve"><value>Last Purchase Rate</value></data>
+  <data name="Inventory_StockValue" xml:space="preserve"><value>Stock Value</value></data>
+  <data name="Inventory_ExpiryDate" xml:space="preserve"><value>Expiry Date (Optional)</value></data>
+  <data name="Inventory_Kpi_Items" xml:space="preserve"><value>Tracked Items</value></data>
+  <data name="Inventory_Kpi_ItemsSub" xml:space="preserve"><value>Active stock SKUs</value></data>
+  <data name="Inventory_Kpi_StockValue" xml:space="preserve"><value>Total Stock Value</value></data>
+  <data name="Inventory_Kpi_StockValueSub" xml:space="preserve"><value>At last purchase rate</value></data>
+  <data name="Inventory_Kpi_LowStock" xml:space="preserve"><value>Low Stock</value></data>
+  <data name="Inventory_OutOfStock" xml:space="preserve"><value>out of stock</value></data>
+  <data name="Inventory_Kpi_ExpiringSoon" xml:space="preserve"><value>Expiring Soon</value></data>
+  <data name="Inventory_Kpi_ExpiringSub" xml:space="preserve"><value>Within 7 days</value></data>
+  <data name="StockStatus_OK" xml:space="preserve"><value>OK</value></data>
+  <data name="StockStatus_Low" xml:space="preserve"><value>Low</value></data>
+  <data name="StockStatus_Out" xml:space="preserve"><value>Out</value></data>
+  <data name="Filter_All" xml:space="preserve"><value>All</value></data>
+  <data name="Inventory_AllCategories" xml:space="preserve"><value>All Categories</value></data>
+  <data name="Inventory_SearchPlaceholder" xml:space="preserve"><value>Search item or code...</value></data>
+  <data name="Inventory_NoItemsMatch" xml:space="preserve"><value>No stock items match the selected filter.</value></data>
+  <data name="Inventory_PurchaseSubtitle" xml:space="preserve"><value>Inward raw material purchase entry — posts automatically to Stock Ledger, Supplier Ledger and Accounts</value></data>
+  <data name="Inventory_SelectSupplier" xml:space="preserve"><value>Select Supplier</value></data>
+  <data name="Inventory_InvoiceNo" xml:space="preserve"><value>Invoice No.</value></data>
+  <data name="Inventory_InvoiceDate" xml:space="preserve"><value>Invoice Date</value></data>
+  <data name="Inventory_InvoiceAttachment" xml:space="preserve"><value>Invoice Attachment (Image or PDF)</value></data>
+  <data name="Inventory_AttachmentHelp" xml:space="preserve"><value>Upload supplier bill photo (JPG, PNG, WEBP) or PDF up to 5 MB</value></data>
+  <data name="Inventory_AddLine" xml:space="preserve"><value>Add Line</value></data>
+  <data name="Inventory_TaxPercent" xml:space="preserve"><value>Tax %</value></data>
+  <data name="Inventory_PaymentType" xml:space="preserve"><value>Settlement Type</value></data>
+  <data name="Inventory_Paid" xml:space="preserve"><value>Paid</value></data>
+  <data name="Inventory_Credit" xml:space="preserve"><value>Credit</value></data>
+  <data name="Inventory_Notes" xml:space="preserve"><value>Notes / Remarks</value></data>
+  <data name="Inventory_GstTax" xml:space="preserve"><value>Input GST Tax</value></data>
+  <data name="Inventory_GrandTotal" xml:space="preserve"><value>Grand Total</value></data>
+  <data name="Inventory_PostsToLedgerHint" xml:space="preserve"><value>Posts balanced Purchase voucher to Accounts &amp; Supplier Ledger</value></data>
+  <data name="Inventory_RecentPurchases" xml:space="preserve"><value>Recent Purchase Invoices</value></data>
+  <data name="Inventory_Attachment" xml:space="preserve"><value>Bill Copy</value></data>
+  <data name="Inventory_NoPurchasesYet" xml:space="preserve"><value>No purchases recorded yet.</value></data>
+  <data name="Inventory_SupplierLedgerSnapshot" xml:space="preserve"><value>Supplier Ledger Entries</value></data>
+  <data name="Inventory_Balance" xml:space="preserve"><value>Balance</value></data>
+  <data name="Inventory_NoSupplierLedgerYet" xml:space="preserve"><value>No supplier ledger movements yet.</value></data>
+  <data name="Inventory_AdjustmentSubtitle" xml:space="preserve"><value>Reconcile physical stock counts against system stock and post variance</value></data>
+  <data name="Inventory_PhysicalCount" xml:space="preserve"><value>Physical Count</value></data>
+  <data name="Inventory_SystemStock" xml:space="preserve"><value>System Stock</value></data>
+  <data name="Inventory_Variance" xml:space="preserve"><value>Variance</value></data>
+  <data name="Inventory_Reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Inventory_RecentAdjustments" xml:space="preserve"><value>Recent Stock Adjustments</value></data>
+  <data name="Inventory_WastageSubtitle" xml:space="preserve"><value>Log spoiled, expired or prep wastage — deducts stock and posts loss voucher</value></data>
+  <data name="Inventory_AvailableStock" xml:space="preserve"><value>Available Stock</value></data>
+  <data name="Inventory_EstimatedLoss" xml:space="preserve"><value>Estimated Loss Value</value></data>
+  <data name="Inventory_WastageReason" xml:space="preserve"><value>Wastage Reason</value></data>
+  <data name="Inventory_RecentWastage" xml:space="preserve"><value>Recent Wastage Entries</value></data>
+  <data name="Inventory_WastedQty" xml:space="preserve"><value>Wasted Qty</value></data>
+  <data name="Inventory_LossValue" xml:space="preserve"><value>Loss Value</value></data>
+  <data name="Inventory_ConsumptionSubtitle" xml:space="preserve"><value>Issue raw materials to kitchen stations, bakery, beverages or staff meals</value></data>
+  <data name="Inventory_Department" xml:space="preserve"><value>Kitchen / Dept</value></data>
+  <data name="Inventory_ConsumptionValue" xml:space="preserve"><value>Issue Value</value></data>
+  <data name="Inventory_RecentConsumption" xml:space="preserve"><value>Recent Consumption Issues</value></data>
+  <data name="Inventory_EstRestockCost" xml:space="preserve"><value>Estimated Restock Cost</value></data>
+  <data name="Inventory_Deficit" xml:space="preserve"><value>Deficit</value></data>
+  <data name="Inventory_AllStockHealthy" xml:space="preserve"><value>All inventory items are above reorder levels.</value></data>
+  <data name="Inventory_Restock" xml:space="preserve"><value>Restock</value></data>
+  <data name="Inventory_LedgerSubtitle" xml:space="preserve"><value>Complete item-wise stock in/out movement history with running balance</value></data>
+  <data name="Inventory_InQty" xml:space="preserve"><value>In Qty</value></data>
+  <data name="Inventory_OutQty" xml:space="preserve"><value>Out Qty</value></data>
+  <data name="Inventory_RefNo" xml:space="preserve"><value>Ref #</value></data>
+  <data name="Inventory_ValueImpact" xml:space="preserve"><value>Value Impact</value></data>
+  <data name="Inventory_NoRecordsYet" xml:space="preserve"><value>No entries recorded yet.</value></data>
+  <data name="Supplier_Name" xml:space="preserve"><value>Supplier</value></data>
+  <data name="Contact_Person" xml:space="preserve"><value>Contact Person</value></data>
+  <data name="Code" xml:space="preserve"><value>Code</value></data>
+  <data name="Date" xml:space="preserve"><value>Date</value></data>
+  <data name="Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="FromDate" xml:space="preserve"><value>From Date</value></data>
+  <data name="ToDate" xml:space="preserve"><value>To Date</value></data>
+  <data name="Btn_Filter" xml:space="preserve"><value>Filter</value></data>
+  <data name="Btn_Print" xml:space="preserve"><value>Print</value></data>
+  <data name="Reports_HubSubtitle" xml:space="preserve"><value>Category-wise operational, financial, GST, staff and inventory analytics</value></data>
+  <data name="Reports_AvailableCount" xml:space="preserve"><value>reports available</value></data>
+  <data name="Reports_SearchPlaceholder" xml:space="preserve"><value>Search reports by name, code or category...</value></data>
+  <data name="Reports_Favourites" xml:space="preserve"><value>Favourites</value></data>
+  <data name="Reports_RecentlyUsed" xml:space="preserve"><value>Recently Used</value></data>
+  <data name="Reports_ToggleFavorite" xml:space="preserve"><value>Star / Unstar favourite</value></data>
+  <data name="Reports_HasChart" xml:space="preserve"><value>KPI + Chart + Grid</value></data>
+  <data name="Reports_PagedGrid" xml:space="preserve"><value>Server-Paged Grid</value></data>
+  <data name="Reports_OpenReport" xml:space="preserve"><value>Open Report</value></data>
+  <data name="Reports_NoMatchingReports" xml:space="preserve"><value>No matching reports found</value></data>
+  <data name="Reports_TryDifferentSearch" xml:space="preserve"><value>Try another keyword or switch category tabs above.</value></data>
+  <data name="Reports_ExportExcel" xml:space="preserve"><value>Excel</value></data>
+  <data name="Reports_AllReports" xml:space="preserve"><value>All Reports</value></data>
+  <data name="Reports_Preset_Today" xml:space="preserve"><value>Today</value></data>
+  <data name="Reports_Preset_Yesterday" xml:space="preserve"><value>Yesterday</value></data>
+  <data name="Reports_Preset_ThisWeek" xml:space="preserve"><value>This week</value></data>
+  <data name="Reports_Preset_ThisMonth" xml:space="preserve"><value>This month</value></data>
+  <data name="Reports_Preset_LastMonth" xml:space="preserve"><value>Last month</value></data>
+  <data name="Reports_Preset_ThisFY" xml:space="preserve"><value>This FY</value></data>
+  <data name="Reports_Preset_Custom" xml:space="preserve"><value>Custom</value></data>
+  <data name="Reports_Filter_Shift" xml:space="preserve"><value>Shift</value></data>
+  <data name="Reports_Filter_Waiter" xml:space="preserve"><value>Waiter / Staff</value></data>
+  <data name="Reports_Filter_OrderType" xml:space="preserve"><value>Order Type</value></data>
+  <data name="Reports_Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="Reports_Reset" xml:space="preserve"><value>Reset</value></data>
+  <data name="Reports_NoDataForFilters" xml:space="preserve"><value>No data for the selected filters</value></data>
+  <data name="Reports_NoDataHint" xml:space="preserve"><value>Adjust the date range or reset filters to view matching records.</value></data>
+  <data name="Reports_ErrorTitle" xml:space="preserve"><value>Unable to load report</value></data>
+  <data name="Reports_ErrorFallback" xml:space="preserve"><value>Something went wrong while fetching report data. Please try again.</value></data>
+  <data name="Reports_Retry" xml:space="preserve"><value>Retry</value></data>
+  <data name="Reports_InteractiveChart" xml:space="preserve"><value>Visual Trend</value></data>
+  <data name="Reports_DrillDownHint" xml:space="preserve"><value>Click any row (table, item, bill, customer or staff) to inspect full details in the drawer</value></data>
+  <data name="Reports_RowsPerPage" xml:space="preserve"><value>Rows</value></data>
+  <data name="Val_MobileFormat" xml:space="preserve"><value>Enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.</value></data>
+  <data name="Val_EmailFormat" xml:space="preserve"><value>Enter a valid email address (e.g. name@example.com).</value></data>
+  <data name="Val_GstinFormat" xml:space="preserve"><value>Enter a valid 15-character GSTIN with correct checksum (e.g. 27AAAAA0000A1Z5).</value></data>
+  <data name="Val_PanFormat" xml:space="preserve"><value>Enter a valid 10-character PAN (e.g. ABCDE1234F).</value></data>
+  <data name="Val_UpiIdFormat" xml:space="preserve"><value>Enter a valid UPI ID (e.g. hotelname@okhdfc).</value></data>
+  <data name="Val_DuplicateRecord" xml:space="preserve"><value>A {0} with {1} '{2}' already exists. Enter a unique {1}.</value></data>
+  <data name="Val_DeleteInUse" xml:space="preserve"><value>Cannot delete, used in {0} bills. Deactivate instead</value></data>
+  <data name="Val_ConcurrencyConflict" xml:space="preserve"><value>This record was updated by another user while you were editing. Reload the latest data and apply your changes again.</value></data>
+  <data name="Val_LockedAccountingPeriod" xml:space="preserve"><value>Transactions on {0} are blocked because accounting is locked up to {1}.</value></data>
+  <data name="Val_LockedAttendanceMonth" xml:space="preserve"><value>Attendance for {0} is locked after payroll finalization and cannot be edited.</value></data>
+  <data name="Val_TableOccupied" xml:space="preserve"><value>Table {0} is already occupied. Open the running order or select a free table.</value></data>
+  <data name="Val_TableMoveRunningKot" xml:space="preserve"><value>Table {0} has {1} active KOT(s) in kitchen. Confirm KOT transfer to {2} before moving.</value></data>
+  <data name="Val_NegativeStockBlocked" xml:space="preserve"><value>Insufficient stock for {0}. Negative stock is blocked by hotel settings.</value></data>
+  <data name="Val_WastageReasonRequired" xml:space="preserve"><value>Wastage reason is required.</value></data>
+  <data name="Val_DuplicateSupplierInvoice" xml:space="preserve"><value>Invoice '{0}' has already been recorded for {1}.</value></data>
+  <data name="Val_FutureDateBlocked" xml:space="preserve"><value>Date cannot be in the future.</value></data>
+  <data name="Val_SessionTimeoutCartSaved" xml:space="preserve"><value>Your POS cart has been safely saved. Sign in again to resume billing without losing items.</value></data>
+  <data name="Val_OfflineToast" xml:space="preserve"><value>You are offline. Unsaved changes are kept in the form until your connection returns.</value></data>
+  <data name="Val_VoucherUnbalanced" xml:space="preserve"><value>Total Debit must equal Total Credit before posting the voucher.</value></data>
+  <data name="Val_ManagerOverrideReason" xml:space="preserve"><value>Enter a clear manager override reason before proceeding.</value></data>
+  <data name="Val_ImageUploadInvalid" xml:space="preserve"><value>Upload a valid JPG, PNG or WEBP image up to 2 MB (or PDF up to 5 MB for invoices).</value></data>
 </root>

@@ -1,7 +1,9 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using RestaurantMS.Application.Common.Interfaces;
 using RestaurantMS.Application.Common.Interfaces.UiData;
-using RestaurantMS.Domain.Constants;
+using RestaurantMS.Application.Common.Models.Staff;
 using RestaurantMS.Web.Models;
 
 namespace RestaurantMS.Web.Controllers;
@@ -10,130 +12,171 @@ namespace RestaurantMS.Web.Controllers;
 public class StaffController : Controller
 {
     private readonly IStaffUiData _staffUiData;
+    private readonly IEmployeeAdvancesUiData _advancesUiData;
+    private readonly ISettingService _settingService;
+    private readonly IDateTime _dateTime;
 
-    public StaffController(IStaffUiData staffUiData)
+    public StaffController(
+        IStaffUiData staffUiData,
+        IEmployeeAdvancesUiData advancesUiData,
+        ISettingService settingService,
+        IDateTime dateTime)
     {
         _staffUiData = staffUiData;
+        _advancesUiData = advancesUiData;
+        _settingService = settingService;
+        _dateTime = dateTime;
     }
 
     [HttpGet]
-    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    public async Task<IActionResult> Index(
+        string? tab = null,
+        DateTime? date = null,
+        int? month = null,
+        int? year = null,
+        long? calendarStaffId = null,
+        bool? autoRecover = null,
+        string? search = null,
+        CancellationToken cancellationToken = default)
     {
-        var staffMembers = await _staffUiData.GetAllStaffAsync(cancellationToken);
+        var activeTab = NormalizeTab(tab);
+        var viewModel = await BuildHubViewModelAsync(activeTab, date, month, year, calendarStaffId, autoRecover ?? true, search, cancellationToken);
+        return View("Index", viewModel);
+    }
 
-        var viewModel = new StaffListViewModel
-        {
-            StaffMembers = staffMembers,
-            TotalStaff = staffMembers.Count,
-            PresentToday = staffMembers.Count(s => s.IsOnDuty),
-            OnLeaveToday = staffMembers.Count(s => !s.IsOnDuty)
-        };
+    [HttpGet]
+    public async Task<IActionResult> Attendance(
+        [FromQuery] DateTime? date = null,
+        [FromQuery] int? month = null,
+        [FromQuery] int? year = null,
+        [FromQuery] long? calendarStaffId = null,
+        CancellationToken cancellationToken = default)
+    {
+        var viewModel = await BuildHubViewModelAsync("attendance", date, month, year, calendarStaffId, true, null, cancellationToken);
+        return View("Index", viewModel);
+    }
 
-        return View(viewModel);
+    [HttpGet]
+    public async Task<IActionResult> SalaryReport(
+        [FromQuery] int? month = null,
+        [FromQuery] int? year = null,
+        [FromQuery] bool? autoRecover = null,
+        CancellationToken cancellationToken = default)
+    {
+        var viewModel = await BuildHubViewModelAsync("salary", null, month, year, null, autoRecover ?? true, null, cancellationToken);
+        return View("Index", viewModel);
+    }
+
+    [HttpGet]
+    public IActionResult Advances()
+    {
+        return RedirectToActionPermanent("Index", "EmployeeAdvances");
     }
 
     [HttpGet]
     public IActionResult Create()
     {
-        var viewModel = new StaffFormViewModel();
-        return View(viewModel);
+        return View(new StaffFormViewModel { JoiningDate = _dateTime.UtcNow.Date });
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(StaffFormViewModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> Create(StaffFormViewModel model, string? submitAction = null, CancellationToken cancellationToken = default)
     {
         if (!ModelState.IsValid)
         {
             return View(model);
         }
 
-        await _staffUiData.SaveStaffMemberAsync(model.FullName, model.Role, model.MobileNumber, model.Shift, cancellationToken);
-        TempData["SuccessMessage"] = $"Staff member '{model.FullName}' added successfully!";
-        return RedirectToAction(nameof(Index));
+        var saved = await _staffUiData.SaveStaffProfileAsync(MapToProfile(model), cancellationToken);
+        TempData["SuccessMessage"] = $"Staff member '{saved.Name}' saved successfully.";
+        TempData["HighlightedRow"] = saved.EmployeeCode;
+        if (string.Equals(submitAction, "saveAndNew", StringComparison.OrdinalIgnoreCase))
+        {
+            return RedirectToAction(nameof(Create));
+        }
+
+        return RedirectToAction(nameof(Index), new { tab = "list" });
     }
 
     [HttpGet]
-    public async Task<IActionResult> Details(long id, CancellationToken cancellationToken)
+    public async Task<IActionResult> Edit(long id, CancellationToken cancellationToken)
     {
-        var all = await _staffUiData.GetAllStaffAsync(cancellationToken);
-        var staff = all.FirstOrDefault(s => s.Id == id) ?? all.FirstOrDefault();
-
-        var viewModel = new StaffDetailsViewModel
+        var profile = await _staffUiData.GetStaffProfileByIdAsync(id, cancellationToken);
+        if (profile is null)
         {
-            Id = staff?.Id ?? id,
-            EmployeeCode = staff?.EmployeeCode ?? $"EMP-{id:D3}",
-            FullName = staff?.Name ?? "Suresh Patil",
-            Role = staff?.Role ?? "Head Waiter",
-            MobileNumber = staff?.Mobile ?? "9822114455",
-            Shift = staff?.Shift ?? "Dinner (04:00 PM - 11:30 PM)",
-            Email = $"{(staff?.Name ?? "staff").ToLowerInvariant().Replace(" ", ".")}@restaurant.local",
-            MonthlySalary = staff?.Role switch
-            {
-                "Head Chef" => 35000m,
-                "Captain" => 24000m,
-                "Cashier" => 20000m,
-                "Head Waiter" => 22000m,
-                "Kitchen Assistant" => 14000m,
-                _ => 16000m
-            },
-            TotalAdvanceBalance = 2500m,
-            JoiningDate = new DateTime(2024, 2, 1),
-            BankAccountOrUpi = $"{staff?.Mobile ?? "9822114455"}@okhdfc / HDFC0001234",
-            AadhaarNumber = "XXXX-XXXX-4812",
-            EmergencyContact = "Pravin Patil (Brother) - 9822998877",
-            DaysPresentThisMonth = 25,
-            DaysAbsentThisMonth = 2,
-            TotalSalesHandled = 184500m
+            return NotFound();
+        }
+
+        var model = new StaffFormViewModel
+        {
+            Id = profile.Id,
+            EmployeeCode = profile.EmployeeCode,
+            FullName = profile.Name,
+            Role = profile.Designation,
+            MobileNumber = profile.Mobile,
+            Shift = profile.Shift,
+            SalaryType = profile.SalaryType,
+            MonthlySalary = profile.BasicSalary,
+            JoiningDate = profile.JoiningDate,
+            IdProof = profile.IdProof,
+            BankOrUpi = profile.BankOrUpi,
+            PhotoUrl = profile.PhotoUrl,
+            IsActive = profile.IsActive
         };
 
-        return View(viewModel);
+        return View("Create", model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(StaffFormViewModel model, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return View("Create", model);
+        }
+
+        await _staffUiData.SaveStaffProfileAsync(MapToProfile(model), cancellationToken);
+        TempData["SuccessMessage"] = $"Staff profile '{model.FullName}' updated successfully.";
+        return RedirectToAction(nameof(Details), new { id = model.Id });
     }
 
     [HttpGet]
-    public async Task<IActionResult> Attendance([FromQuery] DateTime? date, CancellationToken cancellationToken)
+    public async Task<IActionResult> Details(long id, string? tab = null, int? month = null, int? year = null, CancellationToken cancellationToken = default)
     {
-        var selectedDate = date ?? DateTime.UtcNow;
-        var staffMembers = await _staffUiData.GetAllStaffAsync(cancellationToken);
-
-        var rows = staffMembers.Select(s => new StaffAttendanceRowModel
+        var profile = await _staffUiData.GetStaffProfileByIdAsync(id, cancellationToken);
+        if (profile is null)
         {
-            StaffId = s.Id,
-            EmployeeCode = s.EmployeeCode,
-            FullName = s.Name,
-            Role = s.Role,
-            Shift = s.Shift,
-            Status = s.IsOnDuty ? "Present" : "Leave",
-            InTime = s.IsOnDuty ? "10:15 AM" : "-",
-            OutTime = s.IsOnDuty ? "10:30 PM" : "-",
-            HoursWorked = s.IsOnDuty ? 8.5m : 0.0m,
-            Remarks = s.IsOnDuty ? "On Duty" : "Approved Leave"
-        }).ToList();
+            var all = await _staffUiData.GetStaffProfilesAsync(cancellationToken: cancellationToken);
+            profile = all.FirstOrDefault();
+            if (profile is null) return NotFound();
+        }
 
-        var viewModel = new StaffAttendanceViewModel
+        var now = _dateTime.UtcNow;
+        var selectedMonth = month ?? now.Month;
+        var selectedYear = year ?? now.Year;
+        var activeTab = (tab ?? "details").Trim().ToLowerInvariant();
+        if (activeTab is not ("details" or "attendance" or "advances" or "salary"))
         {
-            AttendanceDate = selectedDate,
-            AttendanceList = rows
-        };
+            activeTab = "details";
+        }
 
-        return View(viewModel);
-    }
+        var calendar = await _staffUiData.GetMonthlyCalendarAsync(profile.Id, selectedMonth, selectedYear, cancellationToken);
+        var advSummary = await _advancesUiData.GetEmployeeSummaryAsync(profile.Id, cancellationToken);
+        var advLedger = await _advancesUiData.GetEmployeeLedgerAsync(profile.Id, cancellationToken);
+        var salaryHistory = await _staffUiData.GetStaffSalaryHistoryAsync(profile.Id, cancellationToken);
 
-    [HttpGet]
-    public IActionResult Advances()
-    {
-        var advances = new List<StaffAdvanceRowModel>
+        var viewModel = new StaffProfilePageViewModel
         {
-            new() { Id = 1, VoucherNumber = "ADV-2026-001", DateFormatted = "12 Nov 2026", EmployeeName = "Suresh Patil", Role = "Head Waiter", AdvanceAmount = 5000, RecoveredAmount = 2500, PaymentMode = "Cash", Reason = "Family Medical Emergency", Status = "PartiallyDeducted" },
-            new() { Id = 2, VoucherNumber = "ADV-2026-002", DateFormatted = "14 Nov 2026", EmployeeName = "Anil Deshmukh", Role = "Waiter", AdvanceAmount = 3000, RecoveredAmount = 0, PaymentMode = "UPI", Reason = "Diwali Festival Expenses", Status = "Pending" },
-            new() { Id = 3, VoucherNumber = "ADV-2026-003", DateFormatted = "05 Nov 2026", EmployeeName = "Meena Jadhav", Role = "Captain", AdvanceAmount = 4000, RecoveredAmount = 4000, PaymentMode = "Cash", Reason = "Travel & Commute Expense", Status = "Settled" },
-            new() { Id = 4, VoucherNumber = "ADV-2026-004", DateFormatted = "16 Nov 2026", EmployeeName = "Chef Rakesh", Role = "Head Chef", AdvanceAmount = 10000, RecoveredAmount = 2000, PaymentMode = "Bank Transfer", Reason = "Child School Fees", Status = "PartiallyDeducted" },
-            new() { Id = 5, VoucherNumber = "ADV-2026-005", DateFormatted = "10 Nov 2026", EmployeeName = "Prakash Shinde", Role = "Cashier", AdvanceAmount = 2000, RecoveredAmount = 2000, PaymentMode = "Cash", Reason = "Urgent Personal Advance", Status = "Settled" }
-        };
-
-        var viewModel = new StaffAdvanceViewModel
-        {
-            Advances = advances
+            ActiveTab = activeTab,
+            Profile = profile,
+            SelectedMonth = selectedMonth,
+            SelectedYear = selectedYear,
+            MonthlyCalendar = calendar,
+            AdvanceSummary = advSummary,
+            RecentAdvances = advLedger.Take(5).ToList(),
+            SalaryHistory = salaryHistory
         };
 
         return View(viewModel);
@@ -141,33 +184,108 @@ public class StaffController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult RecordAdvance(string employeeName, decimal amount, string paymentMode, string reason)
+    public async Task<IActionResult> SaveAttendance(
+        long staffId,
+        DateTime date,
+        string status,
+        string inTime,
+        string outTime,
+        decimal overtimeHours,
+        string? remarks,
+        CancellationToken cancellationToken)
     {
-        TempData["SuccessMessage"] = $"Advance of ₹{amount:N0} recorded for '{employeeName}' successfully!";
-        return RedirectToAction(nameof(Advances));
+        var result = await _staffUiData.SaveAttendanceEntryAsync(staffId, date, status, inTime, outTime, overtimeHours, remarks ?? string.Empty, cancellationToken);
+        if (Request.Headers.XRequestedWith == "XMLHttpRequest")
+        {
+            return Json(new { isSuccess = result.IsSuccess, value = result.IsSuccess ? result.Value : false, error = result.IsFailure ? result.Error.Description : null });
+        }
+
+        if (result.IsFailure)
+        {
+            TempData["ErrorMessage"] = result.Error.Description;
+        }
+        else
+        {
+            TempData["SuccessMessage"] = "Attendance updated.";
+        }
+
+        return RedirectToAction(nameof(Index), new { tab = "attendance", date = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarkAllPresent(DateTime date, CancellationToken cancellationToken)
+    {
+        var result = await _staffUiData.MarkAllPresentAsync(date, cancellationToken);
+        if (result.IsFailure)
+        {
+            TempData["ErrorMessage"] = result.Error.Description;
+        }
+        else
+        {
+            TempData["SuccessMessage"] = $"Marked {result.Value} active staff members Present for {date:dd MMM yyyy}.";
+        }
+
+        return RedirectToAction(nameof(Index), new { tab = "attendance", date = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleMonthLock(int month, int year, bool locked, string? returnTab, CancellationToken cancellationToken)
+    {
+        var result = await _staffUiData.SetMonthLockAsync(month, year, locked, cancellationToken);
+        var monthLabel = new DateTime(year, month, 1).ToString("MMMM yyyy", CultureInfo.InvariantCulture);
+        TempData["SuccessMessage"] = result.Value
+            ? $"Payroll month {monthLabel} is now LOCKED. Attendance cannot be edited."
+            : $"Payroll month {monthLabel} unlocked.";
+
+        return RedirectToAction(nameof(Index), new { tab = NormalizeTab(returnTab), month, year });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> MarkSalaryPaid(long staffId, int month, int year, bool autoRecover, CancellationToken cancellationToken)
+    {
+        var result = await _staffUiData.MarkSalaryPaidAsync(staffId, month, year, autoRecover, cancellationToken);
+        if (result.IsFailure)
+        {
+            TempData["ErrorMessage"] = result.Error.Description;
+        }
+        else
+        {
+            var voucherNote = !string.IsNullOrEmpty(result.Value.RecoveryVoucherNumber)
+                ? $" Advance recovery posted ({result.Value.RecoveryVoucherNumber})."
+                : string.Empty;
+            TempData["SuccessMessage"] = $"Salary marked Paid for {result.Value.EmployeeName} (Net ₹{result.Value.NetPayable:N2}).{voucherNote}";
+        }
+
+        return RedirectToAction(nameof(Index), new { tab = "salary", month, year, autoRecover });
     }
 
     [HttpGet]
-    public IActionResult SalaryReport([FromQuery] int? month, [FromQuery] int? year)
+    public async Task<IActionResult> Payslip(long staffId, int? month = null, int? year = null, bool? autoRecover = null, CancellationToken cancellationToken = default)
     {
-        var selectedMonth = month ?? DateTime.UtcNow.Month;
-        var selectedYear = year ?? DateTime.UtcNow.Year;
+        var now = _dateTime.UtcNow;
+        var selectedMonth = month ?? now.Month;
+        var selectedYear = year ?? now.Year;
 
-        var salaries = new List<SalaryRowModel>
+        var profile = await _staffUiData.GetStaffProfileByIdAsync(staffId, cancellationToken);
+        var salary = await _staffUiData.GetPayslipAsync(staffId, selectedMonth, selectedYear, autoRecover ?? true, cancellationToken);
+        if (profile is null || salary is null)
         {
-            new() { StaffId = 1, EmployeeCode = "EMP-001", EmployeeName = "Suresh Patil", Designation = "Head Waiter", MonthlyBaseSalary = 22000, TotalDaysInMonth = 30, AttendedDays = 29, GrossEarnedSalary = 21266, AdvanceDeduction = 2500, OvertimeBonus = 1200, PaymentStatus = "Pending" },
-            new() { StaffId = 2, EmployeeCode = "EMP-002", EmployeeName = "Anil Deshmukh", Designation = "Waiter", MonthlyBaseSalary = 16000, TotalDaysInMonth = 30, AttendedDays = 27, GrossEarnedSalary = 14400, AdvanceDeduction = 1500, OvertimeBonus = 600, PaymentStatus = "Paid", PaymentDate = "01 Nov 2026" },
-            new() { StaffId = 3, EmployeeCode = "EMP-003", EmployeeName = "Meena Jadhav", Designation = "Captain", MonthlyBaseSalary = 24000, TotalDaysInMonth = 30, AttendedDays = 30, GrossEarnedSalary = 24000, AdvanceDeduction = 0, OvertimeBonus = 2000, PaymentStatus = "Paid", PaymentDate = "01 Nov 2026" },
-            new() { StaffId = 4, EmployeeCode = "EMP-004", EmployeeName = "Chef Rakesh", Designation = "Head Chef", MonthlyBaseSalary = 35000, TotalDaysInMonth = 30, AttendedDays = 28, GrossEarnedSalary = 32666, AdvanceDeduction = 4000, OvertimeBonus = 3500, PaymentStatus = "Pending" },
-            new() { StaffId = 5, EmployeeCode = "EMP-005", EmployeeName = "Prakash Shinde", Designation = "Cashier", MonthlyBaseSalary = 20000, TotalDaysInMonth = 30, AttendedDays = 30, GrossEarnedSalary = 20000, AdvanceDeduction = 1000, OvertimeBonus = 800, PaymentStatus = "Paid", PaymentDate = "01 Nov 2026" },
-            new() { StaffId = 6, EmployeeCode = "EMP-006", EmployeeName = "Kavita Pawar", Designation = "Kitchen Assistant", MonthlyBaseSalary = 14000, TotalDaysInMonth = 30, AttendedDays = 26, GrossEarnedSalary = 12133, AdvanceDeduction = 500, OvertimeBonus = 400, PaymentStatus = "Pending" }
-        };
+            return NotFound();
+        }
 
-        var viewModel = new SalaryReportViewModel
+        var hotelName = await _settingService.GetSettingAsync("HotelNameEn", "Grand Restaurant", cancellationToken);
+        var hotelAddress = await _settingService.GetSettingAsync("Address", "123 Main Street, Pune, MH, India", cancellationToken);
+
+        var viewModel = new PayslipViewModel
         {
-            Month = selectedMonth,
-            Year = selectedYear,
-            Salaries = salaries
+            HotelName = hotelName,
+            HotelAddress = hotelAddress,
+            Profile = profile,
+            Salary = salary,
+            MonthYearLabel = new DateTime(selectedYear, selectedMonth, 1).ToString("MMMM yyyy", CultureInfo.InvariantCulture)
         };
 
         return View(viewModel);
@@ -176,8 +294,8 @@ public class StaffController : Controller
     [HttpGet]
     public IActionResult EmployeeReport([FromQuery] DateTime? from, [FromQuery] DateTime? to)
     {
-        var fromDate = from ?? DateTime.UtcNow.AddDays(-30);
-        var toDate = to ?? DateTime.UtcNow;
+        var fromDate = from ?? _dateTime.UtcNow.AddDays(-30);
+        var toDate = to ?? _dateTime.UtcNow;
 
         var employees = new List<EmployeePerformanceRowModel>
         {
@@ -189,13 +307,77 @@ public class StaffController : Controller
             new() { StaffId = 6, EmployeeName = "Kavita Pawar", Designation = "Kitchen Assistant", ShiftsAttended = 26, AttendancePercentage = 86.6m, TablesServed = 0, OrdersPunched = 210, TotalSalesValue = 110000, Rating = 4.6m }
         };
 
-        var viewModel = new EmployeeReportViewModel
-        {
-            FromDate = fromDate,
-            ToDate = toDate,
-            Employees = employees
-        };
-
-        return View(viewModel);
+        return View(new EmployeeReportViewModel { FromDate = fromDate, ToDate = toDate, Employees = employees });
     }
+
+    private async Task<StaffHubViewModel> BuildHubViewModelAsync(
+        string activeTab,
+        DateTime? date,
+        int? month,
+        int? year,
+        long? calendarStaffId,
+        bool autoRecover,
+        string? search,
+        CancellationToken cancellationToken)
+    {
+        var today = _dateTime.UtcNow.Date;
+        var selectedDate = date?.Date ?? today;
+        var selectedMonth = month ?? selectedDate.Month;
+        var selectedYear = year ?? selectedDate.Year;
+
+        var profiles = await _staffUiData.GetStaffProfilesAsync(search, cancellationToken);
+        var allProfiles = string.IsNullOrWhiteSpace(search)
+            ? profiles
+            : await _staffUiData.GetStaffProfilesAsync(null, cancellationToken);
+
+        var dailyAttendance = await _staffUiData.GetDailyAttendanceAsync(selectedDate, cancellationToken);
+        var calStaffId = calendarStaffId ?? allProfiles.FirstOrDefault(p => p.IsActive)?.Id ?? 1;
+        var calendar = await _staffUiData.GetMonthlyCalendarAsync(calStaffId, selectedMonth, selectedYear, cancellationToken);
+        var isLocked = await _staffUiData.IsMonthLockedAsync(selectedMonth, selectedYear, cancellationToken);
+        var salaryRows = await _staffUiData.GetSalaryStatementAsync(selectedMonth, selectedYear, autoRecover, cancellationToken);
+
+        return new StaffHubViewModel
+        {
+            ActiveTab = activeTab,
+            Search = search,
+            TotalStaff = allProfiles.Count,
+            ActiveStaff = allProfiles.Count(p => p.IsActive),
+            PresentToday = dailyAttendance.Count(a => a.Status is "Present" or "HalfDay"),
+            MonthlyPayrollEstimate = salaryRows.Sum(s => s.NetPayable),
+            StaffProfiles = profiles,
+            SelectedDate = selectedDate,
+            SelectedMonth = selectedMonth,
+            SelectedYear = selectedYear,
+            SelectedCalendarStaffId = calStaffId,
+            IsMonthLocked = isLocked,
+            DailyAttendance = dailyAttendance,
+            MonthlyCalendar = calendar,
+            AutoRecoverAdvance = autoRecover,
+            SalaryRows = salaryRows,
+            TotalNetPayroll = salaryRows.Sum(s => s.NetPayable),
+            TotalAdvanceRecovery = salaryRows.Sum(s => s.AdvanceRecovery)
+        };
+    }
+
+    private static string NormalizeTab(string? tab)
+    {
+        var normalized = (tab ?? "list").Trim().ToLowerInvariant();
+        return normalized is "list" or "attendance" or "salary" ? normalized : "list";
+    }
+
+    private static StaffProfileDto MapToProfile(StaffFormViewModel model) => new(
+        model.Id,
+        model.EmployeeCode,
+        model.FullName,
+        model.MobileNumber,
+        model.Role,
+        model.Shift,
+        model.JoiningDate,
+        model.SalaryType,
+        model.MonthlySalary,
+        model.IdProof,
+        model.BankOrUpi,
+        model.PhotoUrl,
+        model.IsActive,
+        string.Equals(model.SalaryType, "Daily", StringComparison.OrdinalIgnoreCase) ? model.MonthlySalary * 30m : model.MonthlySalary);
 }
